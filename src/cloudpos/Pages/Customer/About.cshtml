@@ -1,0 +1,51 @@
+@page
+@model About
+<div class="fixed-top container d-flex" style="padding: 8px 16px; backdrop-filter: blur(3px)">
+    <a class="nav-link" href="/Customer/Authorize">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-top: 6px">
+            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+        </svg>
+    </a>
+    <h6 class="m-0 text-center flex-grow-1" style="line-height: 32px">도움말</h6>
+    <hr class="m-0"/>
+</div>
+<div class="container p-4" style="padding-top: 60px !important;">
+    <section class="fw-light lh-base">
+        <h2 class="fw-bold">개요</h2>
+        <p>본 웹 POS(Point-of-Sale) 시스템은 BYOD(Bring Your Own Device) 환경을 위해 설계된 셀프 주문 서비스입니다. 손님은 매장 입장 시 발급받은 일회용 인증 코드를 이용해 자신의 스마트폰에서 주문 페이지에 접속할 수 있습니다.</p>
+        <p>코드가 유효한 동안 같은 테이블의 여러 기기가 동시에 접속해 주문·결제 요청·주문 내역 확인을 수행할 수 있으며, 직원 호출 없이도 편리한 비대면 서비스를 경험할 수 있습니다.</p>
+    </section>
+    <hr class="mt-4 mb-4"/>
+    <section>  
+        <h2 class="fw-bold">이용 절차</h2>
+        <ol class="lh-lg">
+            <li>입장 및 코드 발급
+                <ul class="lh-base fw-light">
+                    <li>테이블에 착석하면 직원이 4자리 일회용 인증 코드를 제공합니다.</li>
+                    <li>코드는 발급 시점부터 계산 요청시까지 유효합니다.</li>
+                </ul></li>
+            <li>접속
+                <ul class="lh-base fw-light">
+                    <li>스마트폰에서 테이블 QR 코드를 스캔하여 주문 페이지를 엽니다.</li>
+                    <li>인증 코드 인력란에 발급받은 코드를 입력하면 해당 테이블로 연결됩니다.</li>
+                </ul></li>
+            <li>메뉴 확인 및 주문
+                <ul class="lh-base fw-light">
+                    <li>카테고리별 메뉴를 탐색하고 수량 및 옵션을 선택합니다.</li>
+                    <li>주문 담기 버튼을 눌러 장바구니에 추가합니다.</li>
+                </ul></li>
+            <li>주문 전송
+                <ul class="lh-base fw-light">
+                    <li>장바구니 확인 후 <strong>주문 확정</strong>을 누르면 카운터로 주문이 전송됩니다.</li>
+                    <li>같은 테이블의 다른 기기에서도 실시간으로 주문 내역이 동기화됩니다.</li>
+                </ul></li>
+            <li>주문 내역 확인
+                <ul class="lh-base fw-light">
+                    <li>식사 중 추가 주문이 필요하면 동일 과정을 반복합니다.</li>
+                    <li><strong>내 주문</strong> 매뉴에서 테이블의 전체 주문 내역과 총액, 조리 상태를 확인 할 수 있습니다.</li>
+                </ul></li>
+            <li>계산 요청 및 종료</li>
+    </ol>
+    </section>
+
+</div>

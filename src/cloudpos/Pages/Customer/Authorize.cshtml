@@ -1,0 +1,40 @@
+@page
+@model Authorize
+
+@if (Model.Message is not null)
+{
+    <div class="alert alert-warning m-3 fixed-top shadow" style="border-radius: 28px;" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; margin-right: 10px">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+        </svg>
+        @Model.Message
+    </div>
+}
+
+<div class="container d-flex justify-content-center align-items-center full-height" style="max-width: 500px">
+    <div class="align-self-center p-3 w-100">
+        <h1 class="display-1">👋</h1>
+        <h2 class="fw-bold">환영합니다!</h2>
+        <h3 class="fw-light text-secondary">@Model.WelcomeMessage</h3>
+        <hr class="mb-5 mt-5"/>
+        <div id="authcode-container" class="mb-4 d-flex align-items-center justify-content-center flex-nowrap">
+            <input id="code-1" class="code-input m-0" type="text" maxlength="1" autocomplete="off"/>
+            <input id="code-2" class="code-input" type="text" maxlength="1" autocomplete="off"/>
+            <input id="code-3" class="code-input" type="text" maxlength="1" autocomplete="off"/>
+            <input id="code-4" class="code-input" type="text" maxlength="1" autocomplete="off"/>
+        </div>
+        <h6 class="fw-light text-center m-0">주문을 시작하려면, 인증 코드를 입력하세요.</h6>
+        <div class="d-flex justify-content-center align-items-center w-100 gap-4 mt-4 mb-4">
+            <a asp-page="About">도움말 및 개인정보처리방침</a>
+        </div>
+    </div>
+</div>
+
+<form id="auth-hidden-form" class="d-none" method="post">
+    <input id="auth-hidden-form-authcode" type="text" name="code" />
+</form>
+
+@section Scripts
+{
+    <script src="~/js/authorize.js"></script>
+}

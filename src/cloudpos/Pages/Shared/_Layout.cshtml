@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="~/"/>
+    <!--Preload Script-->
+    <script>
+        const getColorScheme = () => {
+            const x = parseInt(localStorage.getItem("preferredColorScheme"));
+            if (isNaN(x) || x > 2 || x < 0) return 0;
+            return x;
+        }
+        
+        const setColorScheme = (x) => {
+            let scheme;
+            if(x == "1") scheme = "light";
+            else if(x == "2") scheme = "dark";
+            else scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+            document.documentElement.setAttribute('data-bs-theme', scheme);
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const storedTheme = getColorScheme();
+            if (storedTheme === 0) setColorScheme(0);
+        })
+        setColorScheme(getColorScheme());
+        
+        let vh = window.innerHeight * 0.01
+        document.documentElement.style.setProperty('--vh', `${vh}px`)
+        window.addEventListener('resize', () => {
+            let vh = window.innerHeight * 0.01
+            document.documentElement.style.setProperty('--vh', `${vh}px`)
+        });
+    </script>
+    
+    <!--Vendor CSS-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
+    
+    <!--Site-Specific CSS-->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <component type="typeof(Microsoft.AspNetCore.Components.Web.HeadOutlet)"
+               render-mode="ServerPrerendered" />
+</head>
+<body>
+    @RenderBody()
+    
+    <!--Vendor-Specific JS-->
+    <script src="~/_framework/blazor.server.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!--Page-Specific JS-->
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Templates -->
+    <template id="modal-template">
+        <div class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+                <div class="modal-content border-0 rounded-01shadow-lg bg-body-tertiary">
+                    <div class="px-4 pt-4 modal-title">
+                        <h5 class="fw-semibold mb-2"></h5>
+                    </div>
+                    <div class="px-4 modal-body">
+                        <p class="fs-6 lh-base mb-0 fw-light"></p>
+                    </div>
+                    <div class="d-flex justify-content-end gap-3 px-4 pb-4">
+                        <button type="button"
+                                class="btn btn-outline-secondary px-3"
+                                data-answer="no">
+                            취소
+                        </button>
+                        <button type="button"
+                                class="btn btn-primary px-3"
+                                data-answer="yes">
+                            확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</body>
+</html>
