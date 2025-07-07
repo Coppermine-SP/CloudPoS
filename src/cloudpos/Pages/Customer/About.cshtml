@@ -1,23 +1,24 @@
 @page
 @model About
-<div class="fixed-top container d-flex" style="padding: 8px 16px; backdrop-filter: blur(3px)">
-    <a class="nav-link" href="/Customer/Authorize">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-top: 6px">
-            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
-        </svg>
-    </a>
-    <h6 class="m-0 text-center flex-grow-1" style="line-height: 32px">도움말</h6>
-    <hr class="m-0"/>
+<div class="fixed-top shadow" style="padding: 8px 16px; backdrop-filter: blur(3px)">
+    <div class="container d-flex ">
+        <a class="nav-link" href="/Customer/Authorize">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-top: 6px">
+                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+            </svg>
+        </a>
+        <h6 class="m-0 text-center flex-grow-1" style="line-height: 32px">도움말</h6>
+    </div>
 </div>
-<div class="container p-4" style="padding-top: 60px !important;">
+<div class="container p-4 mt-3" style="padding-top: 60px !important;">
     <section class="fw-light lh-base">
-        <h2 class="fw-bold">개요</h2>
-        <p>본 웹 POS(Point-of-Sale) 시스템은 BYOD(Bring Your Own Device) 환경을 위해 설계된 셀프 주문 서비스입니다. 손님은 매장 입장 시 발급받은 일회용 인증 코드를 이용해 자신의 스마트폰에서 주문 페이지에 접속할 수 있습니다.</p>
+        <h4 class="fw-bold">개요</h4>
+        <p>본 웹 어플리케이션은 셀프 주문 서비스입니다.<br/> 손님은 매장 입장 시 발급받은 일회용 인증 코드를 이용해 자신의 스마트폰에서 주문 페이지에 접속할 수 있습니다.</p>
         <p>코드가 유효한 동안 같은 테이블의 여러 기기가 동시에 접속해 주문·결제 요청·주문 내역 확인을 수행할 수 있으며, 직원 호출 없이도 편리한 비대면 서비스를 경험할 수 있습니다.</p>
     </section>
     <hr class="mt-4 mb-4"/>
     <section>  
-        <h2 class="fw-bold">이용 절차</h2>
+        <h4 class="fw-bold">이용 절차</h4>
         <ol class="lh-lg">
             <li>입장 및 코드 발급
                 <ul class="lh-base fw-light">
@@ -42,10 +43,30 @@
             <li>주문 내역 확인
                 <ul class="lh-base fw-light">
                     <li>식사 중 추가 주문이 필요하면 동일 과정을 반복합니다.</li>
-                    <li><strong>내 주문</strong> 매뉴에서 테이블의 전체 주문 내역과 총액, 조리 상태를 확인 할 수 있습니다.</li>
+                    <li><strong>주문 내역</strong> 매뉴에서 테이블의 전체 주문 내역과 총액, 조리 상태를 확인 할 수 있습니다.</li>
                 </ul></li>
-            <li>계산 요청 및 종료</li>
-    </ol>
+            <li>계산 요청 및 종료
+                <ul class="lh-base fw-light">
+                    <li><strong>주문 내역</strong> 매뉴에서 계산 요청을 할 수 있습니다.</li>
+                    <li>점원에게 해당 화면을 제시하고 계산 요청을 완료하세요.</li>
+                </ul></li>
+        </ol>
     </section>
-
+    <hr class="mt-4 mb-4"/>
+    <section>
+        <h4 class="fw-bold">개인정보 보호</h4>
+    </section>
+    <hr class="mt-4 mb-4"/>
+    <section>
+        <h4 class="fw-bold">오픈소스 소프트웨어 고지</h4>
+        <span class="monospace-font" style="font-size: 12px">
+            This application is Copyright (C) 2025, Coppermine-SP. All Right Reserved.<br/><br/>
+            This application use Open Source Software (OSS).<br/><br/>
+            You can find the source of these open source projects, along with applicable license information below,<br/>
+            We are deeply grateful to these developers for their work and contributions.<br/><br/>
+            Any questions about our use of licensed work can be sent to copperminesp@cloudinteractive.net.<br/><br/>
+            Warranty Disclaimer:<br/>
+            THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+        </span>
+    </section>
 </div>

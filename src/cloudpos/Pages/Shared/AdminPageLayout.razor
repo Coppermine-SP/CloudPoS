@@ -1,0 +1,29 @@
+@inherits Shared.PageLayoutBase
+<nav class="navbar navbar-expand shadow">
+    <div class="container">
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav nav-underline">
+                @foreach (var menu in GetMenuItems())
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" ActiveClass="active" href="@menu.Url">@menu.Name</NavLink>
+                    </li>
+                }
+            </ul>
+            <h6 class="m-0 text-end flex-fill fw-bold">관리자 모드 <strong class="fw-light">(@config.StoreName)</strong></h6>
+            <div class="me-1 ms-2" style="width: 2px; height: 1rem; background: var(--bs-border-color)"></div>
+            <div class="btn-dark dropdown">
+                <button class="btn p-1 py-0" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-list"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" @onclick="OnColorChangeBtnClickAsync"><i class="bi @_interop.CurrentColorScheme.Item2 me-3"></i>테마 (@_interop.CurrentColorScheme.Item1)</a></li>
+                    <li><a class="dropdown-item" @onclick="OnInfoBtnClick"><i class="bi bi-info-circle-fill me-3"></i>정보</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="container p-3">
+    @Body
+</div>

@@ -32,9 +32,8 @@ public class Program
             options.UseInMemoryDatabase("ServerDbContext");
         });
         builder.Services.AddSingleton<ConfigurationService>();
-        builder.Services.AddScoped<ModalService>();
-        builder.Services.AddScoped<ColorSchemeService>();
-        builder.Services.AddScoped<SoundService>();
+        builder.Services.AddScoped<InteractiveInteropService>();
+        builder.Services.AddScoped<TableService>();
         builder.Services.AddSingleton<TableEventBroker>();
         
         var app = builder.Build();

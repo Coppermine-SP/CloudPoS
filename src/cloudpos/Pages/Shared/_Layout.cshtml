@@ -14,8 +14,8 @@
         
         const setColorScheme = (x) => {
             let scheme;
-            if(x == "1") scheme = "light";
-            else if(x == "2") scheme = "dark";
+            if(x === "1") scheme = "light";
+            else if(x === "2") scheme = "dark";
             else scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
             document.documentElement.setAttribute('data-bs-theme', scheme);
