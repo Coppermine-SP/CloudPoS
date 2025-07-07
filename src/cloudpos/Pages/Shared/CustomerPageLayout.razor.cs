@@ -13,7 +13,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         new() { Name = "주문 내역", Url = "Customer/History" }
     ];
     
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
         var result = table.ValidateSession(false);
         if (result == TableService.ValidateResult.Unauthorized)
@@ -36,7 +36,8 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         }
         
         broker.Subscribe(table.GetSession()!.TableId, OnTableEvent);
-        _ = _interop.GetPreferredColorSchemeAsync();
+        await _interop.GetPreferredColorSchemeAsync();
+        StateHasChanged();
     }
     
     private void OnTableEvent(object? sender, TableEventArgs e)
@@ -47,7 +48,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
                 navigation.NavigateTo("/Customer/Authorize?Error=3", replace: true,  forceLoad: true);
                 break;
             case TableEventArgs.TableEventType.StaffCall:
-                _ = _interop.ShowNotifyAsync("점원 호출이 전송되었습니다.", InteractiveInteropService.NotifyType.Success);
+                _ = _interop.ShowNotifyAsync("점원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
                 break;
         }
 
@@ -70,5 +71,26 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
                 EventType = TableEventArgs.TableEventType.StaffCall
             });
         }
+    }
+
+    private async Task OnShareBtnClickAsync()
+    {
+        _ = _interop.ShowModalAsync("세션 공유", """
+            <div class='alert alert-info shadow py-2 fw-normal m-0 d-flex flex-row justify-content-center align-items-center mb-4' style='font-size: 14px''>
+               <div>
+                   <i class="bi bi-info-circle-fill d-inline-block" style="margin-right: 8px;"></i>
+               </div>
+               <div>
+               아래 QR 코드를 사용하여 다른 기기에서 세션에 참여할 수 있습니다.
+               </div>
+            </div>
+            <div class='d-flex justify-content-center align-items-center'>
+                <div class='card p-2 bg-white'>
+                    <iframe src='/Customer/ShareSession'
+                            width='128' height='128'
+                            style='display:block;border:none;overflow:hidden'></iframe>
+                </div>
+            </div>
+            """, false);
     }
 }

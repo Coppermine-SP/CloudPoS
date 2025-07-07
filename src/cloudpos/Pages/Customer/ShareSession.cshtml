@@ -1,0 +1,38 @@
+@page "/Customer/ShareSession"
+@model CloudInteractive.CloudPos.Pages.Customer.ShareSession
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>QRCODE</title>
+    <style>
+        html,body{margin:0;padding:0}
+        #qr-code{width:128px;height:128px}
+        #qr-code img,
+        #qr-code canvas{
+            width:128px !important;
+            height: 128px !important;
+            display:block;
+        }
+    </style>
+</head>
+<body>
+    <div id="qr-code" style="width:128px;height:128px;"></div>
+<script src="~/lib/qrcode/js/qrcode.min.js"></script>
+<script>
+    var qrcode = new QRCode("qr-code", {
+        text: "@Model.QrUrl",
+        width: 256,
+        height: 256,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+</script>
+</body>
+</html>

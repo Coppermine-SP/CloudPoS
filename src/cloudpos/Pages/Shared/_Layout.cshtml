@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <base href="~/"/>
+    <title>CloudPoS-Web</title>
     <!--Preload Script-->
     <script>
         const getColorScheme = () => {
@@ -14,8 +15,8 @@
         
         const setColorScheme = (x) => {
             let scheme;
-            if(x === "1") scheme = "light";
-            else if(x === "2") scheme = "dark";
+            if(x == "1") scheme = "light";
+            else if(x == "2") scheme = "dark";
             else scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
             document.documentElement.setAttribute('data-bs-theme', scheme);

@@ -1,14 +1,15 @@
 @page "/Customer/History"
 @layout Shared.CustomerPageLayout
 @attribute [Authorize]
-<div class="card shadow bg-body-tertiary" onclick="location.href='@config.SurveyUrl'">
+<PageTitle>주문 내역</PageTitle>
+<div class="alert alert-info shadow" onclick="location.href='@config.SurveyUrl'">
     <div class="card-body d-flex flex-row">
         <div class="me-3" style="font-size: 2rem;">
             📋
         </div>
         <div>
-            <h6 class="mb-1 fw-bold">소프트웨어 개선을 위한 앙케이트에 참여해주십시오.</h6>
-            <span>이 배너를 클릭하여 귀하의 소중한 의견을 전달해 주십시오.</span>
+            <h6 class="mb-1 fw-bold">소프트웨어 개선을 위한 앙케이트에 참여하기</h6>
+            <span class="fw-light">이 배너를 클릭하여 귀하의 소중한 의견을 전달해 주십시오.</span>
         </div>
     </div>
 </div>
