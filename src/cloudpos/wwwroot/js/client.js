@@ -74,8 +74,8 @@ export function playSound(url) {
 let currentAlert = null;
 let zIndexSeed = 800;
 const NOTIFY_THEMES = {
-    0: { alert: "alert-success", icon: "bi-check-circle-fill" },
-    1: { alert: "alert-info",    icon: "bi-info-circle-fill" },
+    0: { alert: "alert-info",    icon: "bi-info-circle-fill" },
+    1: { alert: "alert-success", icon: "bi-check-circle-fill" },
     2: { alert: "alert-warning", icon: "bi-exclamation-triangle-fill" },
     3: { alert: "alert-danger",  icon: "bi-x-circle-fill" }
 };
