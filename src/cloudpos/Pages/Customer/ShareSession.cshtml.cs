@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class ShareSession(ServerDbContext context, LinkGenerator link) : PageModel
 {
     public required string? QrUrl;
