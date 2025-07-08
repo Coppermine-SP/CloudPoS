@@ -2,6 +2,7 @@ using System.Security.Claims;
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Models;
+using CloudInteractive.CloudPos.Pages.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Services;
@@ -26,9 +27,10 @@ public class TableService
         var sessionId = _accessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Sid);
         var role = _accessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role);
         
-        if((sessionId == null || role == null) || (isAdmin && role?.Value != "admin") || (!isAdmin && role?.Value != "customer"))
+        if((role == null) || (isAdmin && role?.Value != Pages.Administrative.Authorize.AdminRole) || (!isAdmin && ((role?.Value != Pages.Customer.Authorize.CustomerRole) || sessionId == null)))
             return ValidateResult.Unauthorized;
-        
+
+        if (isAdmin) return ValidateResult.Ok;
         _session = _context.Sessions
             .Include(x => x.Table).
             FirstOrDefault(x => x.SessionId == Convert.ToInt32(sessionId.Value));

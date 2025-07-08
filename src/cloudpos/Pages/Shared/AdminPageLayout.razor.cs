@@ -2,13 +2,17 @@ using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using CloudInteractive.CloudPos.Event;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 
 namespace CloudInteractive.CloudPos.Pages.Shared;
 
-public partial class AdminPageLayout(InteractiveInteropService interop, TableEventBroker broker, NavigationManager navigation, ConfigurationService config) : PageLayoutBase(interop), IDisposable
+public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableService table, InteractiveInteropService interop, TableEventBroker broker, NavigationManager navigation, ConfigurationService config) : PageLayoutBase(interop), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
+    private bool _init = false;
+    
     protected override MenuItem[] GetMenuItems() =>
     [
         new() { Name = "테이블 뷰", Url = "Customer/Menu" },
@@ -20,6 +24,14 @@ public partial class AdminPageLayout(InteractiveInteropService interop, TableEve
 
     protected override void OnInitialized()
     {
+        if (table.ValidateSession(true) != TableService.ValidateResult.Ok)
+        {
+            logger.LogInformation("Unauthorized. Redirecting to /Administrative/Authorize");
+            navigation.NavigateTo("/Administrative/Authorize", replace: true, forceLoad: true);
+            return;
+        }
+        
+        _init = true;
         broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
     }
     
@@ -35,9 +47,17 @@ public partial class AdminPageLayout(InteractiveInteropService interop, TableEve
         await _interop.PlaySoundAsync(InteractiveInteropService.Sound.Ding);
         await _interop.ShowModalAsync("테이블 호출", $"테이블에서 호출이 있습니다.", false);
     }
+
+    private async Task OnLogoutBtnClickAsync()
+    {
+        if (await _interop.ShowModalAsync("로그아웃", "정말 로그아웃하시겠습니까?"))
+        {
+            navigation.NavigateTo("/Administrative/Authorize?SignOut=true", replace: true, forceLoad: true);
+        }
+    }
     
     public void Dispose()
     {
-        broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
+        if(_init) broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
     }
 }

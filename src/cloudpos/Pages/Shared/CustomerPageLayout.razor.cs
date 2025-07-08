@@ -20,7 +20,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         var result = table.ValidateSession(false);
         if (result == TableService.ValidateResult.Unauthorized)
         {
-            logger.LogInformation("SessionId is null. Redirecting to /Customer/Authorize?Error=0.");
+            logger.LogInformation("Unauthorized. Redirecting to /Customer/Authorize?Error=0.");
             navigation.NavigateTo("/Customer/Authorize?Error=0", replace: true, forceLoad: true);
             return;
         }

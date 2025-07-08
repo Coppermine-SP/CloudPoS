@@ -7,6 +7,7 @@ public class ConfigurationService
     public readonly string ImageBaseUrl;
     public readonly string SurveyUrl;
     public readonly string BankInformation;
+    public readonly string AdminPasswordHash;
 
     public ConfigurationService(IConfiguration config)
     {
@@ -15,6 +16,8 @@ public class ConfigurationService
         WelcomeMessage = config.GetValue<string?>("WelcomeMessage") ?? "DefaultWelcomeMessage";
         SurveyUrl = config.GetValue<string?>("SurveyUrl") ?? "https://please-check-appsettings.json";
         BankInformation = config.GetValue<string?>("BankInformation") ?? "DefaultBankInformation";
+        AdminPasswordHash = config.GetValue<string?>("AdminPasswordHash") ?? "<PASSWORD>";
+        
     }
     
     

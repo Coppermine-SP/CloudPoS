@@ -1,0 +1,44 @@
+@page
+@model CloudInteractive.CloudPos.Pages.Administrative.Authorize
+<video class="position-fixed object-fit-cover full-height w-100" autoplay loop muted playsline src="media/login_background.mp4"></video>
+<div class="position-fixed full-height w-100" style="background: url('images/overlay.png') center center; backdrop-filter: blur(5px)"></div>
+<div class="w-100 fixed-top alert alert-warning rounded-0 border-0 py-2 shadow">
+    <div class="container d-flex align-items-center justify-content-center flex-row px-0">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div><strong>주의:</strong> 이 시스템에 대한 침해 행위는 정보통신망이용촉진및정보보호등에관한법률 제48조에 따라 처벌받습니다.</div>
+    </div>
+</div>
+<div class="container d-flex justify-content-center align-items-center full-height">
+    <div class="card shadow bg-body-tertiary w-100 rounded-0" style="max-width: 500px">
+        <div class="card-body p-4">
+            <img src="~/images/logo.png" class="img-fluid rounded mb-2" style="width: 48px"/>
+            <h4 class="fw-bold mb-0">CloudPOS</h4>
+            <h5 class="fw-light">Administrative Portal</h5>
+            <hr/>
+            @if (Model.Message is not null)
+            {
+                <div class="alert alert-warning py-2 rounded-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    @Model.Message
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info py-2 rounded-0">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    로그온하여 @Model.StoreName 관리 세션으로 진입하기
+                </div>
+            }
+            <h6 class="mt-4">관리자 로그온</h6>
+            <form method="post" asp-antiforgery="true" asp-page="Authorize">
+                <div class="input-group mb-3">
+                    <input type="password" name="code" class="form-control" placeholder="암호" aria-label="암호" aria-describedby="button-addon2">
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">확인</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer">
+            <p class="mb-0 text-center text-muted" style="font-size: 12px;">Copyright (C) 2025-2026 Coppermine-SP.</p>
+        </div>
+    </div>
+</div>

@@ -44,11 +44,10 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
             return Page();
         }
 
-        var identity = new ClaimsIdentity(new Claim[]
-        {
+        var identity = new ClaimsIdentity([
             new Claim(ClaimTypes.Role, CustomerRole),
             new Claim(ClaimTypes.Sid, session.SessionId.ToString())
-        }, CookieAuthenticationDefaults.AuthenticationScheme);
+        ], CookieAuthenticationDefaults.AuthenticationScheme);
         
         logger.LogInformation($"Auth success (code={code}).");
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
