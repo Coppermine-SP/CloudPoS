@@ -24,7 +24,7 @@ public class Authorize(ConfigurationService config) : PageModel
             return Redirect("/Administrative/Authorize");
         }
         
-        if(HttpContext.User.Identity?.IsAuthenticated ?? true && HttpContext.User.IsInRole(AdminRole))
+        if(HttpContext.User.Identity!.IsAuthenticated && HttpContext.User.IsInRole(AdminRole))
             return Redirect("/Administrative/TableView");
         
         return Page();
