@@ -22,7 +22,7 @@ public class TableEventBroker(ILogger<TableEventBroker> logger)
     {
         if (_subs.TryGetValue(tableId, out var list))
         {
-            lock (list) list.Remove(list.First(x => x.h == handler));
+            lock (list)list.Remove(list.First(x => x.h == handler));
             logger.LogInformation($"Unsubscribe (key={tableId},count={list.Count})");
         }
     }

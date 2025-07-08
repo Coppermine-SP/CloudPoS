@@ -8,7 +8,6 @@ namespace CloudInteractive.CloudPos.Pages.Customer;
 
 public partial class History(ServerDbContext context, InteractiveInteropService interop, TableEventBroker broker, ConfigurationService config, TableService table) : ComponentBase
 {
-
     protected override void OnParametersSet()
     {
         UpdateTotal();
@@ -20,7 +19,8 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
     private string CurrencyFormat(int x) => string.Format("￦{0:#,###}", x);
     private void UpdateTotal()
     {
-        var orders = context.Orders.Where(x => x.SessionId == table.GetSession()!.SessionId)
+        var session = table.GetSession();
+        var orders = context.Orders.Where(x => x.SessionId == session!.SessionId)
             .Include(x => x.OrderItems)
             .ThenInclude(x => x.Item);
         _totalOrderCount = orders.Count();
@@ -34,7 +34,10 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
     {
         if (await interop.ShowModalAsync("계산 요청", "정말 계산 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.", true))
         {
-            await table.EndSessionAsync();
+            if (!await table.EndSessionAsync())
+            {
+                _ = interop.ShowNotifyAsync("미완료 주문으로 인해 계산 요청을 할 수 없습니다.", InteractiveInteropService.NotifyType.Error);
+            }
         }
     }
 

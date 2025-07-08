@@ -1,0 +1,39 @@
+.receipt {
+    background: linear-gradient(135deg, transparent 5.68px, white 5.69px) top left, linear-gradient(45deg, white 2.8px, transparent 2.81px) top left, linear-gradient(135deg, white 2.8px, transparent 2.81px) bottom left, linear-gradient(45deg, transparent 5.68px, white 5.69px) bottom left;
+    background-repeat: repeat-x;
+    background-size: 8px 4px;
+    padding: 4px 0;
+}
+
+.receipt-list {
+    background-color: white;
+}
+.receipt {
+    filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.1));
+    max-width: 340px;
+    min-width: 300px;
+    margin: 0 auto;
+    font-size: 13px;
+}
+.receipt-list {
+    background-color: #fff;
+    padding: 30px;
+}
+.receipt-item {
+    border-bottom: 0.5px dashed #ccc;
+    line-height: 1;
+    overflow: hidden;
+    font-size: 16px;
+}
+.receipt-line{
+    border-top: dashed 2px;
+}
+.receipt-item:not(:first-child) {
+    margin-top: 1rem;
+}
+.receipt-label {
+    float: left;
+}
+.receipt-value {
+    float: right;
+}

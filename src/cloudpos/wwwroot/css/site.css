@@ -1,10 +1,27 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
 @font-face {
-  font-family: "0xProto";
-  src: local("0xProto"),
-  url("../fonts/0xProto/0xProto-Regular.otf") format("otf"),
-  url("../fonts/0xProto/0xProto-Regular.ttf") format("ttf"),
-  url("../fonts/0xProto/0xProto-Regular.woff2") format("woff2");
+  font-family: 'D2coding';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/D2Coding/D2Coding.eot');
+  src: local('※'), local('D2Coding'),
+  url('fonts/D2Coding/D2Coding.eot?#iefix') format('embedded-opentype'),
+  url('fonts/D2Coding/D2Coding.woff2') format('x-woff2'),
+  url('fonts/D2Coding/D2Coding.woff') format('woff'),
+  url('fonts/D2Coding/D2Coding.ttf') format('truetype'),
+  url('fonts/D2Coding/D2Coding.svg') format('svg');
+}
+@font-face {
+  font-family: 'D2coding';
+  font-style: normal;
+  font-weight: 700;
+  src: url('fonts/D2Coding/D2CodingBold.eot');
+  src: local('※'), local('D2Coding Bold'),
+  url('fonts/D2Coding/D2CodingBold.eot?#iefix') format('embedded-opentype'),
+  url('fonts/D2Coding/D2CodingBold.woff2') format('x-woff2'),
+  url('fonts/D2Coding/D2CodingBold.woff') format('woff'),
+  url('fonts/D2Coding/D2CodingBold.ttf') format('truetype'),
+  url('fonts/D2Coding/D2CodingBold.svg') format('svg');
 }
 
 body{
@@ -12,7 +29,7 @@ body{
 }
 
 .monospace-font{
-  font-family: "0xProto", monospace;
+  font-family: "D2Coding", monospace;
 }
 
 a{
@@ -60,4 +77,29 @@ a{
 .notify-bar-item.mb-show {
   opacity: 1;
   transform: translateY(0);
+}
+
+hr.divider {
+  border: none;
+  height: 1px;
+  background-image: linear-gradient(to right, currentColor 50%, transparent 0%);
+  background-size: 8px 1px;
+  margin: .75rem 0;
+}
+hr.double {
+  background-size: 8px 1px, 8px 1px;
+  background-image:
+          linear-gradient(to right, currentColor 50%, transparent 0%),
+          linear-gradient(to right, currentColor 50%, transparent 0%);
+  height: 3px;
+  background-position: 0 0, 0 2px;
+}
+hr.dashed {
+  background-image: repeating-linear-gradient(
+          to right,
+          currentColor,
+          currentColor 4px,
+          transparent 4px,
+          transparent 8px
+  );
 }

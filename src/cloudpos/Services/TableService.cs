@@ -39,17 +39,37 @@ public class TableService
         return ValidateResult.Ok;
     }
     
-    public TableSession? GetSession() => _session;
+    public TableSession? GetSession(int? sessionId = null) 
+        => sessionId is null ? _session :  _context.Sessions.First(x => x.SessionId == sessionId);
     
-    public async Task EndSessionAsync()
+    public async Task<bool> EndSessionAsync(int? sessionId = null)
     {
-        _session!.EndedAt = DateTime.Now;
-        _session.IsPaymentCompleted = true;
+        var session = GetSession(sessionId);
+        if (_context.Orders.Any(x => x.SessionId == session!.SessionId && x.Status == Order.OrderStatus.Received))
+            return false;
+        
+        session!.EndedAt = DateTime.Now;
+        session.IsPaymentCompleted = false;
         await _context.SaveChangesAsync();
         await _eventBroker.PublishAsync(new TableEventArgs()
         {
-            TableId = _session!.TableId,
+            TableId = sessionId ?? _session!.TableId,
             EventType = TableEventArgs.TableEventType.SessionEnd
         });
+
+        return true;
+    }
+    
+    public record OrderSummary(int ItemId, string ItemName, int Price, int TotalQty, int TotalPrice);
+    public async Task<List<OrderSummary>> SessionOrderSummaryAsync()
+    {
+        return await _context.Orders
+            .Where(x => x.SessionId == _session!.SessionId)
+            .Where(x => x.Status == Order.OrderStatus.Completed)
+            .SelectMany(x => x.OrderItems)
+            .GroupBy(x => x.ItemId)
+            .Select(x => 
+                new OrderSummary(x.Key, x.First().Item.Name, x.First().Item.Price, x.Sum(y => y.Quantity), x.Sum(y => y.Quantity * y.Item.Price)))
+            .ToListAsync();
     }
 }

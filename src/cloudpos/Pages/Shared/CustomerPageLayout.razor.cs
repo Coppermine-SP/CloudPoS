@@ -7,13 +7,15 @@ namespace CloudInteractive.CloudPos.Pages.Shared;
 public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation) : PageLayoutBase(interop), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
+    private bool _init = false;
+    
     protected override MenuItem[] GetMenuItems() =>
     [
         new() { Name = "메뉴", Url = "Customer/Menu" },
         new() { Name = "주문 내역", Url = "Customer/History" }
     ];
     
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         var result = table.ValidateSession(false);
         if (result == TableService.ValidateResult.Unauthorized)
@@ -30,13 +32,20 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         }
         if (result == TableService.ValidateResult.SessionExpired)
         {
-            logger.LogInformation("Session ended. Redirecting to /Customer/Authorize?Error=0.");
+            logger.LogInformation("Session ended. Redirecting to /Customer/Authorize?Error=1.");
             navigation.NavigateTo("/Customer/Authorize?Error=1", replace: true,  forceLoad: true);
+            return;
+        }
+        if (table.GetSession()!.EndedAt is not null)
+        {
+            logger.LogInformation("Payment requested. Redirecting to /Customer/Receipt.");
+            navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
             return;
         }
         
         broker.Subscribe(table.GetSession()!.TableId, OnTableEvent);
         await _interop.GetPreferredColorSchemeAsync();
+        _init = true;
         StateHasChanged();
     }
     
@@ -45,7 +54,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         switch (e.EventType)
         {
             case TableEventArgs.TableEventType.SessionEnd:
-                navigation.NavigateTo("/Customer/Authorize?Error=3", replace: true,  forceLoad: true);
+                navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
                 break;
             case TableEventArgs.TableEventType.StaffCall:
                 _ = _interop.ShowNotifyAsync("점원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
@@ -57,8 +66,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     
     public void Dispose()
     {
-        if(table.GetSession() is not null) broker.Unsubscribe(table.GetSession()!.TableId, OnTableEvent);
-        _ = _interop.DisposeAsync();
+        if(_init) broker.Unsubscribe(table.GetSession()!.TableId, OnTableEvent);
     }
 
     private async Task OnCallBtnClickAsync()
@@ -73,7 +81,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         }
     }
 
-    private async Task OnShareBtnClickAsync()
+    private void OnShareBtnClick()
     {
         _ = _interop.ShowModalAsync("세션 공유", """
             <div class='alert alert-info shadow py-2 fw-normal m-0 d-flex flex-row justify-content-center align-items-center mb-4' style='font-size: 14px''>

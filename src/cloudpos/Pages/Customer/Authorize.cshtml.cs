@@ -24,7 +24,6 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
                 0 => "인증되지 않았습니다.",
                 1 => "세션이 만료되었습니다.",
                 2 => "올바르지 않은 세션입니다.",
-                3 => "계산 요청을 완료했습니다.",
                 _ => "알 수 없는 오류"
             };
             
@@ -42,12 +41,6 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
         {
             logger.LogInformation($"Auth failed (status=invalid, code={code}).");
             Message = "인증 코드가 올바르지 않습니다.";
-            return Page();
-        }
-        else if (session.EndedAt is not null)
-        {
-            logger.LogInformation($"Auth failed (status=expired, code={code}).");
-            Message = "세션이 만료되었습니다.";
             return Page();
         }
 

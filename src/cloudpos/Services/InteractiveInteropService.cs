@@ -76,7 +76,16 @@ public class InteractiveInteropService(IJSRuntime js, NavigationManager nav) : I
     
     public async ValueTask DisposeAsync()
     {
-        if (_moduleTask.IsValueCreated)
+        if (!_moduleTask.IsValueCreated) return;
+
+        try
+        {
             await (await _moduleTask.Value).DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            //ignored
+        }
+            
     }
 }

@@ -44,5 +44,4 @@ public abstract class PageLayoutBase(InteractiveInteropService interop) : Layout
             InteractiveInteropService.NotifyType.Info);
         StateHasChanged();
     }
-
 }

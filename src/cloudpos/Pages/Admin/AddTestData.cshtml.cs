@@ -60,7 +60,7 @@ public class AddTestData(ILogger<Authorize> logger, ServerDbContext context) : P
         {
             Session = session1,
             CreatedAt = DateTime.Now,
-            Status = Order.OrderStatus.Received
+            Status = Order.OrderStatus.Completed
         };
 
         var orderitem1 = new OrderItem()
@@ -95,7 +95,7 @@ public class AddTestData(ILogger<Authorize> logger, ServerDbContext context) : P
         {
             Session = session1,
             CreatedAt = DateTime.Now - TimeSpan.FromDays(4),
-            Status = Order.OrderStatus.Cancelled
+            Status = Order.OrderStatus.Received
         };
 
         var orderitem4 = new OrderItem()

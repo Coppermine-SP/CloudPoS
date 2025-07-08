@@ -1,5 +1,64 @@
-<h3>Receipt</h3>
+@page "/Customer/Receipt"
 
-@code {
-    
+@if (table.GetSession() is not null && _orderSummaries is not null)
+{
+    <div class="container">
+        <div class="d-flex justify-content-center align-items-center flex-column mt-3 p-3">
+            <i class="bi bi-check2-circle text-success" style="font-size: 4rem; line-height: 1.2"></i>
+            <h3>감사합니다.</h3>
+            <h5 class="text-secondary mb-0">계산 요청이 완료되었습니다.</h5>
+            <div class="bg-dark w-100 my-4 rounded" style="height: 3px; max-width: 50px"/>
+            <div class="receipt monospace-font text-dark mb-3">
+                <div class="receipt-list p-3 py-4">
+                    <h6 class="text-center fw-bold">@config.StoreName</h6>
+                    <p class="text-center">@config.BankInformation</p>
+                    <h6 class="text-center fw-bold mt-4 mb-0">영수증</h6>
+                    <hr class="receipt-line"/>
+                    <div>
+                        <span>[입장시간]</span>
+                        <span class="float-end">@table.GetSession()!.CreatedAt.ToString("yyyy-mm-dd hh:mm:ss")</span>
+                    </div>
+                    <div>
+                        <span>[발행시간]</span>
+                        <span class="float-end">@(table.GetSession()!.EndedAt?.ToString("yyyy-mm-dd hh:mm:ss") ?? "미발행")</span>
+                    </div>
+                    <div>
+                        <span>[테이블]</span>
+                        <span class="float-end">@table.GetSession()!.Table.Name</span>
+                    </div>
+                    <div>
+                        <span>[거래번호]</span>
+                        <span class="float-end">#@table.GetSession()!.SessionId</span>
+                    </div>
+                    <hr class="receipt-line"/>
+                    <table class="w-100">
+                        <colgroup>
+                            <col style="width: 45%">
+                            <col style="width: 15%">
+                            <col style="width: 20%">
+                            <col style="width: 20%">
+                        </colgroup>
+                        <tr>
+                            <th scope="col">상품명</th>
+                            <th scope="col">수량</th>
+                            <th scope="col">단가</th>
+                            <th scope="col" class="text-end">금액</th>
+                        </tr>
+                        @foreach (var x in _orderSummaries)
+                        {
+                            <tr>
+                                <td>@x.ItemName</td>
+                                <td>@x.TotalQty</td>
+                                <td>@CurrencyFormat(x.Price)</td>
+                                <td class="text-end">@CurrencyFormat(x.TotalPrice)</td>
+                            </tr>
+                        }
+                    </table>
+                    <hr class="receipt-line"/>
+                    <h6 class="fw-bold text-end">합계: @(CurrencyFormat(_totalAmount))원</h6>
+                    <p class="text-secondary text-center mb-0" style="font-size: 9px">본 영수증 용지는 BPA-Free 친환경 용지입니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 }

@@ -1,6 +1,6 @@
 @page "/Customer/History"
 @layout Shared.CustomerPageLayout
-@attribute [Authorize]
+
 <PageTitle>주문 내역</PageTitle>
 <div class="alert alert-info shadow" onclick="location.href='@config.SurveyUrl'">
     <div class="card-body d-flex flex-row">
@@ -16,7 +16,10 @@
 
 @if (_totalOrderCount == 0)
 {
-    
+    <div class="d-flex flex-column justify-content-center align-items-center text-secondary mt-5">
+        <i class="bi bi-basket3-fill mb-2" style="font-size: 6rem; line-height: 1.2"></i>
+        <h4>주문 내역이 없습니다.</h4>
+    </div>
 }
 else
 {
@@ -75,7 +78,6 @@ else
                     else
                     {
                         <h6 class="mb-0 text-secondary">주문 합계: @CurrencyFormat(subtotal)</h6>
-
                     }
 
                 </div>

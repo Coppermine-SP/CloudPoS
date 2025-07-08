@@ -1,7 +1,5 @@
 using System.Security.Claims;
 using CloudInteractive.CloudPos.Contexts;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 

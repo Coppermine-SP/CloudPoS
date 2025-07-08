@@ -7,5 +7,5 @@ public class OrderItem
     public virtual Item Item { get; set; } = null!;
     public int ItemId { get; set; }
     
-    public int Quantity { get; set; }
+    public int  Quantity { get; set; }
 }
