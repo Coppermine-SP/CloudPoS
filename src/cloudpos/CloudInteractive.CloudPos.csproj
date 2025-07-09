@@ -17,10 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\dist\jquery.js" />
       <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\dist\jquery.min.js" />
       <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\dist\jquery.min.map" />
@@ -34,6 +30,10 @@
       <_ContentIncludedByDefault Remove="wwwroot\fonts\0xProto\0xProto-Regular.otf" />
       <_ContentIncludedByDefault Remove="wwwroot\fonts\0xProto\0xProto-Regular.ttf" />
       <_ContentIncludedByDefault Remove="wwwroot\fonts\0xProto\0xProto-Regular.woff2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Components\" />
     </ItemGroup>
 
 </Project>

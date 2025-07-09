@@ -53,7 +53,7 @@ public class TableService
         session!.EndedAt = DateTime.Now;
         session.IsPaymentCompleted = false;
         await _context.SaveChangesAsync();
-        await _eventBroker.PublishAsync(new TableEventArgs()
+        _eventBroker.Publish(new TableEventArgs()
         {
             TableId = sessionId ?? _session!.TableId,
             EventType = TableEventArgs.TableEventType.SessionEnd

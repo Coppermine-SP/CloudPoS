@@ -51,7 +51,13 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
                 navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
                 break;
             case TableEventArgs.TableEventType.StaffCall:
-                _ = _interop.ShowNotifyAsync("점원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
+                _ = _interop.ShowNotifyAsync("직원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
+                break;
+            case TableEventArgs.TableEventType.Message:
+                if (e.Data is null || e.Data is not MessageEventArgs) break;
+                var data = (MessageEventArgs)e.Data;
+                _ = data.ShowAsModal ? _interop.ShowModalAsync("관리자의 메시지", data.Message, false)
+                    : _interop.ShowNotifyAsync($"관리자의 메시지: {((MessageEventArgs)e.Data!).Message}", InteractiveInteropService.NotifyType.Info);
                 break;
         }
 
@@ -67,7 +73,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     {
         if (await _interop.ShowModalAsync("직원 호출", "정말 직원을 호출하시겠습니까?"))
         {
-            await broker.PublishAsync(new TableEventArgs()
+            broker.Publish(new TableEventArgs()
             {
                 TableId = table.GetSession()!.TableId,
                 EventType = TableEventArgs.TableEventType.StaffCall

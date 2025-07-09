@@ -27,7 +27,7 @@ public class TableEventBroker(ILogger<TableEventBroker> logger)
         }
     }
 
-    public Task PublishAsync(TableEventArgs arg)
+    public void Publish(TableEventArgs arg)
     {
         logger.LogDebug($"Publish (key={arg.TableId},type={arg.EventType},data={arg.Data?.ToString() ?? "null"})");
         if (_subs.TryGetValue(arg.TableId, out var list))
@@ -37,9 +37,16 @@ public class TableEventBroker(ILogger<TableEventBroker> logger)
         if (_subs.TryGetValue(BroadcastId, out var all))
             foreach (var (h, ctx) in all)
                 ctx.Post(_ => h(this, arg), null);  
-        
-        return Task.CompletedTask;
     }
+    
+    public void Broadcast(TableEventArgs arg)
+    {
+        logger.LogDebug($"Broadcast (key={arg.TableId},type={arg.EventType},data={arg.Data?.ToString() ?? "null"})");
+        foreach (var t in _subs.Values)
+            foreach(var s in t)
+                s.ctx.Post(_ => s.h(this, arg), null);
+    }
+    
 }
 
 
