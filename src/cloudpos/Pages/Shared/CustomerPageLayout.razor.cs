@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace CloudInteractive.CloudPos.Pages.Shared;
 
-public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation) : PageLayoutBase(interop), IDisposable
+public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation, ConfigurationService config) : PageLayoutBase(interop), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
     private bool _init = false;
@@ -34,12 +34,6 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         {
             logger.LogInformation("Session ended. Redirecting to /Customer/Authorize?Error=1.");
             navigation.NavigateTo("/Customer/Authorize?Error=1", replace: true,  forceLoad: true);
-            return;
-        }
-        if (table.GetSession()!.EndedAt is not null)
-        {
-            logger.LogInformation("Payment requested. Redirecting to /Customer/Receipt.");
-            navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
             return;
         }
         

@@ -1,6 +1,14 @@
 @inherits PageLayoutBase
 @if (table.GetSession() is not null)
 {
+    <PageTitle>@config.StoreName - 테이블 @table.GetSession()!.Table.TableId</PageTitle>
+    if (table.GetSession()!.EndedAt is not null)
+    {
+        logger.LogInformation("Payment requested. Redirecting to /Customer/Receipt.");
+        navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
+        return;
+    }
+    
     <nav class="navbar navbar-expand shadow fixed-top bg-body">
         <div class="container">
             <div class="collapse navbar-collapse">

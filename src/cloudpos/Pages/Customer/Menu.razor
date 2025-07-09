@@ -1,3 +1,34 @@
 @page "/Customer/Menu"
 @layout Shared.CustomerPageLayout
-<h3>추천</h3>
+<div id="category-wrapper" class="category-wrapper"> 
+    <div class="scroll-arrow left d-none" id="cat-arrow-left"><i class="bi bi-chevron-left"></i></div>
+    <div class="fade-edge left d-none rounded-start-5" id="cat-fade-left"></div>
+    
+    <div id="category-container" class="category-scroll bg-body-tertiary rounded-5 shadow">
+        <div class="d-inline-flex gap-1 text-nowrap category-list">
+            @foreach (var c in _categories!)
+            {
+                <div role="button"
+                     class="category-item @(_selectedCategoryId == c.CategoryId ? "active" : "")"
+                     @onclick="() => OnCategorySelected(c.CategoryId)" data-cat-id="@c.CategoryId">
+                    @(c.Name) (@c.Items.Count)
+                </div>
+            }
+        </div>
+    </div>
+    
+    <div class="scroll-arrow right d-none" id="cat-arrow-right"><i class="bi bi-chevron-right"></i></div>
+    <div class="fade-edge right d-none rounded-end-5"  id="cat-fade-right"></div>
+</div>
+<div class="d-grid mt-2 gap-2">
+    @foreach (var item in _categories.First(x => x.CategoryId == _selectedCategoryId).Items)
+    {
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title">@item.Name</h5>
+                <p class="card-text">@item.Description</p>
+                <a href="#" class="btn btn-primary">Add to cart</a>
+            </div>
+        </div>
+    }
+</div>

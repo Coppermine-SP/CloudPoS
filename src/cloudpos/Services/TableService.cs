@@ -33,7 +33,7 @@ public class TableService
         if (isAdmin) return ValidateResult.Ok;
         _session = _context.Sessions
             .Include(x => x.Table).
-            FirstOrDefault(x => x.SessionId == Convert.ToInt32(sessionId.Value));
+            FirstOrDefault(x => x.SessionId == Convert.ToInt32(sessionId!.Value));
         
         if(_session is null) return ValidateResult.InvalidSessionId;
         if(_session.EndedAt is not null && _session.IsPaymentCompleted) return ValidateResult.SessionExpired;
