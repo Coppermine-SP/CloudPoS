@@ -32,4 +32,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\fonts\0xProto\0xProto-Regular.woff2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Components\" />
+    </ItemGroup>
+
 </Project>

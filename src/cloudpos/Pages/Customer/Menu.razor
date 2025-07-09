@@ -20,14 +20,30 @@
     <div class="scroll-arrow right d-none" id="cat-arrow-right"><i class="bi bi-chevron-right"></i></div>
     <div class="fade-edge right d-none rounded-end-5"  id="cat-fade-right"></div>
 </div>
-<div class="d-grid mt-2 gap-2">
+<div class="d-grid my-3 gap-4 card-grid">
     @foreach (var item in _categories.First(x => x.CategoryId == _selectedCategoryId).Items)
     {
-        <div class="card shadow">
-            <div class="card-body">
-                <h5 class="card-title">@item.Name</h5>
-                <p class="card-text">@item.Description</p>
-                <a href="#" class="btn btn-primary">Add to cart</a>
+        <div class="card shadow item">
+            <div class="ratio ratio-16x9">
+                <img src="https://cizucu-production.imgix.net/images/photos/2AuZdsH2Bj8ATh5MIbNq.jpg?auto=format%2Ccompress&fit=max&w=3840&q=75" class="card-img-top object-fit-cover:" alt="">
+            </div>
+            <div class="card-body d-flex justify-content-between flex-column">
+                <div>
+                    <h6 class="card-title">@item.Name</h6>
+                    <p class="card-text text-secondary">@item.Description 이것은 상품의 설명입니다. 김치는 참 좋은 식품입니다.</p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="mb-0">@CurrencyFormat(item.Price)</p>
+                    
+                    @if (item.IsAvailable)
+                    {
+                        <button role="button" class="btn btn-primary" @onclick="() => AddToCart(item)">담기</button>
+                    }
+                    else
+                    {
+                        <div class="text-secondary" style="margin: 7px 0;">품절</div>
+                    }
+                </div>
             </div>
         </div>
     }

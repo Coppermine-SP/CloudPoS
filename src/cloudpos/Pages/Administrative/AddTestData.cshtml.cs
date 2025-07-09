@@ -66,7 +66,7 @@ public class AddTestData(ILogger<Authorize> logger, ServerDbContext context) : P
         {
             Name = "순대국밥",
             Category = category1,
-            IsAvailable = true,
+            IsAvailable = false,
             Price = 6500
         };
         

@@ -53,3 +53,15 @@
 [data-bs-theme=dark]{
     .scroll-arrow{ background:#1f1f1f; color:#e0e0e0; }
 }
+
+.card-grid            { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) }
+.card-grid .card      { aspect-ratio: 1 / 1; }
+
+.card .card-text{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;        
+    -webkit-box-orient: vertical;
+    white-space: normal;        
+}

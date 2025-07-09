@@ -1,18 +1,21 @@
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
+using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class Menu(ServerDbContext context, IJSRuntime js) : ComponentBase, IAsyncDisposable
+public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop) : ComponentBase, IAsyncDisposable
 {
     private IJSObjectReference? _module;
     private List<Category>? _categories;
+    private List<(int, Item)> _cart = new();
     private int _selectedCategoryId = -1;
     private int? _nextScrollCategoryId;
     
+    private string CurrencyFormat(int x) => string.Format("￦{0:#,###}", x);
     protected override async Task OnInitializedAsync()
     {
         _categories = await context.Categories.Include(x => x.Items).ToListAsync();
@@ -27,7 +30,7 @@ public partial class Menu(ServerDbContext context, IJSRuntime js) : ComponentBas
         _module = await js.InvokeAsync<IJSObjectReference>("import", "./Pages/Customer/Menu.razor.js");
         await _module.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
     }
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (_nextScrollCategoryId is not null)
@@ -42,6 +45,27 @@ public partial class Menu(ServerDbContext context, IJSRuntime js) : ComponentBas
         _selectedCategoryId = categoryId;
         _nextScrollCategoryId = categoryId;
         StateHasChanged();
+    }
+
+    private void AddToCart(Item item)
+    {
+        var idx = _cart.FindIndex(t => t.Item2 == item);
+        if (idx >= 0)
+        {
+            var tuple = _cart[idx];
+            _cart[idx] = (tuple.Item1 + 1, tuple.Item2);
+
+            _ = interop.ShowNotifyAsync(
+                $"{item.Name}의 수량을 {_cart[idx].Item1}개로 변경했습니다.",
+                InteractiveInteropService.NotifyType.Success);
+        }
+        else
+        {
+            _cart.Add((1, item));
+            _ = interop.ShowNotifyAsync(
+                $"{item.Name}을(를) 장바구니에 담았습니다.",
+                InteractiveInteropService.NotifyType.Success);
+        }
     }
     
     public async ValueTask DisposeAsync()
