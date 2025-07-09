@@ -3,8 +3,39 @@
     Copyright (C) 2025-2026 Coppermine-SP.
  */
 
+// Blazor connection
+Blazor.start({
+    reconnectionHandler: {
+        onConnectionDown: (options, error) => {
+            console.error("Blazor connection down:", error);
+            showNotify("서버 연결을 복구하는 중입니다.", 2, Infinity);
+            scheduleRetry();
+            return true; 
+        },
+        onConnectionUp: () => {
+            console.log("Blazor connection up.");
+            showNotify("서버와 연결되었습니다.", 1);
+        }
+    }
+});
+
+async function scheduleRetry(attempt = 1) {
+    if (attempt > 25) {
+        showNotify("서버 연결에 실패했습니다. 페이지를 다시 로드하십시오.", 3, Infinity);
+        return;
+    }
+    try {
+        const result = await Blazor.reconnect()
+        if (!result) location.reload();
+    }
+    catch(err){
+        console.error("Blazor connection failed. Retrying in 2 seconds...", err);
+        setTimeout(() => {scheduleRetry(attempt + 1)}, 2000);
+    }
+}
+
 // Modal
-export function showModal(title, message, showNoBtn = true) {
+function showModal(title, message, showNoBtn = true) {
     return new Promise(resolve => {
 
         const tmpl     = document.getElementById('modal-template');
@@ -34,7 +65,7 @@ export function showModal(title, message, showNoBtn = true) {
 
 //ColorScheme
 const PREFERRED_COLOR_SCHEME_KEY = "preferredColorScheme";
-export function getPreferredColorScheme(){
+function getPreferredColorScheme(){
     const value = localStorage.getItem(PREFERRED_COLOR_SCHEME_KEY);
 
     if(value === "1") return 1;
@@ -42,21 +73,13 @@ export function getPreferredColorScheme(){
     return 0;
 }
 
-export function setPreferredColorScheme(scheme){
+function setPreferredColorScheme(scheme){
     localStorage.setItem(PREFERRED_COLOR_SCHEME_KEY, scheme);
-}
-
-export function setColorScheme(scheme){
-    if(scheme === 0){
-        scheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? 2 : 1;
-    }
-
-    document.documentElement.setAttribute('data-bs-theme', scheme === 1 ? "light" : "dark");
 }
 
 //Sound
 const soundCache = new Map();
-export function playSound(url) {
+function playSound(url) {
     let audioEl = soundCache.get(url);
 
     if (!audioEl) {
@@ -93,8 +116,9 @@ function buildNotify (text, kind) {
     return el;
 }
 
-export function showNotify(text, kind = "info", ms = 5000) {
+function showNotify(text, kind = 0, ms = 5000) {
     const cont = document.getElementById("notify-bar");
+    if(cont == null) return;
 
     if (currentAlert) hideNotify(currentAlert);
 
@@ -104,7 +128,9 @@ export function showNotify(text, kind = "info", ms = 5000) {
 
     requestAnimationFrame(() => alert.classList.add("mb-show"));
 
-    alert._timeoutId = setTimeout(() => hideNotify(alert), ms);
+    if(ms !== Infinity) {
+        alert._timeoutId = setTimeout(() => hideNotify(alert), ms);
+    }
     currentAlert = alert;
 }
 

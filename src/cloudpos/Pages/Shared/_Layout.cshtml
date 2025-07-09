@@ -50,8 +50,9 @@
     @RenderBody()
     
     <!--Vendor-Specific JS-->
-    <script src="~/_framework/blazor.server.js"></script>
+    <script src="~/_framework/blazor.server.js" autostart="false"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/client.js"></script>
 
     <!--Page-Specific JS-->
     @await RenderSectionAsync("Scripts", required: false)
