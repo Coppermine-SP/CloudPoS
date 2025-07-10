@@ -45,22 +45,43 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     
     private void OnTableEvent(object? sender, TableEventArgs e)
     {
-        switch (e.EventType)
+        if (e.EventType == TableEventArgs.TableEventType.SessionEnd)
         {
-            case TableEventArgs.TableEventType.SessionEnd:
-                navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
-                break;
-            case TableEventArgs.TableEventType.StaffCall:
-                _ = _interop.ShowNotifyAsync("직원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
-                break;
-            case TableEventArgs.TableEventType.Message:
-                if (e.Data is null || e.Data is not MessageEventArgs) break;
-                var data = (MessageEventArgs)e.Data;
-                _ = data.ShowAsModal ? _interop.ShowModalAsync("관리자의 메시지", data.Message, false)
-                    : _interop.ShowNotifyAsync($"관리자의 메시지: {((MessageEventArgs)e.Data!).Message}", InteractiveInteropService.NotifyType.Info);
-                break;
+            navigation.NavigateTo("/Customer/Receipt", replace: true, forceLoad: true);
         }
 
+        else if (e.EventType == TableEventArgs.TableEventType.StaffCall)
+        {
+            _ = _interop.ShowNotifyAsync("직원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
+        }
+
+        else if (e.EventType == TableEventArgs.TableEventType.Message)
+        {
+            if (e.Data is null || e.Data is not MessageEventArgs) return;
+            var data = (MessageEventArgs)e.Data;
+            _ = data.ShowAsModal
+                ? _interop.ShowModalAsync("관리자의 메시지", data.Message, false)
+                : _interop.ShowNotifyAsync($"관리자의 메시지: {((MessageEventArgs)e.Data!).Message}",
+                    InteractiveInteropService.NotifyType.Info);
+        }
+        else if (e.EventType == TableEventArgs.TableEventType.Order)
+        {
+            if (e.Data is null || e.Data is not OrderEventArgs) return;
+            var data = (OrderEventArgs)e.Data;
+            var orderTitle = data.Order.OrderItems.First().Item.Name;
+            if (data.Order.OrderItems.Count > 1)
+                orderTitle += $"외 {data.Order.OrderItems.Count - 1}개";
+
+            if (data.EventType == OrderEventType.Created)
+                _ = _interop.ShowNotifyAsync($"주문 \"{orderTitle}\"이(가) 접수되었습니다.", InteractiveInteropService.NotifyType.Success);
+            else if (data.EventType == OrderEventType.Cancelled)
+                _ = _interop.ShowNotifyAsync($"주문 \"{orderTitle}\"이(가) 취소되었습니다.",
+                    InteractiveInteropService.NotifyType.Warning);
+            else
+                _ = _interop.ShowNotifyAsync($"주문 \"{orderTitle}\"이(가) 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
+            
+            
+        }
         logger.LogInformation($"Table {table.GetSession()!.TableId} received event {e.EventType}");
     }
     

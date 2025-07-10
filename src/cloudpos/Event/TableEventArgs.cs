@@ -7,7 +7,7 @@ public class TableEventArgs : EventArgs
         SessionEnd,
         StaffCall,
         Message,
-        OrderStatusChange
+        Order,
     }
 
     public int TableId;
