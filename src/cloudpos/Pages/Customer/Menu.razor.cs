@@ -4,10 +4,11 @@ using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
+using ZstdSharp.Unsafe;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop) : ComponentBase, IAsyncDisposable
+public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table) : ComponentBase, IAsyncDisposable
 {
     private IJSObjectReference? _module;
     private List<Category>? _categories;
@@ -66,6 +67,26 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
                 $"{item.Name}을(를) 장바구니에 담았습니다.",
                 InteractiveInteropService.NotifyType.Success);
         }
+    }
+
+    private async Task CheckoutAsync()
+    {
+        var order = new Models.Order()
+        {
+            SessionId = table.GetSession()!.SessionId
+        };
+
+        foreach (var item in _cart)
+        {
+            order.OrderItems.Add(new OrderItem()
+            {
+                Item = item.Item2,
+                Quantity = item.Item1
+            });
+        }
+
+        if (!await table.MakeOrderAsync(order))
+            await interop.ShowNotifyAsync("오류가 발생하여 주문 생성에 실패했습니다.", InteractiveInteropService.NotifyType.Error);
     }
     
     public async ValueTask DisposeAsync()
