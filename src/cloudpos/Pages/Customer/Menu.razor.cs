@@ -3,6 +3,7 @@ using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.JSInterop;
 using ZstdSharp.Unsafe;
 
@@ -13,6 +14,8 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
     private IJSObjectReference? _module;
     private List<Category>? _categories;
     private List<(int, Item)> _cart = new();
+    private bool _isCartOpen = false;
+    private void ToggleCart() => _isCartOpen = !_isCartOpen;
     private int _selectedCategoryId = -1;
     private int? _nextScrollCategoryId;
     
@@ -71,6 +74,22 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
 
     private async Task CheckoutAsync()
     {
+        var listHtml = string.Join(
+            "\n",
+            _cart.Select(t => $"<li>{t.Item2.Name} × {t.Item1}</li>")
+        );
+        
+        string innerHtml = $"""
+                            <ul>
+                                {listHtml}
+                            </ul>
+                            <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_cart.Sum(x => x.Item1 * x.Item2.Price))}</strong><br>
+                            주문하실 내용이 맞습니까?
+                            """;
+        
+        if (!await interop.ShowModalAsync("주문 확인", innerHtml))
+            return;
+        
         var order = new Models.Order()
         {
             SessionId = table.GetSession()!.SessionId
@@ -87,6 +106,8 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
 
         if (!await table.MakeOrderAsync(order))
             await interop.ShowNotifyAsync("오류가 발생하여 주문 생성에 실패했습니다.", InteractiveInteropService.NotifyType.Error);
+        
+        _cart.Clear();
     }
     
     public async ValueTask DisposeAsync()

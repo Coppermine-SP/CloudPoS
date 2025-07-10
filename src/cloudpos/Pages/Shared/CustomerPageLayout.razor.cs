@@ -70,7 +70,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
             var data = (OrderEventArgs)e.Data;
             var orderTitle = data.Order.OrderItems.First().Item.Name;
             if (data.Order.OrderItems.Count > 1)
-                orderTitle += $"외 {data.Order.OrderItems.Count - 1}개";
+                orderTitle += $" 외 {data.Order.OrderItems.Count - 1}개";
 
             if (data.EventType == OrderEventType.Created)
                 _ = _interop.ShowNotifyAsync($"주문 \"{orderTitle}\"이(가) 접수되었습니다.", InteractiveInteropService.NotifyType.Success);

@@ -49,23 +49,43 @@
     }
 </div>
 
-<div class="container fixed-bottom">
-    <div class="bg-body-tertiary rounded-top-5 p-3 d-flex justify-content-between align-items-center">
-        <div class="d-flex flex-row align-items-center" style="height: 30px">
-            <i class="bi bi-cart-fill me-2"></i>장바구니
-        </div>
-        <div class="d-flex flex-row align-items-center">
-            <div class="me-2">
-                @if (_cart.Count != 0)
-                {
-                    <p class="text-muted mb-0">상품 @(_cart.Count)개 - @CurrencyFormat(_cart.Sum(x => x.Item1 * x.Item2.Price))</p>
-                }
-                else
-                {
-                    <p class="text-muted mb-0">담은 상품 없음</p>
-                }
+<div class="container px-0 fixed-bottom">
+    <div class="bg-body-tertiary rounded-top-5 p-3 shadow">
+        <div class="d-flex justify-content-between align-items-center">
+            <button class="cart-toggle btn p-0 border-0 bg-transparent"
+                    @onclick="ToggleCart">
+                <i class="bi @(_isCartOpen ? "bi-chevron-down" : "bi-chevron-up") me-2"></i>
+                장바구니
+            </button>
+            <div class="d-flex flex-row align-items-center">
+                <div class="me-2">
+                    @if (_cart.Count != 0)
+                    {
+                        <p class="text-muted mb-0">@CurrencyFormat(_cart.Sum(x => x.Item1 * x.Item2.Price)) (메뉴 @(_cart.Count)개)</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">담은 상품 없음</p>
+                    }
+                </div>
+                <button class="btn btn-success rounded-5" disabled="@(_cart.Count == 0)" @onclick="CheckoutAsync">주문하기</button>
             </div>
-            <button class="btn btn-success rounded-5" disabled="@(_cart.Count == 0)" @onclick="CheckoutAsync">주문하기</button>
+        </div>
+        <div class="cart-panel @(_isCartOpen ? "open" : "")">
+            @if (_cart.Count == 0)
+            {
+                <p class="text-secondary text-center py-5">담은 상품이 없습니다.</p>
+            }
+            else
+            {
+                @foreach (var (qty, itm) in _cart)
+                {
+                    <div class="border-bottom p-3 d-flex justify-content-between">
+                        <span>@itm.Name × @qty</span>
+                        <span>@CurrencyFormat(itm.Price * qty)</span>
+                    </div>
+                }
+            }
         </div>
     </div>
 </div>
