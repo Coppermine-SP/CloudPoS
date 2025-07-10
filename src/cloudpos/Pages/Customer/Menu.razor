@@ -61,7 +61,7 @@
                 <div class="me-2">
                     @if (_cart.Count != 0)
                     {
-                        <p class="text-muted mb-0">@CurrencyFormat(_cart.Sum(x => x.Item1 * x.Item2.Price)) (메뉴 @(_cart.Count)개)</p>
+                        <p class="text-muted mb-0">@CurrencyFormat(_cart.Sum(x => x.Quantity * x.Item.Price)) (메뉴 @(_cart.Count)개)</p>
                     }
                     else
                     {
@@ -81,12 +81,24 @@
             }
             else
             {
-                @foreach (var (qty, itm) in _cart)
+                @foreach (var x in _cart)
                 {
-                    <div class="border-bottom p-3 d-flex justify-content-between">
-                        <span>@itm.Name × @qty</span>
-                        <span>@CurrencyFormat(itm.Price * qty)</span>
+                    <div class="border-bottom py-3 d-flex justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn p-0 border-0 bg-transparent me-2" @onclick="() => RemoveFromCart(x)"><i class="bi bi-x"></i></button>
+                            <span class="me-1">@x.Item.Name</span>
                         </div>
+                        <div class="d-flex">
+                            <span class="text-secondary me-3">@CurrencyFormat(@x.Item.Price * x.Quantity)</span>
+                            <button class="cart-toggle btn p-0 border-0 bg-transparent" @onclick="() => SubItemQuantity(x)">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <div class="form-control px-2 py-0 text-center mx-1" style="font-size: 14px;width: 32px;">@x.Quantity</div>
+                            <button class="cart-toggle btn p-0 border-0 bg-transparent" @onclick="() => AddItemQuantity(x)">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
                 }
             }
         </div>

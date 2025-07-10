@@ -11,9 +11,15 @@ namespace CloudInteractive.CloudPos.Pages.Customer;
 
 public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table) : ComponentBase, IAsyncDisposable
 {
+    private record CartItem(int Quantity, Item Item)
+    {
+        public int Quantity = Quantity;
+        public Item Item = Item;
+    }
+    
     private IJSObjectReference? _module;
     private List<Category>? _categories;
-    private List<(int, Item)> _cart = new();
+    private readonly List<CartItem> _cart = new();
     private bool _isCartOpen = false;
     private void ToggleCart() => _isCartOpen = !_isCartOpen;
     private int _selectedCategoryId = -1;
@@ -53,19 +59,20 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
 
     private void AddToCart(Item item)
     {
-        var idx = _cart.FindIndex(t => t.Item2 == item);
+        var idx = _cart.FindIndex(t => t.Item == item);
         if (idx >= 0)
         {
-            var tuple = _cart[idx];
-            _cart[idx] = (tuple.Item1 + 1, tuple.Item2);
-
-            _ = interop.ShowNotifyAsync(
-                $"{item.Name}의 수량을 {_cart[idx].Item1}개로 변경했습니다.",
-                InteractiveInteropService.NotifyType.Success);
+            var x = _cart[idx];
+            if (AddItemQuantity(x))
+            {
+                _ = interop.ShowNotifyAsync(
+                    $"{item.Name}의 수량을 {_cart[idx].Quantity}개로 변경했습니다.",
+                    InteractiveInteropService.NotifyType.Success);
+            }
         }
         else
         {
-            _cart.Add((1, item));
+            _cart.Add(new CartItem(1, item));
             _ = interop.ShowNotifyAsync(
                 $"{item.Name}을(를) 장바구니에 담았습니다.",
                 InteractiveInteropService.NotifyType.Success);
@@ -76,14 +83,14 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
     {
         var listHtml = string.Join(
             "\n",
-            _cart.Select(t => $"<li>{t.Item2.Name} × {t.Item1}</li>")
+            _cart.Select(t => $"<li>{t.Item.Name} × {t.Quantity}</li>")
         );
         
         string innerHtml = $"""
                             <ul style='line-height: 1.8'>
                                 {listHtml}
                             </ul>
-                            <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_cart.Sum(x => x.Item1 * x.Item2.Price))}</strong><br>
+                            <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_cart.Sum(x => x.Quantity * x.Item.Price))}</strong><br>
                             주문하실 내용이 맞습니까?
                             """;
         
@@ -99,8 +106,8 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
         {
             order.OrderItems.Add(new OrderItem()
             {
-                Item = item.Item2,
-                Quantity = item.Item1
+                Item = item.Item,
+                Quantity = item.Quantity,
             });
         }
 
@@ -108,6 +115,33 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
             await interop.ShowNotifyAsync("오류가 발생하여 주문 생성에 실패했습니다.", InteractiveInteropService.NotifyType.Error);
         
         _cart.Clear();
+    }
+
+    private void RemoveFromCart(CartItem item)
+    {
+        _cart.Remove(item);
+    }
+
+    private bool AddItemQuantity(CartItem item)
+    {
+        if (item.Quantity >= 10)
+        {
+            _ = interop.ShowNotifyAsync("주문의 품목당 최대 개수는 10개입니다.", InteractiveInteropService.NotifyType.Error);
+            return false;
+        }
+        item.Quantity += 1;
+        return true;
+    }
+
+    private bool SubItemQuantity(CartItem item)
+    {
+        if (item.Quantity <= 1)
+        {
+            _ = interop.ShowNotifyAsync("주문의 품목당 최소 개수는 1개입니다.", InteractiveInteropService.NotifyType.Error);
+            return false;
+        }
+        item.Quantity -= 1;
+        return true;
     }
     
     public async ValueTask DisposeAsync()
