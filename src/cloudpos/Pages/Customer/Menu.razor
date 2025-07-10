@@ -65,7 +65,7 @@
                     }
                     else
                     {
-                        <p class="text-muted mb-0">담은 상품 없음</p>
+                        <p class="text-muted mb-0">담은 메뉴 없음</p>
                     }
                 </div>
                 <button class="btn btn-success rounded-5" disabled="@(_cart.Count == 0)" @onclick="CheckoutAsync">주문하기</button>
@@ -74,7 +74,10 @@
         <div class="cart-panel @(_isCartOpen ? "open" : "")">
             @if (_cart.Count == 0)
             {
-                <p class="text-secondary text-center py-5">담은 상품이 없습니다.</p>
+                    <div class="d-flex flex-column align-items-center h-100 justify-content-center">
+                        <i class="text-secondary bi bi-basket3 text-center" style="font-size: 4rem"></i>
+                        <p class="text-secondary text-center">아직 장바구니에 아무 것도 없습니다.</p>
+                    </div>
             }
             else
             {
