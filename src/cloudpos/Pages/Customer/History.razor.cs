@@ -22,7 +22,8 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
         var session = table.GetSession();
         var orders = context.Orders.Where(x => x.SessionId == session!.SessionId)
             .Include(x => x.OrderItems)
-            .ThenInclude(x => x.Item);
+            .ThenInclude(x => x.Item)
+            .OrderByDescending(x => x.CreatedAt);
         _totalOrderCount = orders.Count();
         _orders = orders.ToList();
         
