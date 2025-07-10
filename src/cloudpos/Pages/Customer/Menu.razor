@@ -71,7 +71,7 @@
                 <button class="btn btn-success rounded-5" disabled="@(_cart.Count == 0)" @onclick="CheckoutAsync">주문하기</button>
             </div>
         </div>
-        <div class="cart-panel @(_isCartOpen ? "open" : "")">
+        <div class="cart-panel @(_isCartOpen ? "open" : "") overflow-y-scroll">
             @if (_cart.Count == 0)
             {
                     <div class="d-flex flex-column align-items-center h-100 justify-content-center">
@@ -86,7 +86,7 @@
                     <div class="border-bottom p-3 d-flex justify-content-between">
                         <span>@itm.Name × @qty</span>
                         <span>@CurrencyFormat(itm.Price * qty)</span>
-                    </div>
+                        </div>
                 }
             }
         </div>

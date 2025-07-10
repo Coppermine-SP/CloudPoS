@@ -80,7 +80,7 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
         );
         
         string innerHtml = $"""
-                            <ul>
+                            <ul style='line-height: 1.8'>
                                 {listHtml}
                             </ul>
                             <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_cart.Sum(x => x.Item1 * x.Item2.Price))}</strong><br>
