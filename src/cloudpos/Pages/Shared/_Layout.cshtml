@@ -6,14 +6,9 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <base href="~/"/>
     <title>CloudPoS-Web</title>
-    <!--Preload Script-->
     <script src="~/js/preload.min.js"></script>
-    
-    <!--Vendor CSS-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"/>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    
-    <!--Site-Specific CSS-->
     <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
     <component type="typeof(Microsoft.AspNetCore.Components.Web.HeadOutlet)"
                render-mode="ServerPrerendered" />
@@ -21,16 +16,10 @@
 </head>
 <body>
     @RenderBody()
-    
-    <!--Vendor-Specific JS-->
     <script src="~/_framework/blazor.server.js" autostart="false"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/client.min.js"></script>
-
-    <!--Page-Specific JS-->
     @await RenderSectionAsync("Scripts", required: false)
-
-    <!-- Templates -->
     <template id="modal-template">
         <div class="modal fade" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
