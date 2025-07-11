@@ -14,7 +14,7 @@ public class Item
     [StringLength(30)]
     public required string Name { get; set; }
     
-    [StringLength(50)]
+    [StringLength(80)]
     public string? Description { get; set; }
 
     public int? ImageId { get; set; } = null;
