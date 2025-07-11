@@ -29,7 +29,7 @@ public class Program
         builder.Services.AddAuthorization();
         builder.Services.AddDbContext<ServerDbContext>(options =>
         {
-            options.UseInMemoryDatabase("ServerDbContext");
+            options.UseMySQL(builder.Configuration.GetConnectionString("ServerDbContext")!);
         });
         builder.Services.AddSingleton<ConfigurationService>();
         builder.Services.AddScoped<InteractiveInteropService>();
