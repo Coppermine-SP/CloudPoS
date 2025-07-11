@@ -3,9 +3,7 @@ using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.JSInterop;
-using ZstdSharp.Unsafe;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
@@ -23,39 +21,27 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
     private bool _isCartOpen = false;
     private void ToggleCart() => _isCartOpen = !_isCartOpen;
     private int _selectedCategoryId = -1;
-    private int? _nextScrollCategoryId;
     
     private string CurrencyFormat(int x) => string.Format("￦{0:#,###}", x);
-    private string GetImageUrl(int imageId) => $"{config.ImageBaseUrl}/static-asset/{imageId}.jpg";
+    private string GetImageUrl(int imageId) => $"{config.ImageBaseUrl}/static-assets/{imageId}.webp";
     protected override async Task OnInitializedAsync()
     {
         _categories = await context.Categories.Include(x => x.Items).ToListAsync();
         var all = new Category
         {
             Name = "전체",
-            CategoryId = -1
+            CategoryId = -1,
         };
-        foreach(var x in await context.Items.ToListAsync()) all.Items.Add(x);
+        foreach(var x in _categories.SelectMany(x => x.Items)) all.Items.Add(x);
         _categories.Insert(0, all);
-        
         _module = await js.InvokeAsync<IJSObjectReference>("import", "./Pages/Customer/Menu.razor.js");
-        await _module.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
+        await _module!.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
     }
     
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_nextScrollCategoryId is not null)
-        {
-            await _module!.InvokeVoidAsync("scrollToCategory", "category-wrapper", _nextScrollCategoryId);
-            _nextScrollCategoryId = null;
-        }
-    }
-
     private void OnCategorySelected(int categoryId)
     {
         _selectedCategoryId = categoryId;
-        _nextScrollCategoryId = categoryId;
-        StateHasChanged();
+        _ = _module!.InvokeVoidAsync("scrollToCategory", "category-wrapper", categoryId);
     }
 
     private void AddToCart(Item item)
