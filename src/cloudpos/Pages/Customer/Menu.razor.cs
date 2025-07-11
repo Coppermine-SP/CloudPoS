@@ -9,7 +9,7 @@ using ZstdSharp.Unsafe;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table) : ComponentBase, IAsyncDisposable
+public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table, ConfigurationService config) : ComponentBase, IAsyncDisposable
 {
     private record CartItem(int Quantity, Item Item)
     {
@@ -26,6 +26,7 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
     private int? _nextScrollCategoryId;
     
     private string CurrencyFormat(int x) => string.Format("￦{0:#,###}", x);
+    private string GetImageUrl(int imageId) => $"{config.ImageBaseUrl}/static-asset/{imageId}.jpg";
     protected override async Task OnInitializedAsync()
     {
         _categories = await context.Categories.Include(x => x.Items).ToListAsync();

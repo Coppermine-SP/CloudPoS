@@ -16,8 +16,8 @@ public class Item
     
     [StringLength(50)]
     public string? Description { get; set; }
-    
-    public int ImageId { get; set; }
+
+    public int? ImageId { get; set; } = null;
     
     public ICollection<OrderItem> OrderItems { get; } = new List<OrderItem>();
 
