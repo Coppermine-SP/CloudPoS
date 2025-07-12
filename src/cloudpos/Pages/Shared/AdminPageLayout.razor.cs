@@ -2,13 +2,12 @@ using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using CloudInteractive.CloudPos.Event;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Shared;
 
-public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableService table, InteractiveInteropService interop, TableEventBroker broker, NavigationManager navigation, ConfigurationService config) : PageLayoutBase(interop), IDisposable
+public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableService table, InteractiveInteropService interop, TableEventBroker broker, NavigationManager navigation, ConfigurationService config, IJSRuntime js) : PageLayoutBase(interop), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
     private bool _init = false;
@@ -34,18 +33,80 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableServi
         _init = true;
         broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
     }
-    
-    private async void OnBroadcastEvent(object? sender, TableEventArgs e)
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _ = interop.ShowNotifyAsync("브라우저 정책으로 인해 알림음을 들으려면 아무 요소나 클릭해야 합니다.",
+                InteractiveInteropService.NotifyType.Warning);
+        }
+    }
+
+    private void OnBroadcastEvent(object? sender, TableEventArgs e)
     {
         if (e.EventType == TableEventArgs.TableEventType.StaffCall)
-            await OnStaffCalled(e.TableId, DateTimeOffset.Now);
+            OnStaffCalled((TableSession)e.Data!);
+        else if(e.EventType == TableEventArgs.TableEventType.Order)
+            OnTransaction((OrderEventArgs)e.Data!);
     }
     
-    
-    private async Task OnStaffCalled(int sessionId, DateTimeOffset time)
+    private void OnStaffCalled(TableSession session)
     {
-        await _interop.PlaySoundAsync(InteractiveInteropService.Sound.Ding);
-        await _interop.ShowModalAsync("테이블 호출", $"테이블에서 호출이 있습니다.", false);
+        _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Ding);
+        ShowAlert(AlertType.Call, "테이블 콜", $"<strong>테이블 {session.Table!.Name}</strong><br>세션 #{session.SessionId} ({DateTime.Now:yyyy-MM-dd HH:mm:ss})");
+    }
+
+    private void OnTransaction(OrderEventArgs args)
+    {
+        _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Notify);
+        var listHtml = string.Join(
+            "\n",
+            args.Order.OrderItems.Select(t => $"<li>{t.Item.Name} × {t.Quantity}</li>")
+        );
+        ShowAlert(AlertType.Transation, "주문 접수", $"""
+                                                 <strong>주문 #{args.Order.OrderId} [세션 #{args.Order.Session!.SessionId}, 테이블 {args.Order.Session!.Table.Name}]</strong><br>
+                                                 <ul>
+                                                    {listHtml}
+                                                 </ul>
+                                                 """, 20000);
+    }
+    
+    private enum AlertType {Warning, Call, Transation}
+
+    private void ShowAlert(AlertType type, string title, string message, int duration = 60000)
+    {
+        string theme;
+        string icon;
+        switch (type)
+        {
+            case AlertType.Warning:
+                theme = "warning";
+                icon = "bi-exclamation-triangle-fill";
+                break;
+            case AlertType.Call:
+                theme = "call";
+                icon = "bi-bell-fill";
+                break;
+            default:
+                theme = "transaction";
+                icon = "bi-check-circle-fill";
+                break;
+        }
+        _ = js.InvokeVoidAsync("showAlertCard", new
+        {
+            theme = theme,
+            title = title,
+            html = message,
+            icon = icon,
+            duration = duration
+        });
+    }
+
+    private void OnTransationEvent()
+    {
+        _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Notify);
+        _ = js.InvokeVoidAsync("showAlert");
     }
 
     private async Task OnLogoutBtnClickAsync()

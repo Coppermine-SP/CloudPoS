@@ -97,7 +97,8 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
             broker.Publish(new TableEventArgs()
             {
                 TableId = table.GetSession()!.TableId,
-                EventType = TableEventArgs.TableEventType.StaffCall
+                EventType = TableEventArgs.TableEventType.StaffCall,
+                Data = table.GetSession()
             });
         }
     }

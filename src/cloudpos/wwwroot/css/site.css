@@ -103,3 +103,20 @@ hr.dashed {
           transparent 8px
   );
 }
+
+
+#alert-zone{
+  position:fixed; top:0; right:0; bottom:0;
+  width:320px; padding:1rem; overflow-y:auto;
+  display:flex; flex-direction:column; gap:.5rem;
+  z-index:1080;           
+  pointer-events:none;     
+}
+
+#alert-zone .card{pointer-events:auto;}
+
+.alert-card{transition:transform .4s ease, opacity .4s ease;}
+.alert-enter{transform:translateX(120%); opacity:0;}
+.alert-enter-active{transform:none; opacity:1;}
+.alert-exit{transform:none; opacity:1;}
+.alert-exit-active{transform:translateX(120%); opacity:0;}
