@@ -1,9 +1,6 @@
 @page "/Administrative/ObjectManager"
 @layout Shared.AdminPageLayout
-
-<h2>객체 관리자</h2>
-<div class="container-md my-5 w-75">
-    <div class="d-flex justify-content-center mb-4">
+    <div class="d-flex mb-4">
         <div class="btn-group btn-group" role="group">
             <button class="btn @(Mode=="Category" ? "btn-primary" : "btn-outline-primary")"
                     @onclick='() => SelectMode("Category")'>
@@ -19,10 +16,8 @@
             </button>
         </div>
     </div>
-
     @if(Mode=="Category")
     {
-        <div class="container mx-auto">
             <button class="btn btn-success mb-3" @onclick="AddCategory">+ 추가</button>
             <div class="row fw-bold border-bottom py-2 gx-0">
                 <div class="col mx-5">이름</div>
@@ -45,8 +40,6 @@
                     </div>
                 </div>
             }
-        </div>
-
         // 카테고리 모달
         @if(IsCategoryModalOpen)
         {
@@ -69,7 +62,6 @@
     }
     else if(Mode=="Item")
     {
-        <div class="container mx-auto">
             <button class="btn btn-success mb-3" @onclick="AddItem">+ 추가</button>
             <div class="row text-center fw-bold border-bottom py-2 gx-0">
                 <div class="col">카테고리</div>
@@ -98,8 +90,6 @@
                     </div>
                 </div>
             }
-        </div>
-
         // 메뉴 모달
         @if(IsItemModalOpen)
         {
@@ -141,5 +131,4 @@
             </div>
         }
     }
-</div>
 
