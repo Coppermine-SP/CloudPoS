@@ -103,12 +103,6 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableServi
         });
     }
 
-    private void OnTransationEvent()
-    {
-        _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Notify);
-        _ = js.InvokeVoidAsync("showAlert");
-    }
-
     private async Task OnLogoutBtnClickAsync()
     {
         if (await _interop.ShowModalAsync("로그아웃", "정말 로그아웃하시겠습니까?"))
