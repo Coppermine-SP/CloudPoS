@@ -21,7 +21,7 @@
             <button class="btn btn-success mb-3" @onclick="AddCategory">+ 추가</button>
             <div class="row fw-bold border-bottom py-2 gx-0">
                 <div class="col mx-5">이름</div>
-                <div class="col text-end mx-5">수정/삭제</div>
+                <div class="col text-end mx-5">동작</div>
             </div>
             
             @foreach(var c in Categories)
@@ -67,8 +67,8 @@
                 <div class="col">카테고리</div>
                 <div class="col">이름</div>
                 <div class="col">가격</div>
-                <div class="col">판매여부</div>
-                <div class="col">수정/삭제</div>
+                <div class="col">주문 가능</div>
+                <div class="col">동작</div>
             </div>
             
             @foreach(var i in Items)
@@ -77,7 +77,7 @@
                     <div class="col">@i.Category.Name</div>
                     <div class="col">@i.Name</div>
                     <div class="col">@i.Price</div>
-                    <div class="col">@((i.IsAvailable) ? "✅" : "⛔")</div>
+                    <div class="col"><input class="form-check-inline" type="checkbox" @{ i.IsAvailable ? "checked" : "" }/></div>
                     <div class="col d-flex justify-content-center">
                         <button class="btn btn-outline-secondary btn-sm me-2"
                                 @onclick="() => EditItem(i)">
