@@ -1,0 +1,42 @@
+@inject IJSRuntime Js
+@using CloudInteractive.CloudPos.Models
+@inherits ModalComponentBase
+<div class='alert alert-info shadow py-2 fw-normal m-0 d-flex flex-row justify-content-center align-items-center mb-4' style="font-size: 14px">
+    <div>
+        <i class="bi bi-info-circle-fill d-inline-block" style="margin-right: 8px;"></i>
+    </div>
+    <div>
+        아래 QR 코드를 사용하여 다른 기기에서 세션에 참여할 수 있습니다.
+    </div>
+</div>
+<div class='d-flex flex-column justify-content-center align-items-center'>
+    <div class='card p-2 bg-white'>
+        <div id="qr-code" style="width:128px;height:128px;"></div>
+    </div>
+    <h6 class="my-4">또는</h6>
+    <p class="text-muted monospace-font mb-1">@Nav.BaseUri</p>
+    <div class="text-center bg-body-secondary monospace-font rounded-2" style="width: 128px;height:48px;line-height:48px;font-size: 26px;letter-spacing:8px;text-indent: 8px;">
+        @Session.AuthCode
+    </div>
+</div>
+
+<div class="d-flex justify-content-end gap-3 py-2">
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="CloseModal">
+        확인
+    </button>
+</div>
+@code {
+    [Parameter] public required TableSession Session { get; set; }
+    [Inject] public NavigationManager Nav { get; set; }
+    private string GetSessionUrl => $"{Nav.BaseUri}/Customer/Authorize?Code={Session.AuthCode}";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Js.InvokeVoidAsync("generateQrCode", GetSessionUrl);
+        }
+    }
+
+}

@@ -1,10 +1,11 @@
+using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Services;
 using CloudInteractive.CloudPos.Event;
 using Microsoft.AspNetCore.Components;
 
 namespace CloudInteractive.CloudPos.Pages.Shared;
 
-public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation, ConfigurationService config) : PageLayoutBase(interop), IDisposable
+public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation, ConfigurationService config, ModalService modal) : PageLayoutBase(interop, modal), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
     private bool _init = false;
@@ -59,9 +60,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         {
             if (e.Data is null || e.Data is not MessageEventArgs) return;
             var data = (MessageEventArgs)e.Data;
-            _ = data.ShowAsModal
-                ? _interop.ShowModalAsync("관리자의 메시지", data.Message, false)
-                : _interop.ShowNotifyAsync($"관리자의 메시지: {((MessageEventArgs)e.Data!).Message}",
+            _ = _interop.ShowNotifyAsync($"관리자의 메시지: {((MessageEventArgs)e.Data!).Message}",
                     InteractiveInteropService.NotifyType.Info);
         }
         else if (e.EventType == TableEventArgs.TableEventType.Order)
@@ -92,35 +91,25 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 
     private async Task OnCallBtnClickAsync()
     {
-        if (await _interop.ShowModalAsync("직원 호출", "정말 직원을 호출하시겠습니까?"))
-        {
-            broker.Publish(new TableEventArgs()
+            if (await modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
+                    .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
+                    .Add("IsCancelable", true)
+                    .Build()))
             {
-                TableId = table.GetSession()!.TableId,
-                EventType = TableEventArgs.TableEventType.StaffCall,
-                Data = table.GetSession()
-            });
-        }
+                broker.Publish(new TableEventArgs()
+                {
+                    TableId = table.GetSession()!.TableId,
+                    EventType = TableEventArgs.TableEventType.StaffCall,
+                    Data = table.GetSession()
+                });
+            }
+
     }
 
-    private void OnShareBtnClick()
+    private async Task OnShareBtnClick()
     {
-        _ = _interop.ShowModalAsync("세션 공유", """
-            <div class='alert alert-info shadow py-2 fw-normal m-0 d-flex flex-row justify-content-center align-items-center mb-4' style='font-size: 14px''>
-               <div>
-                   <i class="bi bi-info-circle-fill d-inline-block" style="margin-right: 8px;"></i>
-               </div>
-               <div>
-               아래 QR 코드를 사용하여 다른 기기에서 세션에 참여할 수 있습니다.
-               </div>
-            </div>
-            <div class='d-flex justify-content-center align-items-center'>
-                <div class='card p-2 bg-white'>
-                    <iframe src='/Customer/ShareSession'
-                            width='128' height='128'
-                            style='display:block;border:none;overflow:hidden'></iframe>
-                </div>
-            </div>
-            """, false);
+        await modal.ShowAsync<ShareSessionModal, object?>("세션 공유하기", ModalService.Params()
+            .Add("Session", table.GetSession()!)
+            .Build());
     }
 }

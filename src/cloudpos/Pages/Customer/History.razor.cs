@@ -1,3 +1,4 @@
+using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Services;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class History(ServerDbContext context, InteractiveInteropService interop, TableEventBroker broker, ConfigurationService config, TableService table) : ComponentBase
+public partial class History(ServerDbContext context, InteractiveInteropService interop, ModalService modal, ConfigurationService config, TableService table) : ComponentBase
 {
     protected override void OnParametersSet()
     {
@@ -33,7 +34,10 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
 
     private async Task OnSessionEndBtnClickAsync()
     {
-        if (await interop.ShowModalAsync("계산 요청", "정말 계산 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.", true))
+        if (await modal.ShowAsync<AlertModal, bool>("계산 요청하기", ModalService.Params()
+                .Add("InnerHtml", "정말 계산 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.")
+                .Add("IsCancelable", true)
+                .Build()))
         {
             if (!await table.EndSessionAsync())
             {

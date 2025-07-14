@@ -45,20 +45,6 @@ public class InteractiveInteropService(IJSRuntime js, NavigationManager nav)
         await js.InvokeVoidAsync("playSound", nav.ToAbsoluteUri($"/media/{SoundFileDictionary[sound]}.mp3").ToString());
     }
     
-    public async Task<bool> ShowModalAsync(string title, string innerHtml, bool showNoBtn = true)
-    {
-        try
-        {
-            var result = await js.InvokeAsync<bool>("showModal", TimeSpan.FromMilliseconds(Timeout.Infinite), title,
-                innerHtml, showNoBtn);
-            return result;
-        }
-        catch (TaskCanceledException)
-        {
-            return false;
-        }
-    }
-    
     public enum NotifyType { Info=0, Success=1, Warning=2, Error=3 }
     public async Task ShowNotifyAsync(string message, NotifyType type)
     {

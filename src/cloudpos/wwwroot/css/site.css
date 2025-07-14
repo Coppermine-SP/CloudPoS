@@ -119,4 +119,11 @@ hr.dashed {
 .alert-enter{transform:translateX(120%); opacity:0;}
 .alert-enter-active{transform:none; opacity:1;}
 .alert-exit{transform:none; opacity:1;}
-.alert-exit-active{transform:translateX(120%); opacity:0;}
+.alert-exit-active{transform:translateX(120%); opacity:0;} 
+#qr-code{width:128px;height:128px}
+#qr-code img,
+#qr-code canvas{
+  width:128px !important;
+  height: 128px !important;
+  display:block;
+}

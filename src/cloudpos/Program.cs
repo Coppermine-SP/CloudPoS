@@ -32,6 +32,7 @@ public class Program
             options.UseMySQL(builder.Configuration.GetConnectionString("ServerDbContext")!);
         });
         builder.Services.AddSingleton<ConfigurationService>();
+        builder.Services.AddScoped<ModalService>();
         builder.Services.AddScoped<InteractiveInteropService>();
         builder.Services.AddScoped<TableService>();
         builder.Services.AddSingleton<TableEventBroker>();

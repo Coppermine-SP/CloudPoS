@@ -1,3 +1,4 @@
+using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
@@ -7,7 +8,7 @@ using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table, ConfigurationService config) : ComponentBase, IAsyncDisposable
+public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table, ConfigurationService config, ModalService modal) : ComponentBase, IAsyncDisposable
 {
     private record CartItem(int Quantity, Item Item)
     {
@@ -80,8 +81,10 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
                             <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_cart.Sum(x => x.Quantity * x.Item.Price))}</strong><br>
                             주문하실 내용이 맞습니까?
                             """;
-        
-        if (!await interop.ShowModalAsync("주문 확인", innerHtml))
+        if (!await modal.ShowAsync<AlertModal, bool>("주문서 확인", ModalService.Params()
+                .Add("InnerHtml", innerHtml)
+                .Add("IsCancelable", true)
+                .Build()))
             return;
         
         var order = new Models.Order()

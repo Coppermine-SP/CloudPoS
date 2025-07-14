@@ -1,3 +1,4 @@
+using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
@@ -7,7 +8,7 @@ using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Shared;
 
-public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableService table, InteractiveInteropService interop, TableEventBroker broker, NavigationManager navigation, ConfigurationService config, IJSRuntime js) : PageLayoutBase(interop), IDisposable
+public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableService table, InteractiveInteropService interop, TableEventBroker broker, NavigationManager navigation, ConfigurationService config, IJSRuntime js, ModalService modal) : PageLayoutBase(interop, modal), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
     private bool _init = false;
@@ -105,7 +106,10 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableServi
 
     private async Task OnLogoutBtnClickAsync()
     {
-        if (await _interop.ShowModalAsync("로그아웃", "정말 로그아웃하시겠습니까?"))
+        if (await modal.ShowAsync<AlertModal, bool>("로그아웃",ModalService.Params()
+                .Add("InnerHtml", "정말 로그아웃 하시겠습니까?")
+                .Add("IsCancelable", true)
+                .Build()))
         {
             navigation.NavigateTo("/Administrative/Authorize?SignOut=true", replace: true, forceLoad: true);
         }
