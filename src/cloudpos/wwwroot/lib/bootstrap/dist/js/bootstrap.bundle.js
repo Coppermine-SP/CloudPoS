@@ -4151,11 +4151,26 @@
     hide() {
       const width = this.getWidth();
       this._disableOverFlow();
-      // give padding to element to balance the hidden scrollbar width
-      this._setElementAttributes(this._element, PROPERTY_PADDING, calculatedValue => calculatedValue + width);
-      // trick: We adjust positive paddingRight and negative marginRight to sticky-top elements to keep showing fullwidth
-      this._setElementAttributes(SELECTOR_FIXED_CONTENT, PROPERTY_PADDING, calculatedValue => calculatedValue + width);
-      this._setElementAttributes(SELECTOR_STICKY_CONTENT, PROPERTY_MARGIN, calculatedValue => calculatedValue - width);
+      
+      /*
+        Custom patch for fix broken layout when open modal while zoom - CoppermineSP
+       */
+      function isZoomed() {
+        if (window.visualViewport) {
+          return window.visualViewport.scale > 1.01; 
+        }
+        
+        const THRESHOLD = 40;                 
+        return Math.abs(window.outerWidth - window.innerWidth) > THRESHOLD;
+      }
+      
+      if(!isZoomed()) {
+        // give padding to an element to balance the hidden scrollbar width
+        this._setElementAttributes(this._element, PROPERTY_PADDING, calculatedValue => calculatedValue + width); 
+        // trick: We adjust positive paddingRight and negative marginRight to sticky-top elements to keep showing fullwidth
+        this._setElementAttributes(SELECTOR_FIXED_CONTENT, PROPERTY_PADDING, calculatedValue => calculatedValue + width);
+        this._setElementAttributes(SELECTOR_STICKY_CONTENT, PROPERTY_MARGIN, calculatedValue => calculatedValue - width);
+      }
     }
     reset() {
       this._resetElementAttributes(this._element, 'overflow');
@@ -4455,11 +4470,11 @@
       const isBodyOverflowing = scrollbarWidth > 0;
       if (isBodyOverflowing && !isModalOverflowing) {
         const property = isRTL() ? 'paddingLeft' : 'paddingRight';
-        this._element.style[property] = `${scrollbarWidth}px`;
+        //this._element.style[property] = `${scrollbarWidth}px`;
       }
       if (!isBodyOverflowing && isModalOverflowing) {
         const property = isRTL() ? 'paddingRight' : 'paddingLeft';
-        this._element.style[property] = `${scrollbarWidth}px`;
+        //this._element.style[property] = `${scrollbarWidth}px`;
       }
     }
     _resetAdjustments() {

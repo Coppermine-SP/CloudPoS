@@ -9,7 +9,7 @@
         @if (_req is not null)
         {
             <div class="modal fade" tabindex="-1" @ref="_modalRef">
-                <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;" @onclick:stopPropagation>
+                <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation>
                     <div class="modal-content border-0 rounded-01shadow-lg bg-body-tertiary">
                         <div class="px-4 pt-4 modal-title">
                             <h5 class="fw-semibold mb-2">@_req.Title</h5>
