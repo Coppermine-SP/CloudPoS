@@ -7,9 +7,6 @@
         document.body.appendChild(zone);
     }
     
-    const template = document.getElementById('alert-card-template');
-    if(!template) console.error('template not found!');
-    
     function animateReorder(oldRects){
         Array.from(zone.children).forEach(el=>{
             const first = oldRects.get(el);

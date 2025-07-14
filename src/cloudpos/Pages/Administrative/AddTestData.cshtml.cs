@@ -6,7 +6,7 @@ using Order = CloudInteractive.CloudPos.Models.Order;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public class AddTestData(ILogger<Authorize> logger, ServerDbContext context) : PageModel
+public class AddTestData(ServerDbContext context) : PageModel
 {
     public void OnGet()
     {

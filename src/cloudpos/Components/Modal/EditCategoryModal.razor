@@ -1,0 +1,60 @@
+@using CloudInteractive.CloudPos.Models
+@using Microsoft.EntityFrameworkCore.Diagnostics
+@inherits ModalComponentBase
+<label for="categoryName" class="form-label">카테고리 이름</label>
+<InputText class="form-control" id="categoryName" placeholder="카테고리 이름을 입력허세요." @bind-Value="@_categoryName"/>
+@{ var message = ValidateModel(); }
+@if (message is not null)
+{
+    <div class="form-text text-danger">
+        @message
+    </div>
+}
+<div class="d-flex justify-content-end gap-3 py-2">
+        <button type="button"
+                class="btn btn-outline-secondary px-3" @onclick="() => CloseModal(Category)">
+            취소
+        </button>
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="SaveChangesAsync" disabled="@(message is not null)">
+        확인
+    </button>
+</div>
+@code {
+    [Parameter] public Category? Category { get; set; }
+    private string _categoryName = "";
+
+    protected override void OnInitialized()
+    {
+        _categoryName = Category is null ? "" : Category.Name;
+    }
+
+
+    private string? ValidateModel()
+    {
+        if (String.IsNullOrWhiteSpace(_categoryName))
+            return "카테고리 이름은 공란이 될 수 없습니다.";
+        if (_categoryName.Length > 10)
+            return "카테고리 이름은 10자를 초과할 수 없습니다.";
+
+        return null;
+    }
+
+    private async Task SaveChangesAsync()
+    {
+        if (ValidateModel() is not null) return;
+        if (Category == null)
+        {
+            Category = new Category()
+            {
+                Name = _categoryName
+            };
+        }
+        else
+        {
+            Category.Name = _categoryName;
+        }
+
+        await CloseModal(Category);
+    }
+}

@@ -28,7 +28,7 @@
 </div>
 @code {
     [Parameter] public required TableSession Session { get; set; }
-    [Inject] public NavigationManager Nav { get; set; }
+    [Inject] public required NavigationManager Nav { get; set; }
     private string GetSessionUrl => $"{Nav.BaseUri}/Customer/Authorize?Code={Session.AuthCode}";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

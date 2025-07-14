@@ -16,6 +16,6 @@
 </div>
 @code {
     [Parameter] public bool IsCancelable { get; set; } = false;
-    [Parameter] public string InnerHtml { get; set; }
+    [Parameter] public required string InnerHtml { get; set; }
     
 }

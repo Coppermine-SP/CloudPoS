@@ -1,21 +1,14 @@
+using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Event;
+using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public partial class TableView(TableEventBroker broker) : ComponentBase
+public partial class TableView(TableEventBroker broker, ModalService modal) : ComponentBase
 {
-    public string testvalue;
     private void Test()
     {
-        broker.Broadcast(new TableEventArgs()
-        {
-            Data = new MessageEventArgs()
-            {
-                Message = testvalue,
-                ShowAsModal = true
-            },
-            EventType = TableEventArgs.TableEventType.Message
-        });
+        
     }
 }

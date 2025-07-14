@@ -9,7 +9,8 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 {
     private readonly InteractiveInteropService _interop = interop;
     private bool _init = false;
-    
+    private readonly ModalService _modal = modal;
+
     protected override MenuItem[] GetMenuItems() =>
     [
         new() { Name = "메뉴", Url = "Customer/Menu" },
@@ -91,7 +92,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 
     private async Task OnCallBtnClickAsync()
     {
-            if (await modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
+            if (await _modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
                     .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
                     .Add("IsCancelable", true)
                     .Build()))
@@ -108,7 +109,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 
     private async Task OnShareBtnClick()
     {
-        await modal.ShowAsync<ShareSessionModal, object?>("세션 공유하기", ModalService.Params()
+        await _modal.ShowAsync<ShareSessionModal, object?>("세션 공유하기", ModalService.Params()
             .Add("Session", table.GetSession()!)
             .Build());
     }
