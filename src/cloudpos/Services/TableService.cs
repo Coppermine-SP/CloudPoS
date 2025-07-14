@@ -11,7 +11,7 @@ public class TableService(ServerDbContext context, TableEventBroker broker, IHtt
     private TableSession? _session;
 
     public enum ValidateResult { Ok, Unauthorized, InvalidSessionId, SessionExpired }
-    public ValidateResult ValidateSession(bool isAdmin)
+    public async Task<ValidateResult> ValidateSessionAsync(bool isAdmin)
     {
         var sessionId = accessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Sid);
         var role = accessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role);
@@ -20,9 +20,9 @@ public class TableService(ServerDbContext context, TableEventBroker broker, IHtt
             return ValidateResult.Unauthorized;
 
         if (isAdmin) return ValidateResult.Ok;
-        _session = context.Sessions
+        _session = await context.Sessions
             .Include(x => x.Table).
-            FirstOrDefault(x => x.SessionId == Convert.ToInt32(sessionId!.Value));
+            FirstOrDefaultAsync(x => x.SessionId == Convert.ToInt32(sessionId!.Value));
         
         if(_session is null) return ValidateResult.InvalidSessionId;
         if(_session.EndedAt is not null && _session.IsPaymentCompleted) return ValidateResult.SessionExpired;

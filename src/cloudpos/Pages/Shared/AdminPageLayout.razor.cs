@@ -22,9 +22,9 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, TableServi
         new() { Name = "개발자 도구", Url = "Administrative/DevTool" }
     ];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        if (table.ValidateSession(true) != TableService.ValidateResult.Ok)
+        if (await table.ValidateSessionAsync(true) != TableService.ValidateResult.Ok)
         {
             logger.LogInformation("Unauthorized. Redirecting to /Administrative/Authorize");
             navigation.NavigateTo("/Administrative/Authorize", replace: true, forceLoad: true);

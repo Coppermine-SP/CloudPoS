@@ -18,7 +18,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     
     protected override async Task OnInitializedAsync()
     {
-        var result = table.ValidateSession(false);
+        var result = await table.ValidateSessionAsync(false);
         if (result == TableService.ValidateResult.Unauthorized)
         {
             logger.LogInformation("Unauthorized. Redirecting to /Customer/Authorize?Error=0.");
