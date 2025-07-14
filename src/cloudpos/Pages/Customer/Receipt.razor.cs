@@ -11,7 +11,7 @@ public partial class Receipt(TableService table, NavigationManager navigation, C
     private string CurrencyFormat(int x) => $"{x:#,###}";
     protected override async Task OnInitializedAsync()
     {
-        var result = table.ValidateSession(false);
+        var result = await table.ValidateSessionAsync(false);
         if (result != TableService.ValidateResult.Ok)
         {
             navigation.NavigateTo("/Customer/Authorize?Error=0", replace:true, forceLoad:true);
