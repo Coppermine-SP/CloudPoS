@@ -26,7 +26,7 @@
     {
         @foreach (var item in _categories.First(x => x.CategoryId == _selectedCategoryId).Items)
         {
-            <div class="card shadow item">
+            <div class="card shadow item" @onclick="() => ShowItemDetailAsync(item)">
                 <div class="ratio ratio-16x9">
                     <img src="@(item.ImageId is null ? "/images/default_item_image.jpg" : GetImageUrl(item.ImageId.Value))" class="card-img-top object-fit-cover" alt="">
                 </div>
@@ -39,7 +39,9 @@
                         <p class="mb-0">@CurrencyFormat(item.Price)</p>
                         @if (item.IsAvailable)
                         {
-                            <button role="button" class="btn btn-primary" @onclick="() => AddToCart(item)">담기</button>
+                            <div @onclick:stopPropagation="true">
+                                <button role="button" class="btn btn-primary" @onclick="() => AddToCart(item)">담기</button>
+                                </div>
                         }
                         else
                         {

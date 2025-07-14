@@ -13,17 +13,17 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
     private record CartItem(int Quantity, Item Item)
     {
         public int Quantity = Quantity;
-        public Item Item = Item;
+        public readonly Item Item = Item;
     }
     
     private IJSObjectReference? _module;
     private List<Category>? _categories;
     private readonly List<CartItem> _cart = new();
-    private bool _isCartOpen = false;
+    private bool _isCartOpen;
     private void ToggleCart() => _isCartOpen = !_isCartOpen;
     private int _selectedCategoryId = -1;
     
-    private string CurrencyFormat(int x) => string.Format("￦{0:#,###}", x);
+    private string CurrencyFormat(int x) => $"￦{x:#,###}";
     private string GetImageUrl(int imageId) => $"{config.ImageBaseUrl}/static-assets/{imageId}.webp";
     protected override async Task OnInitializedAsync()
     {
@@ -67,6 +67,13 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
         }
     }
 
+    private async Task ShowItemDetailAsync(Item item)
+    {
+        await modal.ShowAsync<ItemDetailViewModal, object?>("메뉴 상세보기", ModalService.Params()
+            .Add("Item", item)
+            .Build());
+    }
+
     private async Task CheckoutAsync()
     {
         var listHtml = string.Join(
@@ -87,7 +94,7 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
                 .Build()))
             return;
         
-        var order = new Models.Order()
+        var order = new Order()
         {
             SessionId = table.GetSession()!.SessionId
         };

@@ -1,0 +1,41 @@
+@using CloudInteractive.CloudPos.Models
+@using CloudInteractive.CloudPos.Services
+@inject ConfigurationService Config
+@inherits ModalComponentBase
+@if (Item.ImageId is not null)
+{
+    <div class="p-2 d-flex justify-content-center align-items-center mb-3" style="height: 250px">
+        <img src="@GetImageUrl(Item.ImageId.Value)" class="mh-100 mw-100 rounded-3 shadow" style="object-fit:contain; object-position:center;" alt="@Item.Name"/>
+    </div>
+}
+<div>
+    @if (Item.IsAvailable)
+    {
+        <div class="alert alert-success py-1 px-2 d-inline-block rounded-4 mb-2">
+            <i class="bi bi-check-lg me-1"></i>
+            주문 가능
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger py-1 px-2 d-inline-block rounded-4 mb-2">
+            <i class="bi bi-x-lg me-1"></i>
+            주문 불가능
+        </div>
+    }
+    <h5>@Item.Name</h5>
+    <p class="text-secondary">@Item.Description</p>
+    <h5 class="mb-0">@CurrencyFormat(Item.Price)</h5>
+</div>
+<div class="d-flex justify-content-end gap-3 mb-2 mt-3">
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="() => CloseModal()">
+        확인
+    </button>
+</div>
+@code {
+    private string CurrencyFormat(int x) => $"￦{x:#,###}";
+    private string GetImageUrl(int imageId) => $"{Config.ImageBaseUrl}/static-assets/{imageId}.webp";
+    
+    [Parameter] public required Item Item { get; set; }
+}
