@@ -17,7 +17,7 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
     private int _totalOrderCount = 0;
     private int _totalAmount = 0;
     private List<Models.Order>? _orders;
-    private string CurrencyFormat(int x) => string.Format("￦{0:#,###}", x);
+    private string CurrencyFormat(int x) => $"￦{x:#,###}";
     private void UpdateTotal()
     {
         var session = table.GetSession();

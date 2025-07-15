@@ -1,6 +1,4 @@
-@if (Categories is not null && Categories.Count > 0)
-{
-    <h3 class="fw-bold mt-3">카테고리 관리</h3>
+<h3 class="fw-bold mt-3">카테고리 관리</h3>
     <h6 class="text-secondary fw-light">총 @(Categories.Count)개의 카테고리가 있습니다.</h6>
     <div class="d-flex flex-column gap-3 my-4">
         <div class="card shadow p-3 d-flex flex-column justify-content-center align-items-center text-center bg-body-tertiary" @onclick="AddCategoryAsync">
@@ -34,4 +32,3 @@
             </div>
         </Virtualize>
     </div>
-}

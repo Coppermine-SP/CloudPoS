@@ -9,7 +9,7 @@ namespace CloudInteractive.CloudPos.Components;
 
 public partial class CategoryObjectManager(ServerDbContext context, ModalService modal) : ComponentBase
 {
-    private List<Category>? Categories => context.Categories.Include(x => x.Items).ToList();
+    private List<Category> Categories => context.Categories.Include(x => x.Items).ToList();
     private async Task DeleteCategoryAsync(Category c)
     {
         if (c.Items.Count > 0)

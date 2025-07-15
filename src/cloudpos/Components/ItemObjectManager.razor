@@ -1,5 +1,57 @@
-<h3>ItemObjectManager</h3>
-
-@code {
-    
-}
+<div class="d-flex justify-content-between">
+    <div>
+        <h3 class="fw-bold mt-3">메뉴 관리</h3>
+        <h6 class="text-secondary fw-light">총 @(GetItems().Count)개의 메뉴가 있습니다.</h6>
+    </div>
+    <div class="d-flex flex-column-reverse">
+        <div class="d-flex gap-2">
+            <div class="input-group flex-nowrap">
+                <span class="input-group-text" id="addon-wrapping"><i class="bi bi-search"></i></span>
+                <InputText @bind-Value="_searchText" type="text" class="form-control" placeholder="검색" aria-label="검색"/>
+            </div>
+            <InputSelect @bind-Value="_selectedCategoryId" class="form-select" aria-label="카테고리 선택">
+                <option value="-1" selected>전체 카테고리</option>
+                @foreach (var c in Categories)
+                {
+                    <option value="@c.CategoryId">@c.Name</option>
+                }
+        </InputSelect>
+        </div>
+    </div>
+</div>
+<div class="d-flex flex-column gap-3 my-4">
+    <div class="card shadow p-3 d-flex flex-column justify-content-center align-items-center text-center bg-body-tertiary" @onclick="AddItemAsync">
+        <i class="bi bi-plus-lg" style="font-size: 2rem;"></i>
+        <p class="mb-0">새 메뉴 추가</p>
+    </div>
+    <Virtualize Items="GetItems()" Context="item">
+        <div class="card d-flex flex-row shadow py-3 px-4 bg-body-tertiary">
+            <div class="flex-grow-1">
+                <p class="monospace-font">#@item.ItemId</p>
+                <h6 class="text-secondary">@item.Category.Name<strong class="fw-bold text-body ms-2">@item.Name</strong></h6>
+                <p class="mb-0">@item.Description</p>
+                <p class="my-2">
+                    @if (item.IsAvailable)
+                    {
+                        <span class="text-success me-2"><i class="bi bi-check-lg me-1"></i>주문 가능</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger me-2"><i class="bi bi-x-lg me-1"></i>주문 불가능</span>
+                    }
+                    <span class="text-secondary">@CurrencyFormat(item.Price)</span>
+                </p>
+            </div>
+            <div class="d-flex justify-content-between flex-column">
+                <button class="btn btn-outline-primary border-0"@onclick="() => EditItemAsync(item)">
+                    <i class="bi bi-pencil-fill"></i>
+                    수정
+                </button>
+                <button class="btn btn-outline-danger border-0" @onclick="() => DeleteItemAsync(item)">
+                    <i class="bi bi-x-lg"></i>
+                    삭제
+                </button>
+            </div>
+        </div>
+    </Virtualize>
+</div>

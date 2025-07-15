@@ -1,0 +1,125 @@
+@using CloudInteractive.CloudPos.Models
+@inherits ModalComponentBase
+@{
+    _isModelValid = true;
+}
+<div class="alert alert-warning py-2 mb-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>이 객체를 수정하면 참조하는 모든 요소가 영향을 받습니다.</div>
+<div class="mb-3">
+    <label for="itemName" class="form-label">메뉴 이름</label>
+    <InputText class="form-control" id="itemName" placeholder="메뉴 이름을 입력하세요." @bind-Value="@_itemName"/>
+    @if(_itemName.Length > 15 || string.IsNullOrWhiteSpace(_itemName))
+    {
+        _isModelValid = false;
+        <div class="form-text text-danger">
+            이름은 공란일 수 없으며 15 자보다 짧아야 합니다.
+        </div>
+    }
+</div>
+<div class="mb-3">
+    <label for="itemDescription" class="form-label">메뉴 설명</label>
+    <InputTextArea class="form-control mb-3" id="itemDescription" placeholder="메뉴 설명을 입력허세요." @bind-Value="@_itemDescription"/>
+
+    <label for="itemCategoryId" class="form-label">메뉴 카테고리</label>
+    <InputSelect class="form-select mb-3" id="itemCategoryId" @bind-Value="_itemCategoryId">
+        @foreach (var c in Categories)
+        {
+            <option value="@c.CategoryId">@c.Name</option>
+        }
+    </InputSelect>
+</div>
+
+<div class="mb-3">
+    <div class="form-check">
+        <InputCheckbox id="itemIsAvailable" class="form-check-input" @bind-Value="_isItemAvailable"></InputCheckbox>
+        <label class="form-check-label" for="itemIsAvailable">
+            주문 가능
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="itemPrice" class="form-label">메뉴 가격</label>
+    <InputNumber class="form-control" id="itemPrice" placeholder="메뉴 가격을 입력허세요." @bind-Value="@_itemPrice"/>
+    @if(_itemPrice is null)
+    {
+        _isModelValid = false;
+        <div class="form-text text-danger">
+            올바른 숫자 형식을 입력해야 합니다.
+        </div>
+    }
+    else if (_itemPrice <= 0)
+    {
+        _isModelValid = false;
+        <div class="form-text text-danger">
+            가격은 0이나 음수가 될 수 없습니다.
+        </div>
+    }
+</div>
+
+<div class="mb-3">
+    <label for="itemImageId" class="form-label">이미지 ID</label>
+    <InputNumber class="form-control mb-3" id="itemImageId" placeholder="메뉴 가격을 입력허세요." @bind-Value="@_itemImageId"/>
+    @if (_itemImageId <= 0)
+    {
+        _isModelValid = false;
+        <div class="form-text text-danger">
+            ID는 0이나 음수가 될 수 없습니다.
+        </div>
+    }
+</div>
+
+<div class="d-flex justify-content-end gap-3 py-2">
+    <button type="button"
+            class="btn btn-outline-secondary px-3" @onclick="() => CloseModal(Item)">
+        취소
+    </button>
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="SaveChangesAsync" disabled="@(!_isModelValid)">
+        확인
+    </button>
+</div>
+
+@code{
+    [Parameter]public Item? Item { get; set; }
+    [Parameter]public required List<Category> Categories { get; set; }
+
+    private string _itemName = string.Empty;
+    private string _itemDescription = string.Empty;
+    private int _itemCategoryId;
+    private int? _itemImageId;
+    private int? _itemPrice;
+    private bool _isItemAvailable;
+    private bool _isModelValid = true;
+
+    protected override void OnInitialized()
+    {
+        _itemCategoryId = Categories.First().CategoryId;
+        
+        if (Item is null) return;
+        _itemName = Item.Name;
+        _itemDescription = Item.Description ?? string.Empty;
+        _itemCategoryId = Item.CategoryId;
+        _itemImageId = Item.ImageId;
+        _itemPrice = Item.Price;
+        _isItemAvailable = Item.IsAvailable;
+    }
+
+    private async Task SaveChangesAsync()
+    {
+        if (!_isModelValid) return;
+        if (Item is null)
+            Item = new Item()
+            {
+                Name = _itemName
+            };
+        else Item.Name = _itemName;
+
+        Item.Description = string.IsNullOrWhiteSpace(_itemDescription) ? null : _itemDescription;
+        Item.IsAvailable = _isItemAvailable;
+        Item.ImageId = _itemImageId;
+        Item.Price = _itemPrice!.Value;
+        Item.CategoryId = _itemCategoryId;
+        await CloseModal(Item);
+    }
+
+}
