@@ -1,55 +1,45 @@
-    .order-card {
-            aspect-ratio: 1 / 1;
-            display: flex;
-            cursor: pointer;
-            overflow: hidden;
-            flex-direction: column;
-        }
-        
-         .order-card .order-items-list {
-             overflow-y: auto;
-             flex-grow: 1;
-             min-height: 0; 
-             list-style-type: none;
-             padding: 0;
-         }
- 
-         .order-card .order-items-list li {
-             white-space: nowrap;
-             overflow: hidden;
-             text-overflow: ellipsis; 
-         }
+.order-card {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    cursor: pointer;
+    overflow: hidden;
+    flex-direction: column;
+}
+ .order-card .order-items-list {
+     overflow-y: auto;
+     flex-grow: 1;
+     min-height: 0; 
+     list-style-type: none;
+     padding: 0;
+ }
+.order-card .order-items-list li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
 
-        /* 큰 화면(lg) 이상에서 왼쪽 영역 고정 */
-        @media (min-width: 992px) {
-            .offcanvas-lg {
-                position: sticky;
-                top: 1.5rem;
-                height: calc(100vh - 15rem);
-                transform: none;
-                visibility: visible !important;
-                width: auto !important;
-                border: 0;
-                background-color: transparent;
-            }
-            .main-content {
-                margin-right: -300px; /* 왼쪽 영역 너비만큼 당기기 */
-            }
-        }
+@media (min-width: 992px) {     
+    .offcanvas-lg {
+        position: sticky;
+        top: 1.5rem;
+        height: calc(100vh - 15rem);
+        transform: none;
+        visibility: visible !important;
+        width: auto !important;
+        border: 0;
+        background-color: transparent;
+    }
+    .main-content {
+        margin-right: -300px;
+    }
+}
 
-        .order-grid {
-            display: grid;
-            /* 데스크톱: 4개의 동일한 너비의 열 */
-            grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .grid-scroll-wrapper{
-            height: calc(100vh - 15rem);
-            overflow-y: auto;
-        }
-        
-        
-        
-
-        
+.order-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1.5rem;
+}
+.grid-scroll-wrapper{
+    height: calc(100vh - 15rem);
+    overflow-y: auto;
+}

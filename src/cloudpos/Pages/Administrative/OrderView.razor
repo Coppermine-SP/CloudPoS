@@ -1,41 +1,44 @@
 @attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
 @page "/Administrative/OrderView"
 @layout Shared.AdminPageLayout
-<h5 class="mb-4 mt-2">현재 8개의 활성 주문이 있습니다.</h5>
+@{ var orders = GetOrders; }
+<h5 class="mb-4 mt-2">@(orders.Count == 0 ? "현재 아무 활성 주문이 없습니다." : $"현재 {orders.Count}개의 활성 주문이 있습니다.")</h5>
 <div class="row">
     <main class="col-lg-8">
         <button class="btn btn-primary d-lg-none mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive" aria-controls="offcanvasResponsive">
             <i class="bi bi-receipt"></i> 주문 상세 보기
         </button>
         <div class="grid-scroll-wrapper">
-            <div class="order-grid me-lg-3">
-                @{ var orders = GetOrders; }
-                @if (orders.Count == 0)
-                {
-             
-                }
-                else
-                {
+            @if (orders.Count == 0)
+            {
+                <div class="d-flex flex-column w-100 h-100 justify-content-center align-items-center text-muted">
+                    <i class="bi bi-exclamation-lg fs-1 mt-5"></i>
+                    <h6>주문 없음</h6>
+                </div>
+            }
+            else
+            {
+                <div class="order-grid me-lg-3">
                     @foreach (var o in orders)
-                    {
+                    { 
                         <div class="card bg-body-secondary order-card shadow border-0 rounded-2" @onclick="() => _selectedOrder = o">
-                            <div class="card-header text-muted">
-                                주문 #@o.OrderId
-                                <span class="float-end">@o.Session!.Table.Name</span>
+                                <div class="card-header text-muted">
+                                    주문 #@o.OrderId
+                                    <span class="float-end">@o.Session!.Table.Name</span>
+                                </div>
+                                <div class="card-body overflow-y-auto">
+                                    <ul class="m-0 order-items-list">
+                                        @foreach (var i in o.OrderItems)
+                                        {
+                                            <li>@i.Item.Name x @i.Quantity</li>
+                                        }
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="card-body overflow-y-auto">
-                                <ul class="m-0 order-items-list">
-                                    @foreach (var i in o.OrderItems)
-                                    {
-                                        <li>@i.Item.Name x @i.Quantity</li>
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    }
-                }
-            </div>
-            </div>
+                        }
+                </div>
+            }
+        </div>
     </main>
     <div class="col-lg-4 p-0">
         <div class="offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex rounded-3 shadow" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 300px">
