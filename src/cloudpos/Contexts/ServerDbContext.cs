@@ -8,6 +8,7 @@ public class ServerDbContext(DbContextOptions<ServerDbContext> options) : DbCont
     public DbSet<Category> Categories { get; set; }
     public DbSet<Item> Items { get; set; }
     public DbSet<Table> Tables { get; set; }
+    public DbSet<TableViewCell> TableViewCells { get; set; }
     public DbSet<TableSession> Sessions { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
@@ -44,6 +45,14 @@ public class ServerDbContext(DbContextOptions<ServerDbContext> options) : DbCont
             .WithOne(x => x.Table)
             .HasForeignKey(x => x.TableId)
             .IsRequired();
+        
+        builder.Entity<TableViewCell>()
+            .HasOne(x => x.Table)
+            .WithOne(x => x.Cell)
+            .IsRequired();
+
+        builder.Entity<TableViewCell>()
+            .HasKey(x => new { x.X, x.Y });
 
         builder.Entity<TableSession>()
             .HasMany(x => x.Orders)

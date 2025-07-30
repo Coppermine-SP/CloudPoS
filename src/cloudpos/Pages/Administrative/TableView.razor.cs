@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public partial class TableView(TableEventBroker broker, ModalService modal) : ComponentBase
+public partial class TableView(TableEventBroker broker, ModalService modal, ConfigurationService config) : ComponentBase
 {
     private void Test()
     {

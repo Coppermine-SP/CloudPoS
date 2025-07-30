@@ -1,0 +1,52 @@
+@inject IDbContextFactory<ServerDbContext> Factory
+@inject NavigationManager NavManager
+@using System.Security.Claims
+@using CloudInteractive.CloudPos.Contexts
+@using Microsoft.EntityFrameworkCore
+
+@if (_isChecking)
+{
+    <AuthorizingPage />
+}
+else
+{
+    <Error Code="403" Message="권한 없음" />
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
+
+    private bool _isChecking = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateTask;
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var sidClaim = user.FindFirst(ClaimTypes.Sid);
+            if (sidClaim != null && int.TryParse(sidClaim.Value, out var sessionId))
+            {
+                await using var context = await Factory.CreateDbContextAsync();
+                var session= await context.Sessions
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId && s.EndedAt != null);
+
+                if (session is not null)
+                {
+                    if (session.IsPaymentCompleted)
+                    {
+                        NavManager.NavigateTo("/Customer/Authorize?error=1", forceLoad: true, replace: true);
+                        return;
+                    }
+                    
+                    NavManager.NavigateTo("/Customer/Receipt", forceLoad: true, replace: true);
+                    return; 
+                }
+            }
+        }
+        _isChecking = false;
+    }
+}

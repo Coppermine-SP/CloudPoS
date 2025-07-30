@@ -24,6 +24,8 @@ public class InteractiveInteropService(IJSRuntime js, NavigationManager nav)
         { Sound.Ding, "ding" },
         { Sound.Notify, "notify" }
     };
+
+    public async Task<bool> IsPwaDisplayMode() => await js.InvokeAsync<bool>("isPwaDisplayMode");
     
     public async Task<ColorScheme> GetPreferredColorSchemeAsync()
     {

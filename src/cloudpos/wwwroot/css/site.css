@@ -121,6 +121,14 @@ hr.dashed {
   pointer-events:none;     
 }
 
+@keyframes card-flash {
+  0%, 50%, 100% { background-color: var(--bs-tertiary-bg); }
+  25%, 75% { background-color: var(--bs-warning-bg-subtle); }
+}
+.card-flash-animation {
+  animation: card-flash 1s ease-in-out 3;
+}
+
 #alert-zone .card{pointer-events:auto;}
 
 .alert-card{transition:transform .4s ease, opacity .4s ease;}

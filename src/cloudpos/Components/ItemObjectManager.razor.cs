@@ -1,21 +1,21 @@
-using System.Collections;
 using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
+using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace CloudInteractive.CloudPos.Components;
 
-public partial class ItemObjectManager(ServerDbContext context, ModalService modal, InteractiveInteropService interop) : ComponentBase
+public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop, TableEventBroker broker, ILogger<ItemObjectManager> logger) : ComponentBase
 {
     private int _selectedCategoryId = -1;
     private string _searchText = string.Empty;
     private string CurrencyFormat(int x) => $"￦{x:#,###}";
     private List<Item> GetItems()
     {
+        using var context = factory.CreateDbContext();
         List<Item> list;
         if (_selectedCategoryId == -1)
         {
@@ -36,13 +36,24 @@ public partial class ItemObjectManager(ServerDbContext context, ModalService mod
         
         return list;
     }
-    
-    private List<Category> Categories => context.Categories.ToList();
+
+    private int GetItemsCount()
+    {
+        using var context = factory.CreateDbContext();
+        return context.Items.Count();
+    }
+
+    private List<Category> GetCategories()
+    { 
+        using var context = factory.CreateDbContext();
+        return context.Categories.ToList();
+    }
 
     private async Task AddItemAsync()
     {
+        await using var context = await factory.CreateDbContextAsync();
         var categories = context.Categories.ToList();
-        var item = await modal.ShowAsync<EditItemModal, Item>("메뉴 수정", ModalService.Params()
+        var item = await modal.ShowAsync<EditItemModal, Item>("메뉴 추가", ModalService.Params()
             .Add("Categories", categories)
             .Build());
 
@@ -51,33 +62,43 @@ public partial class ItemObjectManager(ServerDbContext context, ModalService mod
         try
         {
             await context.SaveChangesAsync();
+            broker.Broadcast(new TableEventArgs()
+            {
+                EventType = TableEventArgs.TableEventType.CatalogUpdated
+            });
         }
-        catch
+        catch(Exception e)
         {
-            DbSaveChangesErrorHandler();
+            DbSaveChangesErrorHandler(e);
         }
     }
 
-    private async Task EditItemAsync(Item i)
+    private async Task EditItemAsync(int i)
     {
+        await using var context = await factory.CreateDbContextAsync();
         var categories = context.Categories.ToList();
-        var item = await modal.ShowAsync<EditItemModal, Item>("메뉴 수정", ModalService.Params()
-            .Add("Item", i)
+        var item  = await modal.ShowAsync<EditItemModal, Item>("메뉴 수정", ModalService.Params()
+            .Add("Item", await context.Items.FirstAsync(x => x.ItemId == i))
             .Add("Categories", categories)
             .Build());
         try
         {
             await context.SaveChangesAsync();
+            broker.Broadcast(new TableEventArgs()
+            {
+                EventType = TableEventArgs.TableEventType.CatalogUpdated
+            });
         }
-        catch
+        catch(Exception e)
         {
-            DbSaveChangesErrorHandler();
+            DbSaveChangesErrorHandler(e);
         }
     }
 
-    private async Task DeleteItemAsync(Item i)
+    private async Task DeleteItemAsync(int i)
     {
-        bool isExist = context.OrderItems.Any(x => x.ItemId == i.ItemId);
+        await using var context = await factory.CreateDbContextAsync();
+        bool isExist = context.OrderItems.Any(x => x.ItemId == i);
 
         if (isExist)
         {
@@ -89,21 +110,49 @@ public partial class ItemObjectManager(ServerDbContext context, ModalService mod
             {
                 if (await modal.ShowAsync<ConfirmDelete, bool>("데이터 정합성 경고"))
                 {
-                    context.Items.Remove(i);
+                    await context.Items.Where(x => x.ItemId == i).ExecuteDeleteAsync();
                     try
                     {
                         await context.SaveChangesAsync();
+                        broker.Broadcast(new TableEventArgs()
+                        {
+                            EventType = TableEventArgs.TableEventType.CatalogUpdated
+                        });
                     }
-                    catch
+                    catch(Exception e)
                     {
-                        DbSaveChangesErrorHandler();
+                        DbSaveChangesErrorHandler(e);
                     }
+                }
+            }
+        }
+        else
+        {
+            if (await modal.ShowAsync<AlertModal, bool>("메뉴 삭제", ModalService.Params()
+                    .Add("InnerHtml",
+                        "정말 이 객체를 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
+                    .Add("IsCancelable", true)
+                    .Build()))
+            {
+                await context.Items.Where(x => x.ItemId == i).ExecuteDeleteAsync();
+                try
+                {
+                    await context.SaveChangesAsync();
+                    broker.Broadcast(new TableEventArgs()
+                    {
+                        EventType = TableEventArgs.TableEventType.CatalogUpdated
+                    });
+                }
+                catch(Exception e)
+                {
+                    DbSaveChangesErrorHandler(e);
                 }
             }
         }
     }
     
-    private void DbSaveChangesErrorHandler(){
+    private void DbSaveChangesErrorHandler(Exception e){
+        logger.LogError(e.ToString());
         _ = interop.ShowNotifyAsync("서버 오류가 발생하여 변경 사항을 저장할 수 없었습니다.", InteractiveInteropService.NotifyType.Error);
     }
 }

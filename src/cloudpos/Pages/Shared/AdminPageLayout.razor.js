@@ -50,7 +50,7 @@
         }[theme] ?? '';
         
         const card = document.createElement("div")
-        card.className = "card shadow-sm alert-card bg-body-tertiary rounded-0";
+        card.className = "card shadow-sm alert-card rounded-0";
         card.innerHTML =
             `<div class="d-flex flex-column p-3">
                 <div class="d-flex align-items-center alert-title order-bottom rounded-1 mb-2 ${themeClass}">
@@ -70,7 +70,13 @@
         zone.insertBefore(card, zone.firstChild);  
         requestAnimationFrame(()=>{
             card.classList.add('alert-enter-active');
+            card.classList.add('card-flash-animation');
             card.classList.remove('alert-enter');
+            
+            card.addEventListener('animationend', () => {
+                card.classList.remove('card-flash-animation');
+                card.style.backgroundColor = 'var(--bs-tertiary-bg)';
+            }, { once: true });
         });
         animateReorder(oldRects);
     }

@@ -1,0 +1,11 @@
+<PageTitle>@Code</PageTitle>
+<div class="w-100 full-height d-flex justify-content-center align-items-center">
+    <div>
+        <h1 class="text-center monospace-font">@Code</h1>
+        <h4 class="text-center monospace-font text-muted">@Message</h4>
+    </div>
+</div>
+@code {
+    [Parameter] public required int Code { get; set; } 
+    [Parameter] public required string Message { get; set; } 
+}

@@ -1,7 +1,7 @@
 <div class="d-flex justify-content-between">
     <div>
         <h3 class="fw-bold mt-3">메뉴 관리</h3>
-        <h6 class="text-secondary fw-light">총 @(GetItems().Count)개의 메뉴가 있습니다.</h6>
+        <h6 class="text-secondary fw-light">총 @(GetItemsCount())개의 메뉴가 있습니다.</h6>
     </div>
     <div class="d-flex flex-column-reverse">
         <div class="d-flex gap-2">
@@ -11,7 +11,7 @@
             </div>
             <InputSelect @bind-Value="_selectedCategoryId" class="form-select" aria-label="카테고리 선택">
                 <option value="-1" selected>전체 카테고리</option>
-                @foreach (var c in Categories)
+                @foreach (var c in GetCategories())
                 {
                     <option value="@c.CategoryId">@c.Name</option>
                 }
@@ -43,11 +43,11 @@
                 </p>
             </div>
             <div class="d-flex justify-content-between flex-column">
-                <button class="btn btn-outline-primary border-0"@onclick="() => EditItemAsync(item)">
+                <button class="btn btn-outline-primary border-0"@onclick="() => EditItemAsync(item.ItemId)">
                     <i class="bi bi-pencil-fill"></i>
                     수정
                 </button>
-                <button class="btn btn-outline-danger border-0" @onclick="() => DeleteItemAsync(item)">
+                <button class="btn btn-outline-danger border-0" @onclick="() => DeleteItemAsync(item.ItemId)">
                     <i class="bi bi-x-lg"></i>
                     삭제
                 </button>

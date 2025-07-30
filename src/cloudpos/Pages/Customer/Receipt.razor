@@ -1,8 +1,10 @@
+@attribute [Authorize(Policy = AuthorizationHandler.EndedSessionPolicy)]
 @page "/Customer/Receipt"
 
-@if (table.GetSession() is not null && _orderSummaries is not null)
+@{ var session = table.GetSession()!;}
+@if (_orderSummaries is not null)
 {
-    <PageTitle>전자영수증</PageTitle>
+    <PageTitle>@config.StoreName - 전자영수증</PageTitle>
     <div class="container">
         <div class="d-flex justify-content-center align-items-center flex-column mt-3 p-3">
             <i class="bi bi-check2-circle text-success" style="font-size: 4rem; line-height: 1.2"></i>
@@ -17,19 +19,19 @@
                     <hr class="receipt-line"/>
                     <div>
                         <span>[입장시간]</span>
-                        <span class="float-end">@table.GetSession()!.CreatedAt.ToString("yyyy-mm-dd hh:mm:ss")</span>
+                        <span class="float-end">@session.CreatedAt.ToString("yyyy-mm-dd hh:mm:ss")</span>
                     </div>
                     <div>
                         <span>[발행시간]</span>
-                        <span class="float-end">@(table.GetSession()!.EndedAt?.ToString("yyyy-mm-dd hh:mm:ss") ?? "미발행")</span>
+                        <span class="float-end">@(session.EndedAt?.ToString("yyyy-mm-dd hh:mm:ss") ?? "미발행")</span>
                     </div>
                     <div>
                         <span>[테이블]</span>
-                        <span class="float-end">@table.GetSession()!.Table.Name</span>
+                        <span class="float-end">@session.Table.Name</span>
                     </div>
                     <div>
                         <span>[거래번호]</span>
-                        <span class="float-end">#@table.GetSession()!.SessionId</span>
+                        <span class="float-end">#@session.SessionId</span>
                     </div>
                     <hr class="receipt-line"/>
                     <table class="w-100">

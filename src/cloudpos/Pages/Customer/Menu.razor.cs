@@ -1,14 +1,16 @@
 using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
+using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInteropService interop, TableService table, ConfigurationService config, ModalService modal) : ComponentBase, IAsyncDisposable
+public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime js, InteractiveInteropService interop, TableService table, ConfigurationService config, ModalService modal, TableEventBroker broker) : ComponentBase, IAsyncDisposable
 {
     private record CartItem(int Quantity, Item Item)
     {
@@ -27,7 +29,19 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
     private string GetImageUrl(int imageId) => $"{config.ImageBaseUrl}/static-assets/{imageId}.webp";
     protected override async Task OnInitializedAsync()
     {
-        _categories = await context.Categories.Include(x => x.Items).ToListAsync();
+        var session = await table.GetSessionAsync();
+        if (session is null) return;
+
+        await UpdateCatalog();
+        _module = await js.InvokeAsync<IJSObjectReference>("import", "./Pages/Customer/Menu.razor.js");
+        await _module!.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
+        broker.Subscribe(session.TableId, OnTableEvent);
+    }
+
+    private async Task UpdateCatalog()
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        _categories = await context.Categories.AsNoTracking().Include(x => x.Items).ToListAsync();
         var all = new Category
         {
             Name = "전체",
@@ -35,10 +49,18 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
         };
         foreach(var x in _categories.SelectMany(x => x.Items)) all.Items.Add(x);
         _categories.Insert(0, all);
-        _module = await js.InvokeAsync<IJSObjectReference>("import", "./Pages/Customer/Menu.razor.js");
-        await _module!.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
+        StateHasChanged();
     }
-    
+
+    private async void OnTableEvent(object? sender, TableEventArgs e)
+    {
+        if (e.EventType == TableEventArgs.TableEventType.CatalogUpdated)
+        {
+            _ = interop.ShowNotifyAsync("매뉴 카탈로그가 업데이트되었습니다.", InteractiveInteropService.NotifyType.Success);
+            await UpdateCatalog();
+        }
+    }
+
     private void OnCategorySelected(int categoryId)
     {
         _selectedCategoryId = categoryId;
@@ -93,19 +115,12 @@ public partial class Menu(ServerDbContext context, IJSRuntime js, InteractiveInt
                 .Add("IsCancelable", true)
                 .Build()))
             return;
-        
-        var order = new Order()
-        {
-            SessionId = table.GetSession()!.SessionId
-        };
+
+        var order = new List<TableService.OrderItem>();
 
         foreach (var item in _cart)
         {
-            order.OrderItems.Add(new OrderItem()
-            {
-                Item = item.Item,
-                Quantity = item.Quantity,
-            });
+            order.Add(new TableService.OrderItem(item.Item.ItemId, item.Quantity));
         }
 
         if (!await table.MakeOrderAsync(order))

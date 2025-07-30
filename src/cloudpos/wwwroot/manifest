@@ -1,0 +1,14 @@
+{
+  "name": "CloudPOS Administrative Portal",
+  "short_name": "CloudPOS",
+  "start_url": "/Administrative/Authorize",
+  "display": "standalone",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

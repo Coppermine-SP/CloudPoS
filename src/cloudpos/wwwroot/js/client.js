@@ -12,12 +12,21 @@ Blazor.start({
             scheduleRetry();
             return true; 
         },
-        onConnectionUp: () => {
+        onConnectionUp: () => 
+        {
             console.log("Blazor connection up.");
             showNotify("서버와 연결되었습니다.", 1);
         }
     }
 });
+window.isPwaDisplayMode = () => {
+
+    const isPwa = window.matchMedia('(display-mode: standalone)').matches ||
+                  window.matchMedia('(display-mode: fullscreen)').matches ||
+                  window.matchMedia('(display-mode: minimal-ui)').matches;
+    const isPwaForIos = window.navigator.standalone === true;
+    return isPwa || isPwaForIos;
+};
 
 async function scheduleRetry(attempt = 1) {
     if (attempt > 25) {

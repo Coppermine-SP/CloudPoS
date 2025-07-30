@@ -7,12 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
-public partial class History(ServerDbContext context, InteractiveInteropService interop, ModalService modal, ConfigurationService config, TableService table) : ComponentBase
+public partial class History(IDbContextFactory<ServerDbContext> factory, InteractiveInteropService interop, ModalService modal, ConfigurationService config, TableService table, TableEventBroker broker) : ComponentBase, IDisposable
 {
-    protected override void OnParametersSet()
-    {
-        UpdateTotal();
-    }
     
     private int _totalOrderCount = 0;
     private int _totalAmount = 0;
@@ -20,6 +16,7 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
     private string CurrencyFormat(int x) => $"￦{x:#,###}";
     private void UpdateTotal()
     {
+        using var context = factory.CreateDbContext();
         var session = table.GetSession();
         var orders = context.Orders.Where(x => x.SessionId == session!.SessionId)
             .Include(x => x.OrderItems)
@@ -46,5 +43,10 @@ public partial class History(ServerDbContext context, InteractiveInteropService 
         }
     }
 
-
+    protected override void OnInitialized() => broker.Subscribe(table.GetSession()!.TableId, OnTableEvent);
+    public void Dispose() => broker.Unsubscribe(table.GetSession()!.TableId, OnTableEvent);
+    private void OnTableEvent(object? sender, TableEventArgs e)
+    {
+        if (e.EventType == TableEventArgs.TableEventType.Order) StateHasChanged();
+    }
 }

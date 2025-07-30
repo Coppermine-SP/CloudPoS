@@ -13,4 +13,5 @@ public class Table
     public required string Name { get; set; }
     
     public ICollection<TableSession> Sessions { get; } = new List<TableSession>();
+    public virtual TableViewCell Cell { get; set; } = null!;
 }

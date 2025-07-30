@@ -1,0 +1,86 @@
+@implements IAsyncDisposable
+@using CloudInteractive.CloudPos.Components.Modal        
+@inject ModalService Modal
+@inject IJSRuntime Js;
+@if (_req is not null)
+            {
+                <div class="modal fade" tabindex="-1" @ref="_modalRef">
+                    <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation>
+                        <div class="modal-content border-0 shadow-lg bg-body-tertiary">
+                            <div class="px-4 pt-4 modal-title">
+                                <h5 class="fw-semibold mb-2">@_req.Title</h5>
+                            </div>
+                            <div class="px-4 modal-body">
+                                <ModalErrorBoundary NotifyError="HandleModalError" @ref="_errBoundary">
+                                    <DynamicComponent Type="_req.ComponentType"
+                                                      Parameters="MergedParameters"
+                                                      @ref="_instance"/>
+                                </ModalErrorBoundary>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            @code {
+                private ModalService.ModalRequest? _req;
+                private IComponent? _instance;
+                private ElementReference _modalRef;
+                private ModalErrorBoundary? _errBoundary;     
+                private bool _shown;
+
+                private IDictionary<string, object?> MergedParameters =>
+                    _req is null
+                        ? new Dictionary<string, object?>(0)
+                        : new Dictionary<string, object?>(_req.Parameters?.Parameters ?? new())
+                        {
+                            ["Close"] = (Func<object?, Task>)Close
+                        };
+                
+                protected override void OnInitialized()
+                    => Modal.OnModalRequested += HandleModalRequested;
+
+                public async ValueTask DisposeAsync()
+                {
+                    Modal.OnModalRequested -= HandleModalRequested;
+                    if (_req is not null)
+                    {
+                        await _req.CloseCallback(null);  
+                        _req = null;
+                    }
+                }
+                
+                protected override async Task OnAfterRenderAsync(bool firstRender)
+                {
+                    if (_req is not null && !_shown)
+                    {
+                        _shown = true;
+                        await Js.InvokeVoidAsync("blazorModal.show", _modalRef);
+                    }
+                }
+                
+                private async Task HandleModalRequested(ModalService.ModalRequest req)
+                {
+                    _req = req;
+                    _shown = false;                    
+                    _errBoundary?.Recover();           
+                    await InvokeAsync(StateHasChanged);
+                }
+                
+                private async Task Close(object? resultOrException)
+                {
+                    if (_shown)
+                    {
+                        await Js.InvokeVoidAsync("blazorModal.hide", _modalRef);
+                        _shown = false;
+                    }
+
+                    if (_req is null) return;
+
+                    await _req.CloseCallback(resultOrException);
+                    _req = null;
+                    StateHasChanged();
+                }
+                private async Task HandleModalError(Exception ex)
+                    => await Close(ex); 
+            }

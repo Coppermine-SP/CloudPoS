@@ -12,8 +12,6 @@ namespace CloudInteractive.CloudPos.Pages.Administrative;
 public class Authorize(ConfigurationService config) : PageModel
 {
     [TempData] public string? Message { get; set; }
-    public const string AdminRole = "admin";
-    
     public string StoreName = config.StoreName;
     public async Task<IActionResult> OnGet(bool signOut)
     {
@@ -24,7 +22,7 @@ public class Authorize(ConfigurationService config) : PageModel
             return Redirect("/Administrative/Authorize");
         }
         
-        if(HttpContext.User.Identity!.IsAuthenticated && HttpContext.User.IsInRole(AdminRole))
+        if(HttpContext.User.Identity!.IsAuthenticated && HttpContext.User.IsInRole(AuthorizationHandler.AdminRole))
             return Redirect("/Administrative/TableView");
         
         return Page();
@@ -44,7 +42,7 @@ public class Authorize(ConfigurationService config) : PageModel
         if (config.AdminPasswordHash == Convert.ToBase64String(hash))
         {
             var identity = new ClaimsIdentity([
-                new Claim(ClaimTypes.Role, AdminRole)
+                new Claim(ClaimTypes.Role, AuthorizationHandler.AdminRole)
             ], CookieAuthenticationDefaults.AuthenticationScheme);
             
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));

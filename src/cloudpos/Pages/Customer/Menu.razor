@@ -1,5 +1,7 @@
+@attribute [Authorize(Policy = AuthorizationHandler.ActiveSessionPolicy)]
 @page "/Customer/Menu"
 @layout Shared.CustomerPageLayout
+<PageTitle>@config.StoreName - 메뉴</PageTitle>
     <div id="category-wrapper" class="category-wrapper">
         <div class="scroll-arrow left d-none" id="cat-arrow-left"><i class="bi bi-chevron-left"></i></div>
         <div class="fade-edge left d-none rounded-start-5" id="cat-fade-left"></div>

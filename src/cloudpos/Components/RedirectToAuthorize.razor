@@ -1,0 +1,16 @@
+@inject NavigationManager NavigationManager
+@inject InteractiveInteropService Interop;
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            NavigationManager.NavigateTo(await Interop.IsPwaDisplayMode() ? "Administrative/Authorize" : "Customer/Authorize?error=0", forceLoad: true);
+        }
+        catch
+        {
+            //ignored
+        }
+
+    }
+}

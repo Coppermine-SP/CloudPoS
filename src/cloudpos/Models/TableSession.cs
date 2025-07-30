@@ -15,7 +15,6 @@ public class TableSession
     public bool IsPaymentCompleted { get; set; }
     
     [StringLength(4, MinimumLength = 4)]
-    public required string AuthCode { get; set; }
+    public string? AuthCode { get; set; }
     public ICollection<Order> Orders { get; } = new List<Order>();
-    
 }

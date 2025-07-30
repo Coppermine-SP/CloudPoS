@@ -1,6 +1,8 @@
+@attribute [Authorize(Policy = AuthorizationHandler.ActiveSessionPolicy)]
 @page "/Customer/History"
 @layout Shared.CustomerPageLayout
-
+<PageTitle>@config.StoreName - 주문 내역</PageTitle>
+@{ UpdateTotal();}
 <div class="alert alert-info shadow" onclick="location.href='@config.SurveyUrl'">
     <div class="card-body d-flex flex-row">
         <div class="me-3" style="font-size: 2rem;">
@@ -58,17 +60,24 @@ else
                     </div>
                 </div>
                 <div class="card-body">
-                    <ul>
-                        @{ int subtotal = 0; }
-                        @foreach (var i in o.OrderItems)
-                        {
-                            subtotal += i.Quantity * i.Item.Price;
-                            <li class="mb-3">
-                                <p class="mb-0">@i.Item.Name</p>
-                                <span class="text-secondary monospace-font">@CurrencyFormat(i.Item.Price) x @i.Quantity = @CurrencyFormat(i.Item.Price * i.Quantity)</span>
-                            </li>
-                        }
-                    </ul>
+                    @{ int subtotal = 0; }
+                    @if (o.OrderItems.Count != 0)
+                    {
+                        <ul>
+                            @foreach (var i in o.OrderItems)
+                            {
+                                subtotal += i.Quantity * i.Item.Price;
+                                <li class="mb-3">
+                                    <p class="mb-0">@i.Item.Name</p>
+                                    <span class="text-secondary monospace-font">@CurrencyFormat(i.Item.Price) x @i.Quantity = @CurrencyFormat(i.Item.Price * i.Quantity)</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-danger">이 주문은 연결된 주문 정보가 없습니다.</p>
+                    }
                     @if (o.Status == Models.Order.OrderStatus.Cancelled)
                     {
                         <h6 class="mb-0 text-danger text-decoration-line-through">주문 합계: @CurrencyFormat(subtotal)</h6>
@@ -76,9 +85,15 @@ else
                     }
                     else
                     {
-                        <h6 class="mb-0 text-secondary">주문 합계: @CurrencyFormat(subtotal)</h6>
+                        @if (o.OrderItems.Count != 0)
+                        {
+                            <h6 class="mb-0 text-secondary">주문 합계: @CurrencyFormat(subtotal)</h6>
+                        }
+                        else
+                        {
+                            <h6 class="mb-0 text-secondary">무효</h6>
+                        }
                     }
-
                 </div>
             </div>
         }

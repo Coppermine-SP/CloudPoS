@@ -11,7 +11,6 @@ namespace CloudInteractive.CloudPos.Pages.Customer;
 public class Authorize(ILogger<Authorize> logger, ServerDbContext context, ConfigurationService config) : PageModel
 {
     [TempData] public string? Message { get; set; }
-    public const string CustomerRole = "customer";
     public string WelcomeMessage = config.WelcomeMessage;
     
     public async Task<IActionResult> OnGet(string? code, int? error)
@@ -21,7 +20,7 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
         {
             Message = error switch
             {
-                0 => "인증되지 않았습니다.",
+                0 => null,
                 1 => "세션이 만료되었습니다.",
                 2 => "올바르지 않은 세션입니다.",
                 _ => "알 수 없는 오류"
@@ -45,7 +44,7 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
         }
 
         var identity = new ClaimsIdentity([
-            new Claim(ClaimTypes.Role, CustomerRole),
+            new Claim(ClaimTypes.Role, AuthorizationHandler.CustomerRole),
             new Claim(ClaimTypes.Sid, session.SessionId.ToString())
         ], CookieAuthenticationDefaults.AuthenticationScheme);
         

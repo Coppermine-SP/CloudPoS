@@ -6,6 +6,7 @@ public class TableEventArgs : EventArgs
     {
         SessionEnd,
         StaffCall,
+        CatalogUpdated,
         Message,
         Order,
     }

@@ -1,4 +1,5 @@
-@using CloudInteractive.CloudPos.Components;
+@attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
+@inject ConfigurationService Config
 @page "/Administrative/ObjectManager"
 @layout Shared.AdminPageLayout
 @code{
@@ -7,6 +8,7 @@
     private const string MenuClass = "btn-outline-secondary";
     private const string SeletedMenuClass = "btn-secondary";
 }
+<PageTitle>@(Config.StoreName) - 객체 관리자</PageTitle>
 <div class="d-flex justify-content-center align-items-center my-3">
     <button style="width: 5.2rem" type="button" class="btn @(_selectedMenu == MenuContent.Category ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Category">카테고리</button>
     <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
