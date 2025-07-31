@@ -9,29 +9,31 @@
     private const string SeletedMenuClass = "btn-secondary";
 }
 <PageTitle>@(Config.StoreName) - 객체 관리자</PageTitle>
-<div class="d-flex justify-content-center align-items-center my-3">
-    <button style="width: 5.2rem" type="button" class="btn @(_selectedMenu == MenuContent.Category ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Category">카테고리</button>
-    <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
-    <button style="width: 5.2rem"  type="button" class="btn @(_selectedMenu == MenuContent.Item ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Item">메뉴</button>
-    <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
-    <button style="width: 5.2rem"  type="button" class="btn  @(_selectedMenu == MenuContent.Table ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Table">테이블</button>
-    <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
-    <button style="width: 5.2rem"  type="button" class="btn  @(_selectedMenu == MenuContent.Session ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Session">세션</button>
-</div>
+<div class="container p-3">
+    <div class="d-flex justify-content-center align-items-center my-3">
+        <button style="width: 5.2rem" type="button" class="btn @(_selectedMenu == MenuContent.Category ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Category">카테고리</button>
+        <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
+        <button style="width: 5.2rem"  type="button" class="btn @(_selectedMenu == MenuContent.Item ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Item">메뉴</button>
+        <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
+        <button style="width: 5.2rem"  type="button" class="btn  @(_selectedMenu == MenuContent.Table ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Table">테이블</button>
+        <div class="mx-3" style="width: 0.1rem; height: 2rem; background: var(--bs-border-color)"></div>
+        <button style="width: 5.2rem"  type="button" class="btn  @(_selectedMenu == MenuContent.Session ? SeletedMenuClass : MenuClass)" @onclick="() => _selectedMenu = MenuContent.Session">세션</button>
+    </div>
 
-@if (_selectedMenu == MenuContent.Category)
-{
-    <CategoryObjectManager></CategoryObjectManager>
-}
-else if (_selectedMenu == MenuContent.Item)
-{
-    <ItemObjectManager></ItemObjectManager>
-}
-else if(_selectedMenu == MenuContent.Table)
-{
-    <TableObjectManager></TableObjectManager>
-}
-else
-{
-    <SessionObjectManager></SessionObjectManager>
-}
+    @if (_selectedMenu == MenuContent.Category)
+    {
+        <CategoryObjectManager></CategoryObjectManager>
+    }
+    else if (_selectedMenu == MenuContent.Item)
+    {
+        <ItemObjectManager></ItemObjectManager>
+    }
+    else if(_selectedMenu == MenuContent.Table)
+    {
+        <TableObjectManager></TableObjectManager>
+    }
+    else
+    {
+        <SessionObjectManager></SessionObjectManager>
+    }
+</div>

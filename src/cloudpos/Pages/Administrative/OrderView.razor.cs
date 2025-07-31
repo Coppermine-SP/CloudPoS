@@ -54,6 +54,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, ILogg
     
     private async void OnCancelOrder()
     {
+        logger.LogCritical("S");
         if (_selectedOrder is null) return;
         if (!await modal.ShowAsync<AlertModal, bool>("주문 취소", ModalService.Params()
                 .Add("IsCancelable", true)

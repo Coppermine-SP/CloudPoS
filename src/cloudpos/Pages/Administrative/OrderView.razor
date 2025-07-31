@@ -1,27 +1,33 @@
 @attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
+@inject ConfigurationService Config
 @page "/Administrative/OrderView"
 @layout Shared.AdminPageLayout
 @{ var orders = GetOrders; }
-<h5 class="mb-4 mt-2">@(orders.Count == 0 ? "현재 아무 활성 주문이 없습니다." : $"현재 {orders.Count}개의 활성 주문이 있습니다.")</h5>
-<div class="row">
-    <main class="col-lg-8">
-        <button class="btn btn-primary d-lg-none mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive" aria-controls="offcanvasResponsive">
-            <i class="bi bi-receipt"></i> 주문 상세 보기
-        </button>
-        <div class="grid-scroll-wrapper">
-            @if (orders.Count == 0)
-            {
-                <div class="d-flex flex-column w-100 h-100 justify-content-center align-items-center text-muted">
-                    <i class="bi bi-exclamation-lg fs-1 mt-5"></i>
-                    <h6>주문 없음</h6>
-                </div>
-            }
-            else
-            {
-                <div class="order-grid me-lg-3">
-                    @foreach (var o in orders)
-                    { 
-                        <div class="card bg-body-secondary order-card shadow border-0 rounded-2" @onclick="() => _selectedOrder = o">
+<PageTitle>@(Config.StoreName) - 주문 뷰</PageTitle>
+<div style="height: calc(100vh - 58px)">
+    <div class="d-flex h-100 justify-content-between">
+        <main class="flex-grow-1">
+            <div class="mx-5 my-4">
+                <h3 class="fw-bold">주문 뷰</h3>
+                <p class="text-muted">@(orders.Count == 0 ? "활성화 된 주문이 없습니다." : $"현재 {orders.Count}개의 활성 주문이 있습니다.")</p>
+                <button class="btn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive" aria-controls="offcanvasResponsive">
+                    <i class="bi bi-receipt"></i> 주문 상세 보기
+                </button>
+            </div>
+            <div class="grid-scroll-wrapper">
+                @if (orders.Count == 0)
+                {
+                    <div class="d-flex flex-column w-100 h-100 justify-content-center align-items-center text-muted">
+                        <i class="bi bi-exclamation-lg fs-1 mt-5"></i>
+                        <h6>주문 없음</h6>
+                    </div>
+                }
+                else
+                {
+                    <div class="order-grid me-5 ms-5">
+                        @foreach (var o in orders)
+                        {
+                            <div class="card bg-body-tertiary order-card shadow border-0 rounded-2" @onclick="() => _selectedOrder = o">
                                 <div class="card-header text-muted">
                                     주문 #@o.OrderId
                                     <span class="float-end">@o.Session!.Table.Name</span>
@@ -36,73 +42,71 @@
                                 </div>
                             </div>
                         }
-                </div>
-            }
-        </div>
-    </main>
-    <div class="col-lg-4 p-0">
-        <div class="offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex rounded-3 shadow" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 300px">
-            <div class="offcanvas-header border-bottom">
-                <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">주문 정보</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                }
             </div>
-            <div class="offcanvas-body d-flex flex-column flex-grow-1">
-                <h5 class="mb-4 flex-shrink-0">주문 상세보기</h5>
-                @if (_selectedOrder is null)
-                {
-                    <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
-                        <i class="bi bi-receipt-cutoff fs-1"></i>
-                        <h6>선택된 주문 없음</h6>
-                    </div> 
-                }
-                else
-                {
-                    <h6>주문 #@_selectedOrder.OrderId</h6>
-                    <div class="text-muted">
-                        <div>
-                            테이블:
-                            <span class="float-end">@_selectedOrder.Session!.Table.Name</span>
+        </main>
+        <div class="d-none d-lg-block shadow" style="max-width: 380px; width: 40%;">
+            <div class="offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex h-100" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">주문 정보</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"  aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body d-flex flex-column flex-grow-1">
+                    <h5 class="mb-4 flex-shrink-0">주문 상세보기</h5>
+                    @if (_selectedOrder is null)
+                    {
+                        <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
+                            <i class="bi bi-receipt-cutoff fs-1"></i>
+                            <h6>선택된 주문 없음</h6>
+                        </div> 
+                    }
+                    else
+                    {
+                        <h6>주문 #@_selectedOrder.OrderId</h6>
+                        <div class="text-muted">
+                            <div>
+                                테이블:
+                                <span class="float-end">@_selectedOrder.Session!.Table.Name</span>
+                            </div>
+                            <div>
+                                세션:
+                                <span class="float-end">#@_selectedOrder.Session.SessionId</span>
+                            </div>
+                            <div>
+                                주문 시각:
+                                <span class="float-end">@_selectedOrder.CreatedAt.ToString("yyyy-MM-d hh:mm:ss")</span>
+                            </div>
                         </div>
-                        <div>
-                            세션:
-                            <span class="float-end">#@_selectedOrder.Session.SessionId</span>
-                        </div>
-                        <div>
-                            주문 시각:
-                            <span class="float-end">@_selectedOrder.CreatedAt.ToString("yyyy-MM-d hh:mm:ss")</span>
-                        </div>
-                    </div>
-                    <h6 class="mt-4 text-muted">상세 내역</h6>
-                    <div class="flex-grow-1">
-                        <table class="w-100">
-                            <thead>
-                            <tr class="text-muted">
-                                <td>메뉴</td>
-                                <td>수량</td>
-                                <td class="text-end">합계</td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (var i in _selectedOrder.OrderItems)
-                            {
-                                <tr class="monospace-font">
-                                    <td>@i.Item.Name</td>
-                                    <td>@i.Quantity</td>
-                                    <td class="text-end">@CurrencyFormat(i.Quantity * i.Item.Price)</td>
+                        <h6 class="mt-4 text-muted">상세 내역</h6>
+                        <div class="flex-grow-1">
+                            <table class="w-100">
+                                <thead>
+                                <tr class="text-muted">
+                                    <td>메뉴</td>
+                                    <td>수량</td>
+                                    <td class="text-end">합계</td>
                                 </tr>
-                            }
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                        <button class="btn btn-success me-2" @onclick="OnCompleteOrder"><i class="bi bi-check-lg me-2"></i>완료</button>
-                        <button class="btn btn-danger" @onclick="OnCancelOrder"><i class="bi bi-x-lg me-2"></i>취소</button>
-                    </div>
-                }
+                                </thead>
+                                <tbody>
+                                @foreach (var i in _selectedOrder.OrderItems)
+                                {
+                                    <tr class="monospace-font">
+                                        <td>@i.Item.Name</td>
+                                        <td>@i.Quantity</td>
+                                        <td class="text-end">@CurrencyFormat(i.Quantity * i.Item.Price)</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            <button class="btn btn-success" @onclick="OnCompleteOrder"><i class="bi bi-check-lg me-2"></i>완료</button>
+                            <button class="btn btn-danger" @onclick="OnCancelOrder"><i class="bi bi-x-lg me-2"></i>취소</button>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
-@code {
-    
-}
