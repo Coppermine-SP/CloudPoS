@@ -1,5 +1,80 @@
-<h3>TableObjectManager_</h3>
+<div class="row g-4 h-100">
+    <!-- Left Panel: Table Layout Grid -->
+    <div class="col-12 col-md-7 col-xl-8">
+        <div class="border rounded p-3 d-flex flex-column h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">테이블 배치도</h5>
+                <div>
+                    @if (_isModify)
+                    {
+                        <button class="btn btn-secondary me-2" @onclick="CancelChanges">취소</button>
+                        <button class="btn btn-success" @onclick="SaveChanges">저장</button>
+                    }
+                </div>
+            </div>
 
-@code {
-    
-}
+            <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
+                <div id="grid-container" class="table-grid-container">
+                    @for (int y = 0; y < 6; y++)
+                    {
+                        @for (int x = 0; x < 6; x++)
+                        {
+                            var cellX = x;
+                            var cellY = y;
+                            var tableInCell = PlacedTables.FirstOrDefault(t => t.Cell != null && t.Cell.X == cellX && t.Cell.Y == cellY);
+
+                            <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
+                                @if (tableInCell != null)
+                                {
+                                    <div class="table-item d-flex align-items-center justify-content-center fw-bold bg-primary text-white position-relative"
+                                         data-table-id="@tableInCell.TableId">
+                                        <strong>@tableInCell.Name</strong>
+                                        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 px-1" @onclick="() => DeleteTableAsync(tableInCell.TableId)">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel: Table Management -->
+    <div class="col-12 col-md-5 col-xl-4">
+        <div class="border rounded p-3 h-100 d-flex flex-column">
+            <h5 class="mb-3">테이블 관리</h5>
+            <div class="mb-4">
+                <h6>새 테이블 생성</h6>
+                <div class="mb-2">
+                    <label for="tableName" class="form-label">테이블 이름</label>
+                    <input type="text" id="tableName" class="form-control" @bind="_newTableName" placeholder="예: 1번, 창가쪽 4인석">
+                </div>
+                <button class="btn btn-primary w-100" @onclick="CreateTableAsync" disabled="@string.IsNullOrWhiteSpace(_newTableName)">생성하기</button>
+            </div>
+            <hr/>
+            <div class="flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                <h6>미배치 테이블 목록</h6>
+                <div id="unplaced-list" class="unplaced-grid-container overflow-auto h-100 p-1">
+                    @if (UnplacedTables.Any())
+                    {
+                        @foreach (var table in UnplacedTables)
+                        {
+                            <div @key="table.TableId"
+                                 class="table-item d-flex align-items-center justify-content-center fw-bold bg-primary text-white position-relative"
+                                 data-table-id="@table.TableId">
+                                <strong>@table.Name</strong>
+                                <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 px-1"
+                                        @onclick="() => DeleteTableAsync(table.TableId)">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
