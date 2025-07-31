@@ -78,10 +78,15 @@ public partial class TableObjectManager (
         bool isReferenced = await context.Set<TableSession>().AnyAsync(ts => ts.TableId == tableId);
         if (isReferenced)
         {
-            await modal.ShowAsync<AlertModal, bool>("삭제 불가", ModalService.Params().Add("InnerHtml", "이 테이블은 현재 사용중인 세션이 있어 삭제할 수 없습니다.<br>관련된 모든 주문 내역 또는 세션을 먼저 삭제해야 합니다.").Build());
+            await modal.ShowAsync<AlertModal, bool>("데이터 정합성 경고", ModalService.Params()
+                .Add("InnerHtml", "이 테이블 객체를 참조하는 모든 세션 객체를 제거하기 전까지는 이 객체를 제거할 수 없습니다.<br><br><strong>자세한 사항은 사용자 메뉴얼을 참조하십시오.</strong>")
+                .Build());
             return;
         }
-        if (await modal.ShowAsync<AlertModal, bool>("테이블 삭제", ModalService.Params().Add("InnerHtml", "정말 이 테이블을 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>").Add("IsCancelable", true).Build()))
+        if (await modal.ShowAsync<AlertModal, bool>("데이터 삭제 경고", ModalService.Params()
+                .Add("InnerHtml", "정말 이 테이블을 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
+                .Add("IsCancelable", true)
+                .Build()))
         {
             try
             { 
@@ -174,7 +179,7 @@ public partial class TableObjectManager (
 
     private void DbSaveChangesErrorHandler(Exception e)
     {
-        logger.LogError(e, "데이터베이스 변경 사항 저장 중 오류 발생");
+        logger.LogError(e.ToString());
         _ = interop.ShowNotifyAsync("서버 오류가 발생하여 변경 사항을 저장할 수 없었습니다.", InteractiveInteropService.NotifyType.Error);
     }
     
