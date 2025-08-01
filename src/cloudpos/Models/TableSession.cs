@@ -5,6 +5,7 @@ namespace CloudInteractive.CloudPos.Models;
 
 public class TableSession
 {
+    public enum SessionState {Active, Billing, Completed}
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int SessionId { get; set; }
@@ -12,7 +13,8 @@ public class TableSession
     public int TableId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? EndedAt { get; set; }
-    public bool IsPaymentCompleted { get; set; }
+
+    public SessionState State { get; set; }
     
     [StringLength(4, MinimumLength = 4)]
     public string? AuthCode { get; set; }

@@ -37,6 +37,27 @@ public class TableService
             ? AuthHandler.Session
             : context.Sessions.AsNoTracking().Include(x => x.Table).FirstOrDefault(x => x.SessionId == sessionId);
     }
+
+    public async Task<bool> CompleteSessionAsync(int sessionId)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        var session = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+        if (session is null)
+        {
+            _logger.LogWarning("존재하지 않는 세션을 완료하려고 시도했습니다: {SessionId}", sessionId);
+            return false;
+        }
+
+        if (session.State != TableSession.SessionState.Billing)
+        {
+            _logger.LogWarning("완료하려는 세션의 상태가 잘못되었습니다: {SessionId}", sessionId);
+            return false;
+        }
+
+        session.State = TableSession.SessionState.Completed;
+        await context.SaveChangesAsync();
+        return true;
+    }
         
     public async Task<bool> EndSessionAsync(int? sessionId = null)
     {
@@ -63,7 +84,7 @@ public class TableService
         }
         
         session.EndedAt = DateTime.Now;
-        session.IsPaymentCompleted = false;
+        session.State = TableSession.SessionState.Billing;
         session.AuthCode = null;
         await context.SaveChangesAsync();
         AuthHandler.ClearSessionCache(session.SessionId);
@@ -175,6 +196,49 @@ public class TableService
             return false;
         }
         
+    }
+
+    private string _generateAuthCode()
+    {
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Span<byte> bytes = stackalloc byte[16];
+        Guid.NewGuid().TryWriteBytes(bytes);
+
+        char[] code = new char[4];
+        for (int i = 0; i < code.Length; i++)
+            code[i] = alphabet[bytes[i] % alphabet.Length];
+        return new string(code);
+    }
+    
+    public async Task<TableSession?> CreateSessionAsync(int tableId)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        if (!await context.Tables.AnyAsync(x => x.TableId == tableId))
+        {
+            _logger.LogWarning("tableId가 올바르지 않습니다: {table}", tableId);
+            return null;
+        }
+        
+        if(await context.Sessions.AnyAsync(x => x.TableId == tableId && x.State != TableSession.SessionState.Completed))
+        {
+            _logger.LogWarning("완료되지 않은 세션이 있습니다: {table}", tableId);
+            return null;
+        }
+
+        var authCode = _generateAuthCode();
+        while(context.Sessions.Any(x => x.AuthCode == authCode))
+            authCode = _generateAuthCode();
+        
+        var session = new TableSession()
+        {
+            AuthCode = authCode,
+            CreatedAt = DateTime.Now,
+            State = TableSession.SessionState.Active,
+            TableId = tableId
+        };
+        await context.Sessions.AddAsync(session);
+        await context.SaveChangesAsync();
+        return session;
     }
     
 }

@@ -152,7 +152,8 @@ public class AddTestData(ServerDbContext context) : PageModel
         {
             Table = table11,
             AuthCode = "MSFT",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.Now,
+            State = TableSession.SessionState.Active
         });
 
         context.SaveChanges();

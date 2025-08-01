@@ -36,7 +36,7 @@ else
 
                 if (session is not null)
                 {
-                    if (session.IsPaymentCompleted)
+                    if (session.State == TableSession.SessionState.Completed)
                     {
                         NavManager.NavigateTo("/Customer/Authorize?error=1", forceLoad: true, replace: true);
                         return;
