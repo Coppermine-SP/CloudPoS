@@ -1,4 +1,92 @@
 @attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
 @page "/Administrative/TableView"
+@using CloudInteractive.CloudPos.Components.TableView
 @layout Shared.AdminPageLayout
+@code
+{
+    enum OptionContent {SessionSummary, ManualOrder, SessionActions}
+    private OptionContent _selectedOption = OptionContent.SessionSummary;
+    private const string OptionClass = "btn-outline-secondary border-0";
+    private const string SelectedOptionClass = "btn-secondary";
+}
 <PageTitle>@(config.StoreName) - 테이블 뷰</PageTitle>
+<div style="height: calc(100vh - 58px)">
+    <div class="d-flex h-100 justify-content-between">
+        <main class="flex-grow-1">
+            <div class="mx-5 my-4">
+                <h3 class="fw-bold">테이블 뷰</h3>
+           </div>
+            <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
+                <div id="grid-container" class="table-grid-container">
+                    @for (int y = 0; y < 6; y++)
+                    {
+                        @for (int x = 0; x < 6; x++)
+                        {
+                            var cellX = x;
+                            var cellY = y;
+                            var tableInCell = _tables.FirstOrDefault(t => t.Cell != null && t.Cell.X == cellX && t.Cell.Y == cellY);
+
+                            <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
+                                @if (tableInCell != null)
+                                {
+                                    <button class="table-item d-flex align-items-center justify-content-center bg-black bg-opacity-50 text-white position-relative"
+                                            data-table-id="@tableInCell.TableId"
+                                            @onclick="() =>GetTableSessionAsync(tableInCell.TableId)">
+                                        @tableInCell.Name
+                                    </button>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </main>
+        <div class="d-none d-lg-block shadow" style="max-width: 380px; width: 40%;">
+            <div class="offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex h-100" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">주문 정보</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"  aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body d-flex flex-column flex-grow-1 overflow-y-auto">
+                    @if (_selectedTable is null)
+                    {
+                        <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
+                            <i class="bi bi-receipt-cutoff fs-1"></i>
+                            <h6>선택된 테이블 없음.</h6>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-center align-items-center my-3">
+                                <button style="width: 5.5rem" type="button" class="btn @(_selectedOption == OptionContent.SessionSummary ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionSummary">세션 요약</button>
+                                <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
+                                <button style="width: 5.5rem"  type="button" class="btn @(_selectedOption == OptionContent.ManualOrder ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.ManualOrder">수동 주문</button>
+                                <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
+                                <button style="width: 5.5rem"  type="button" class="btn  @(_selectedOption == OptionContent.SessionActions ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionActions">세션 동작</button>
+                                </div>
+                            @switch (_selectedOption)
+                            {
+                                case OptionContent.SessionSummary:
+                                    if (_selectedTableSession is null)
+                                    {
+                                        <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
+                                            <i class="bi bi-receipt-cutoff fs-1"></i>
+                                            <h6>테이블에 할당된 세션 없음.</h6>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                    <SessionSummary TableSession="_selectedTableSession" />
+                                    }
+                                    break;
+                                case OptionContent.ManualOrder:
+                                    break;
+                                case OptionContent.SessionActions:
+                                    break;
+                            }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
