@@ -23,7 +23,7 @@ public partial class TableView(TableService tableService, ModalService modal, Co
 
     private async Task GetTableSessionAsync(int tableId)
     {
+        _selectedTable = _tables.FirstOrDefault(t => t.TableId == tableId);
         _selectedTableSession = await tableService.GetActiveSessionByTableIdAsync(tableId);
-        _selectedTable = _selectedTableSession?.Table;
     }
 }

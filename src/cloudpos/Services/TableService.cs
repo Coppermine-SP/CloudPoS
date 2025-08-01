@@ -251,7 +251,7 @@ public class TableService
         await using var context = await _factory.CreateDbContextAsync();
         return await context.Sessions
             .AsNoTracking()
-            .Where(s => s.TableId == tableId && s.EndedAt == null) // 해당 테이블의 활성 세션만 조회
+            .Where(s => s.TableId == tableId && s.State != TableSession.SessionState.Completed)
             .Include(s => s.Table)
             .Include(s => s.Orders)
             .ThenInclude(o => o.OrderItems)
