@@ -241,4 +241,22 @@ public class TableService
         return session;
     }
     
+    public async Task<List<Table>> GetAllTablesAsync()
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        return await context.Tables.AsNoTracking().Include(t => t.Cell).ToListAsync();
+    }
+    public async Task<TableSession?> GetActiveSessionByTableIdAsync(int tableId)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        return await context.Sessions
+            .AsNoTracking()
+            .Where(s => s.TableId == tableId && s.EndedAt == null) // 해당 테이블의 활성 세션만 조회
+            .Include(s => s.Table)
+            .Include(s => s.Orders)
+            .ThenInclude(o => o.OrderItems)
+            .ThenInclude(oi => oi.Item)
+            .FirstOrDefaultAsync();
+    }
+    
 }
