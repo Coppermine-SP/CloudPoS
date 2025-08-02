@@ -1,5 +1,5 @@
 @inherits Shared.PageLayoutBase
-<nav class="navbar navbar-expand shadow z-3">
+<nav class="navbar navbar-expand shadow fixed-top bg-body z-3">
     <div class="container">
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav nav-underline d-none d-md-flex">
@@ -33,5 +33,7 @@
     </div>
 </nav>
 <div id="notify-bar" class="container px-2 d-grid"></div>
-@Body
+<div style="margin-top: 58px">
+    @Body
+</div>
 <script src="./Pages/Shared/AdminPageLayout.razor.js"></script>

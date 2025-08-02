@@ -20,7 +20,6 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
         new() { Name = "주문 뷰", Url = "Administrative/OrderView" },
         new() { Name = "통계", Url = "Administrative/Statistics" },
         new() { Name = "객체 관리자", Url = "Administrative/ObjectManager" },
-        new() { Name = "개발자 도구", Url = "Administrative/DevTool" }
     ];
 
     protected override void OnInitialized() => broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
