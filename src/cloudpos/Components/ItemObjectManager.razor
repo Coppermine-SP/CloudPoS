@@ -5,11 +5,11 @@
     </div>
     <div class="d-flex flex-column-reverse">
         <div class="d-flex gap-2">
-            <div class="input-group flex-nowrap">
+            <div class="input-group flex-nowrap shadow">
                 <span class="input-group-text" id="addon-wrapping"><i class="bi bi-search"></i></span>
                 <InputText @bind-Value="_searchText" type="text" class="form-control" placeholder="검색" aria-label="검색"/>
             </div>
-            <InputSelect @bind-Value="_selectedCategoryId" class="form-select" aria-label="카테고리 선택">
+            <InputSelect @bind-Value="_selectedCategoryId" class="form-select shadow" aria-label="카테고리 선택">
                 <option value="-1" selected>전체 카테고리</option>
                 @foreach (var c in GetCategories())
                 {
