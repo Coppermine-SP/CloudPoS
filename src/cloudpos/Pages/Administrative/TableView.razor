@@ -51,28 +51,29 @@
                     @if (_selectedTable is null)
                     {
                         <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
-                            <i class="bi bi-receipt-cutoff fs-1"></i>
-                            <h6>선택된 테이블 없음.</h6>
+                            <i class="bi bi-grid fs-1"></i>
+                            <h6>테이블을 선택 해 주세요.</h6>
                         </div>
                     }
                     else
                     {
-                        <div class="d-flex justify-content-center align-items-center my-3">
-                            <button style="width: 5.5rem" type="button" class="btn @(_selectedOption == OptionContent.SessionSummary ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionSummary">세션 요약</button>
-                            <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
-                            <button style="width: 5.5rem"  type="button" class="btn @(_selectedOption == OptionContent.ManualOrder ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.ManualOrder">수동 주문</button>
-                            <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
-                            <button style="width: 5.5rem"  type="button" class="btn  @(_selectedOption == OptionContent.SessionActions ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionActions">세션 동작</button>
-                        </div>
                         if (_selectedTableSession is null)
                         {
                             <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
-                                <i class="bi bi-receipt-cutoff fs-1"></i>
+                                <i class="bi bi-x-circle fs-1"></i>
                                 <h6>테이블에 할당된 세션 없음.</h6>
+                                <button class="btn btn-secondary" @onclick="() => OnCreateSessionClickAsync(_selectedTable.TableId)">세션 할당</button>
                             </div>
                         }
                         else
                         {
+                            <div class="d-flex justify-content-center align-items-center my-3">
+                                <button style="width: 5.5rem" type="button" class="btn @(_selectedOption == OptionContent.SessionSummary ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionSummary">세션 요약</button>
+                                <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
+                                <button style="width: 5.5rem"  type="button" class="btn @(_selectedOption == OptionContent.ManualOrder ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.ManualOrder">수동 주문</button>
+                                <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
+                                <button style="width: 5.5rem"  type="button" class="btn  @(_selectedOption == OptionContent.SessionActions ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionActions">세션 동작</button>
+                            </div>
                             @switch (_selectedOption)
                             {
                                 case OptionContent.SessionSummary:

@@ -209,35 +209,6 @@ public class TableService
             code[i] = alphabet[bytes[i] % alphabet.Length];
         return new string(code);
     }
-
-    public async Task<bool> MoveSessionAsync(int sessionId, int destTableId)
-    {
-        await using var context = await _factory.CreateDbContextAsync();
-        var session = await context.Sessions.FirstOrDefaultAsync(x => x.SessionId == sessionId);
-        if (session is null)
-        {
-            _logger.LogWarning("sessionId가 올바르지 않습니다: {session}", session);
-            return false;
-        }
-        
-        var table = await context.Tables.FirstOrDefaultAsync(x => x.TableId == destTableId);
-        if (table is null)
-        {
-            _logger.LogWarning("destTableId가 올바르지 않습니다: {table}", destTableId);
-            return false;
-        }
-
-        if (await context.Sessions.AnyAsync(x => x.TableId == destTableId && x.State != TableSession.SessionState.Completed))
-        {
-            _logger.LogWarning("옮기려는 대상 테이블에 이미 활성 세션이 있습니다:{table}", destTableId);
-            return true;
-        }
-        
-        session.TableId = destTableId;
-        await context.SaveChangesAsync();
-        AuthHandler.ClearSessionCache(sessionId);
-        return true;
-    }
     
     public async Task<TableSession?> CreateSessionAsync(int tableId)
     {
@@ -268,24 +239,6 @@ public class TableService
         await context.Sessions.AddAsync(session);
         await context.SaveChangesAsync();
         return session;
-    }
-    
-    public async Task<List<Table>> GetAllTablesAsync()
-    {
-        await using var context = await _factory.CreateDbContextAsync();
-        return await context.Tables.AsNoTracking().Include(t => t.Cell).ToListAsync();
-    }
-    public async Task<TableSession?> GetActiveSessionByTableIdAsync(int tableId)
-    {
-        await using var context = await _factory.CreateDbContextAsync();
-        return await context.Sessions
-            .AsNoTracking()
-            .Where(s => s.TableId == tableId && s.State != TableSession.SessionState.Completed)
-            .Include(s => s.Table)
-            .Include(s => s.Orders)
-            .ThenInclude(o => o.OrderItems)
-            .ThenInclude(oi => oi.Item)
-            .FirstOrDefaultAsync();
     }
     
 }
