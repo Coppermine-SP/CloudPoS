@@ -48,6 +48,7 @@ export async function initializeDragAndDrop(dotNetHelper) {
 
         const unplacedList = document.getElementById('unplaced-list');
         const gridCells = document.querySelectorAll('.grid-cell');
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
         if (!unplacedList || gridCells.length === 0) {
             console.error('Drag-and-drop 요소를 찾을 수 없습니다.');
@@ -57,7 +58,7 @@ export async function initializeDragAndDrop(dotNetHelper) {
         const baseOptions = {
             animation: 150,
             group: 'tables',
-            forceFallback: true,
+            forceFallback: isTouchDevice,
             fallbackOnBody: true,
             fallbackClass: 'sortable-fallback-custom',
             onEnd: (evt) => notifyBlazor(evt, dotNetHelper)
