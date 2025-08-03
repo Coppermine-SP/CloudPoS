@@ -25,5 +25,6 @@ public partial class TableView(TableService tableService, ModalService modal, Co
     {
         _selectedTable = _tables.FirstOrDefault(t => t.TableId == tableId);
         _selectedTableSession = await tableService.GetActiveSessionByTableIdAsync(tableId);
+        StateHasChanged();
     }
 }
