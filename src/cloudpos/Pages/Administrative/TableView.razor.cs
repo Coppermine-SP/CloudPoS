@@ -1,14 +1,30 @@
-using CloudInteractive.CloudPos.Components.Modal;
-using CloudInteractive.CloudPos.Event;
+using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public partial class TableView(TableEventBroker broker, ModalService modal, ConfigurationService config) : ComponentBase
+public partial class TableView(TableService tableService, ModalService modal, ConfigurationService config) : ComponentBase
 {
-    private void Test()
+    private List<Table> _tables = [];
+    private Table? _selectedTable;
+    private TableSession? _selectedTableSession;
+    
+    protected override async Task OnInitializedAsync()
     {
-        
+        await LoadTablesAsync();
+    }
+
+    private async Task LoadTablesAsync()
+    {
+        _tables = await tableService.GetAllTablesAsync();
+        StateHasChanged();
+    }
+
+    private async Task GetTableSessionAsync(int tableId)
+    {
+        _selectedTable = _tables.FirstOrDefault(t => t.TableId == tableId);
+        _selectedTableSession = await tableService.GetActiveSessionByTableIdAsync(tableId);
+        StateHasChanged();
     }
 }
