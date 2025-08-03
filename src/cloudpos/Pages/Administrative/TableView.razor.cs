@@ -42,9 +42,15 @@ public partial class TableView(TableService tableService, ConfigurationService c
     private async Task OnCreateSessionClickAsync(int tableId)
     {
         await using var context = await factory.CreateDbContextAsync();
-        var s = await tableService.CreateSessionAsync(tableId);
-        if (s != null)
-            _selectedTableSession = await context.Sessions.FirstOrDefaultAsync(x => x.SessionId == s.SessionId);
+        var newSession = await tableService.CreateSessionAsync(tableId);
+        if (newSession != null)
+            _selectedTableSession = await context.Sessions
+                .AsNoTracking()
+                .Include(s => s.Table)
+                .Include(s => s.Orders)
+                .ThenInclude(o => o.OrderItems)
+                .ThenInclude(oi => oi.Item)
+                .FirstOrDefaultAsync(s => s.SessionId == newSession.SessionId);
         StateHasChanged();
     }
 }
