@@ -48,12 +48,6 @@ public class TableService
             return false;
         }
 
-        if (session.State != TableSession.SessionState.Billing)
-        {
-            _logger.LogWarning("완료하려는 세션의 상태가 잘못되었습니다: {SessionId}", sessionId);
-            return false;
-        }
-
         session.State = TableSession.SessionState.Completed;
         await context.SaveChangesAsync();
         return true;
