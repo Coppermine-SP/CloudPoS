@@ -34,7 +34,7 @@ public partial class TableObjectManager (
     private async Task LoadTablesAsync()
     { 
         await using var context = await factory.CreateDbContextAsync(); 
-        _allTables = await context.Tables.Include(t => t.Cell).ToListAsync();
+        _allTables = await context.Tables.Include(t => t.Cell).Include(t => t.Sessions).ToListAsync();
         _isModify = false;
         StateHasChanged();
     }
@@ -100,7 +100,7 @@ public partial class TableObjectManager (
         }
     }
     [JSInvokable]
-    public void UpdateTableState(int tableId, int newX, int newY, string targetContainer) 
+    public async Task UpdateTableState(int tableId, int newX, int newY, string targetContainer) 
     { 
         var draggedTable = _allTables.FirstOrDefault(t => t.TableId == tableId);
         if (draggedTable == null) return;
@@ -111,7 +111,12 @@ public partial class TableObjectManager (
             var tableAtTarget = _allTables.FirstOrDefault(t => t.Cell != null && t.Cell.X == newX && t.Cell.Y == newY);
             
             // 겹치는 경우 종료
-            if (tableAtTarget != null) return;
+            if (tableAtTarget != null)
+            {
+                _ = interop.ShowNotifyAsync("해당 위치에는 이미 다른 테이블이 있습니다.", InteractiveInteropService.NotifyType.Warning);
+                await ForceUIRefresh();
+                return;
+            }
             
             if (draggedTable.Cell == null)
             {
@@ -123,6 +128,14 @@ public partial class TableObjectManager (
         // 테이블이 미배치 목록으로 돌아간 경우
         else 
         { 
+            // TODO 테이블에 세션이 할당 된 경우 미배치 목록으로 못 가게 막기
+            if (draggedTable.Sessions.Any(x => x.State == TableSession.SessionState.Active))
+            {
+                _ = interop.ShowNotifyAsync("테이블에 세션이 할당 되어 있어 미배치 목록으로 돌아갈 수 없습니다.", InteractiveInteropService.NotifyType.Error);
+                _allTables = new List<Table>(_allTables);
+                await ForceUIRefresh();
+                return;
+            }
             draggedTable.Cell = null;
         }
         _isModify = true;
@@ -186,5 +199,17 @@ public partial class TableObjectManager (
     public void Dispose()
     { 
         _dotNetObjectReference?.Dispose();
+    }
+    // UI를 비동기 새로고침 하는 메서드
+    private async Task ForceUIRefresh()
+    {
+        var originalTables = new List<Table>(_allTables);
+        _allTables.Clear();
+        
+        StateHasChanged();
+        await Task.Yield();
+        
+        _allTables = originalTables;
+        StateHasChanged();
     }
 }
