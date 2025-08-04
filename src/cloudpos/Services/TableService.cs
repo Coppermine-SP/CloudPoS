@@ -209,6 +209,42 @@ public class TableService
             code[i] = alphabet[bytes[i] % alphabet.Length];
         return new string(code);
     }
+
+    public async Task<bool> MoveSessionAsync(int sessionId, int destTableId)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        var table = await context.Tables
+            .Include(x => x.Sessions)
+            .FirstOrDefaultAsync(x => x.TableId == destTableId);
+        var session = await context.Sessions.FirstOrDefaultAsync(x => x.SessionId == sessionId);
+        if (table is null)
+        {
+            _logger.LogWarning("destTableId가 올바르지 않습니다: {table}", destTableId);
+            return false;
+        }
+
+        if (session is null)
+        {
+            _logger.LogWarning("sessionId가 올바르지 않습니다: {session}", sessionId);
+            return false;
+        }
+
+        if (session.State != TableSession.SessionState.Active)
+        {
+            _logger.LogWarning("세션이 올바른 상태가 아닙니다: {session}", sessionId);
+            return false;
+        }
+
+        if (table.Sessions.Any(x => x.State == TableSession.SessionState.Active))
+        {
+            _logger.LogWarning("이동하려는 테이블에 이미 활성 세션이 있습니다: {table}", destTableId);
+            return false;
+        }
+
+        session.TableId = destTableId;
+        await context.SaveChangesAsync();
+        return true;
+    }
     
     public async Task<TableSession?> CreateSessionAsync(int tableId)
     {
