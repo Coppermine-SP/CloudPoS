@@ -1,0 +1,34 @@
+@inherits ModalComponentBase
+@using CloudInteractive.CloudPos.Models
+
+<div class="modal-body">
+    <p>현재 세션을 이동할 테이블을 선택해주세요.</p>
+    @if (AvailableTables.Any())
+    {
+        <select class="form-select" @bind="_selectedTableId">
+            @foreach (var table in AvailableTables)
+            {
+                <option value="@table.TableId">@table.Name</option>
+            }
+        </select>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            이동할 수 있는 비어있는 테이블이 없습니다.
+        </div>
+    }
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" @onclick="() => CloseModal(null)">취소</button>
+    <button type="button" class="btn btn-primary" @onclick="() => CloseModal(_selectedTableId)" disabled="@(!AvailableTables.Any())">확인</button>
+</div>
+
+@code {
+    [Parameter] public List<Table> AvailableTables { get; set; } = new();
+
+    private int? _selectedTableId;
+
+    protected override void OnInitialized() => _selectedTableId = AvailableTables.FirstOrDefault()?.TableId;
+}

@@ -1,11 +1,13 @@
 using CloudInteractive.CloudPos.Components.Modal;
+using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components.TableView;
 
-public partial class SessionManagement(ModalService modal, TableService service, InteractiveInteropService interop): ComponentBase
+public partial class SessionManagement(ModalService modal, TableService service, InteractiveInteropService interop, IDbContextFactory<ServerDbContext> factory): ComponentBase
 {
     [Parameter, EditorRequired] public TableSession TableSession { get; set; } = null!;
     [Parameter] public EventCallback OnEventCallback{ get; set; }
@@ -56,6 +58,24 @@ public partial class SessionManagement(ModalService modal, TableService service,
         {
             await service.CompleteSessionAsync(sessionId);
             await OnEventCallback.InvokeAsync();
+        }
+    }
+
+    private async Task ShowTableSelectModalAsync(int sessionId)
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        var availableTables = await context.Tables
+            .Include(x => x.Sessions)
+            .Where(x => x.Sessions.All(y => y.State != TableSession.SessionState.Active))
+            .ToListAsync();
+
+        var confirm = await modal.ShowAsync<TableSelectModal, bool>("테이블 이동",
+            ModalService.Params()
+                .Add("AvailableTables", availableTables)
+                .Build());
+        if (confirm)
+        {
+            
         }
     }
 }   
