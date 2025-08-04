@@ -128,7 +128,7 @@ public partial class TableObjectManager (
         // 테이블이 미배치 목록으로 돌아간 경우
         else 
         { 
-            // TODO 테이블에 세션이 할당 된 경우 미배치 목록으로 못 가게 막기
+            // 테이블에 세션이 할당 된 경우 미배치 목록으로 못 가게 막기
             if (draggedTable.Sessions.Any(x => x.State == TableSession.SessionState.Active))
             {
                 _ = interop.ShowNotifyAsync("테이블에 세션이 할당 되어 있어 미배치 목록으로 돌아갈 수 없습니다.", InteractiveInteropService.NotifyType.Error);

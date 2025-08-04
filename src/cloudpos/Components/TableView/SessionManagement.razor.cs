@@ -69,13 +69,19 @@ public partial class SessionManagement(ModalService modal, TableService service,
             .Where(x => x.Sessions.All(y => y.State != TableSession.SessionState.Active))
             .ToListAsync();
 
-        var confirm = await modal.ShowAsync<TableSelectModal, bool>("테이블 이동",
-            ModalService.Params()
+        int? selectedTableId = await modal.ShowAsync<TableSelectModal, int?>(
+            "테이블 이동", ModalService.Params()
                 .Add("AvailableTables", availableTables)
                 .Build());
-        if (confirm)
+        if (selectedTableId.HasValue)
         {
+            int targetTableId = selectedTableId.Value;
+            bool success = await service.MoveSessionAsync(sessionId, targetTableId);
             
+            if (success)
+                await OnEventCallback.InvokeAsync();
+            else
+                _ =  interop.ShowNotifyAsync("오류가 발생하여 테이블 이동에 실패했습니다.", InteractiveInteropService.NotifyType.Error);
         }
     }
 }   
