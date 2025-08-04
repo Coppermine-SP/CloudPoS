@@ -1,5 +1,4 @@
 <div class="menu-selection-section mb-4">
-    <h5 class="mb-3">메뉴 선택</h5>
     <div class="mb-3 d-flex gap-2">
         <select class="form-select" style="width: 150px;" @bind="_selectedCategoryId">
             @foreach (var category in _allCategories)
@@ -9,7 +8,7 @@
         </select>
         <input @bind="_searchTerm" @bind:event="oninput" placeholder="메뉴 검색" class="form-control" />
     </div>
-    <div class="list-group list-group-flush border rounded" style="max-height: 30vh; overflow-y: auto;">
+    <div class="list-group list-group-flush border rounded" style="max-height: 22vh; overflow-y: auto;">
         @if (!FilteredItems.Any())
         {
             <div class="list-group-item text-muted text-center">검색 결과가 없습니다.</div>
@@ -32,7 +31,8 @@
 
 <div class="order-summary-section">
     <h5 class="mb-3">주문서</h5>
-    <div class="order-items-wrapper" style="min-height: 15vh;">
+    @* [수정] max-height와 overflow-y 스타일을 추가합니다. *@
+    <div class="order-items-wrapper" style="min-height: 15vh; max-height: 18vh; overflow-y: auto;">
         @if (!_currentOrderItems.Any())
         {
             <div class="text-center text-muted mt-4">
@@ -41,14 +41,14 @@
             </div>
         }
         else
-        { 
+        {
             @foreach (var orderItem in _currentOrderItems)
             {
                 <div class="border-bottom py-2 d-flex justify-content-between">
                     <div class="d-flex align-items-center">
                         <button class="btn btn p-0 border-0 bg-transparent me-2" @onclick="() => Remove(orderItem)"><i class="bi bi-x"></i></button>
                         <span class="me-1">@orderItem.Item.Name</span>
-                        </div>
+                    </div>
                     <div class="d-flex">
                         <span class="text-secondary me-3" style="line-height: 1.8">@CurrencyFormat(@orderItem.Item.Price * orderItem.Quantity)</span>
                         <button class="cart-toggle btn p-0 border-0 bg-transparent" @onclick="() => DecreaseQuantity(orderItem)">
@@ -59,7 +59,7 @@
                             <i class="bi bi-plus" style="font-size: 1.2rem"></i>
                         </button>
                     </div>
-                    </div>
+                </div>
             }
         }
     </div>
