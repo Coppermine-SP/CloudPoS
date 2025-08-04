@@ -9,7 +9,7 @@ namespace CloudInteractive.CloudPos.Components.TableView;
 public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, TableService tableService, InteractiveInteropService interop) : ComponentBase
 {
     [Parameter, EditorRequired] public TableSession TableSession { get; set; } = null!;
-    [Parameter] public EventCallback OnOrderPlaced { get; set; }
+    [Parameter] public EventCallback OnEventCallback { get; set; }
     
     private List<Item> _allItems = new();
     private readonly List<OrderItem> _currentOrderItems = new();
@@ -88,7 +88,7 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
         
         if (success)
         {
-            await OnOrderPlaced.InvokeAsync();
+            await OnEventCallback.InvokeAsync();
         }
     }
 }
