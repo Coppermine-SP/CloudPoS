@@ -44,15 +44,16 @@
         <div class="d-none d-lg-block shadow" style="max-width: 380px; width: 40%;">
             <div class="offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex h-100" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel">
                 <div class="offcanvas-header border-bottom">
-                    <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">주문 정보</h5>
+                    <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">테이블 상세보기</h5>
                     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"  aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body d-flex flex-column flex-grow-1 overflow-y-auto">
+                    <h5 class="mb-1 flex-shrink-0">테이블 상세보기</h5>
                     @if (_selectedTable is null)
                     {
                         <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
                             <i class="bi bi-grid fs-1"></i>
-                            <h6>테이블을 선택 해 주세요.</h6>
+                            <h6>선택된 테이블 없음</h6>
                         </div>
                     }
                     else
@@ -60,25 +61,26 @@
                         if (_selectedTableSession is null)
                         {
                             <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
-                                <i class="bi bi-x-circle fs-1"></i>
-                                <h6>@_selectedTable.Name 테이블에 할당된 세션 없음.</h6>
-                                <button class="btn btn-secondary" @onclick="() => OnCreateSessionClickAsync(_selectedTable.TableId)">세션 할당</button>
+                                <i class="bi bi-person-plus-fill fs-1"></i>
+                                <h6 class="fw-bold">빈 테이블</h6>
+                                <p class="text-muted">이 테이블에 새 세션을 할당하시겠습니까?</p>
+                                <button class="btn btn-outline-primary" @onclick="() => OnCreateSessionClickAsync(_selectedTable.TableId)"><i class="bi bi-plus-lg me-2"></i>세션 생성</button>
                             </div>
                         }
                         else
                         {
                             <div class="d-flex justify-content-center align-items-center my-3">
-                                <button style="width: 5.5rem" type="button" class="btn @(_selectedOption == OptionContent.SessionManagement ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionManagement">세션 관리</button>
+                                <button style="width: 5.5rem" type="button" class="btn @(_selectedOption == OptionContent.SessionManagement ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.SessionManagement">세션 정보</button>
                                 <div class="mx-3" style="width: 0.1rem; height: 1.6rem; background: var(--bs-border-color)"></div>
-                                <button style="width: 5.5rem"  type="button" class="btn @(_selectedOption == OptionContent.ManualOrder ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.ManualOrder">수동 주문</button>
+                                <button style="width: 5.5rem" type="button" class="btn @(_selectedOption == OptionContent.ManualOrder ? SelectedOptionClass : OptionClass)" @onclick="() => _selectedOption = OptionContent.ManualOrder">주문 추가</button>
                             </div>
                             @switch (_selectedOption)
                             {
                                 case OptionContent.SessionManagement:
-                                    <SessionManagement TableSession="_selectedTableSession" OnEventCallback="() => GetTableSessionAsync(_selectedTableSession.TableId)" />
+                                    <SessionManagement TableSession="_selectedTableSession" OnEventCallback="() => GetTableSessionAsync(_selectedTableSession.TableId)"/>
                                     break;
                                 case OptionContent.ManualOrder:
-                                    <ManualOrder TableSession="_selectedTableSession" OnEventCallback="() => GetTableSessionAsync(_selectedTableSession.TableId)" />
+                                    <ManualOrder TableSession="_selectedTableSession" OnEventCallback="() => GetTableSessionAsync(_selectedTableSession.TableId)"/>
                                     break;
                             }
                         }

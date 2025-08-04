@@ -77,12 +77,56 @@
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@x.OrderId" aria-expanded="true" aria-controls="x.OrderId">
-                                        Accordion Item #1
+                                        <div class="d-flex justify-content-between w-100">
+                                            <span class="monospace-font">#@x.OrderId</span>
+                                            <span class="float-end">
+                                                @if (x.Status == Order.OrderStatus.Completed)
+                                                {
+                                                    <span class="text-success">완료</span>
+                                                    <i class="bi bi-check-lg text-success"></i>
+
+                                                }
+                                                else if (x.Status == Order.OrderStatus.Cancelled)
+                                                {
+                                                    <span class="text-danger">취소</span>
+                                                    <i class="bi bi-x-lg text-danger"></i>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-secondary">접수</span>
+                                                    <i class="bi bi-check-lg text-secondary"></i>
+                                                }
+                                            </span>
+                                        </div>
                                     </button>
                                 </h2>
                                 <div id="@x.OrderId" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
-                                        <strong>This is the first item’s accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It’s also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                                        <div class="text-muted mb-3">
+                                            <span>주문 일시:</span>
+                                            <span class="float-end">@x.CreatedAt.ToString("yyyy-MM-dd hh:mm:ss")</span><br/>
+                                            <span>합계:</span>
+                                            <span class="float-end">@CurrencyFormat(x.OrderItems.Sum(x=> x.Quantity * x.Item.Price))</span>
+                                        </div>
+                                        <table class="w-100">
+                                            <thead>
+                                            <tr class="text-muted small">
+                                                <td>메뉴</td>
+                                                <td>수량</td>
+                                                <td class="text-end">합계</td>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach (var i in x.OrderItems)
+                                            {
+                                                <tr class="monospace-font">
+                                                    <td>@i.Item.Name</td>
+                                                    <td>@i.Quantity</td>
+                                                    <td class="text-end">@CurrencyFormat(i.Quantity * i.Item.Price)</td>
+                                                </tr>
+                                            }
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

@@ -15,7 +15,8 @@ public partial class SessionManagement(ModalService modal, TableService service,
     private int TotalAmount => TableSession.Orders
         .SelectMany(order => order.OrderItems)
         .Sum(item => item.Quantity * item.Item.Price);
-    private string CurrencyFormat(int x) => $"{x:₩#,###}";
+    
+    private string CurrencyFormat(int x) => x == 0 ? "￦0": $"￦{x:#,###}";
     
     private string StateToKorean => TableSession.State switch
     {
@@ -27,8 +28,8 @@ public partial class SessionManagement(ModalService modal, TableService service,
     private async Task ShowEndSessionAsyncModalAsync(int sessionId)
     {
         var confirm = await modal.ShowAsync<AlertModal, bool>(
-            "주문 완료 확인", ModalService.Params()
-                .Add("InnerHtml", "정말로 주문 완료 처리를 하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
+            "세션 완료", ModalService.Params()
+                .Add("InnerHtml", "정말로 세션 완료 처리를 하시겠습니까?<br>더 이상 사용자가 주문을 할 수 없게 됩니다.<br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
                 .Add("IsCancelable", true)
                 .Build());
         if (confirm)
@@ -51,7 +52,7 @@ public partial class SessionManagement(ModalService modal, TableService service,
     {
         var confirm = await modal.ShowAsync<AlertModal, bool>(
             "결제 완료 확인", ModalService.Params()
-                .Add("InnerHtml", "정말로 결제 완료 처리를 하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
+                .Add("InnerHtml", "정말로 결제 완료 처리를 하시겠습니까?<br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
                 .Add("IsCancelable", true)
                 .Build());
         if (confirm)

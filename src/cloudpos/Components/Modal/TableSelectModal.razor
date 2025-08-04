@@ -1,7 +1,5 @@
 @inherits ModalComponentBase
-
-<div class="modal-body">
-    <p>현재 세션을 이동할 테이블을 선택해주세요.</p>
+    <p class="mb-1">세션을 이동할 테이블을 선택하십시오.</p>
     @if (AvailableTables.Any())
     {
         <select class="form-select" @bind="_selectedTableId">
@@ -17,13 +15,11 @@
             이동할 수 있는 비어있는 테이블이 없습니다.
         </div>
     }
-</div>
-
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" @onclick="() => CloseModal(null)">취소</button>
-    <button type="button" class="btn btn-primary" @onclick="() => CloseModal(_selectedTableId)" disabled="@(!AvailableTables.Any())">확인</button>
-</div>
-
+    
+    <div class=" d-flex justify-content-end mt-3 gap-3 py-2">
+        <button type="button" class="btn btn-secondary" @onclick="() => CloseModal(null)">취소</button>
+        <button type="button" class="btn btn-primary" @onclick="() => CloseModal(_selectedTableId)" disabled="@(!AvailableTables.Any())">확인</button></div>
+    
 @code {
     [Parameter] public List<Table> AvailableTables { get; set; } = new();
 

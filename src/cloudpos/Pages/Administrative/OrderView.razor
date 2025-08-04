@@ -78,7 +78,8 @@
                                 <span class="float-end">@_selectedOrder.CreatedAt.ToString("yyyy-MM-d hh:mm:ss")</span>
                             </div>
                         </div>
-                        <h6 class="mt-4 text-muted">상세 내역</h6>
+                        <hr/>
+                        <h6 class="mt-1">상세 내역</h6>
                         <div class="flex-grow-1">
                             <table class="w-100">
                                 <thead>
@@ -100,6 +101,7 @@
                                 </tbody>
                             </table>
                         </div>
+                        <hr/>
                         <div class="d-flex align-items-center justify-content-center gap-3">
                             <button class="btn btn-success" @onclick="OnCompleteOrder"><i class="bi bi-check-lg me-2"></i>완료</button>
                             <button class="btn btn-danger" @onclick="OnCancelOrder"><i class="bi bi-x-lg me-2"></i>취소</button>

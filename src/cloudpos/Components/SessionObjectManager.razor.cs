@@ -40,7 +40,7 @@ public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> fac
             .ToList();
     }
     
-    private string CurrencyFormat(int x) => $"￦{x:#,###}";
+    private string CurrencyFormat(int x) => x == 0 ? "￦0": $"￦{x:#,###}";
     private List<Tuple<string, int, int, int>> GetSessionOrderSummary(TableSession session)
     {
         return session.Orders.Where(x => x.Status != Order.OrderStatus.Cancelled)
