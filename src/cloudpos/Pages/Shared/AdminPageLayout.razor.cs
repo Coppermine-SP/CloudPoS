@@ -76,16 +76,13 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
     private async Task OnTransactionAsync(OrderEventArgs args)
     {
         var context = await factory.CreateDbContextAsync();
-        
-        
         var order = await context.Orders
             .Include(x => x.Session)
-            .ThenInclude(x => x.Table)
+            .ThenInclude(x => x!.Table)
             .Include(x => x.OrderItems)
             .ThenInclude(x => x.Item)
             .FirstOrDefaultAsync(x => x.OrderId == args.OrderId);
         if (order is null) return;
-
         if (args.EventType == OrderEventType.Created)
         {
             var listHtml = string.Join(

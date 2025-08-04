@@ -34,7 +34,7 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
 
     public async Task<IActionResult> OnPost(string code)
     {
-        var session = context.Sessions.FirstOrDefault(x => x.AuthCode.Equals(code));
+        var session = context.Sessions.FirstOrDefault(x => x.AuthCode != null && x.AuthCode!.Equals(code));
 
         if (session is null)
         {

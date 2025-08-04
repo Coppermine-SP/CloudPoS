@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components;
 
-public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop) : ComponentBase
+public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> factory) : ComponentBase
 {
     private int _selectedTableId = -1;
     private int _selectedState = -1;
