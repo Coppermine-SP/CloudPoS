@@ -85,8 +85,9 @@ public class AuthorizationHandler : AuthorizationHandler<SessionValidateRequirem
             return;
         }
 
-        bool isSessionEnded = cacheEntry.Session.EndedAt is null;
-        bool isAuthorized = requirement.RequireEndedSession ? !isSessionEnded : isSessionEnded;
+        bool isSessionEnded =
+            cacheEntry.Session.State is TableSession.SessionState.Billing and not TableSession.SessionState.Completed;
+        bool isAuthorized = requirement.RequireEndedSession ? isSessionEnded : !isSessionEnded;
         if (isAuthorized)
         {
             _logger.LogInformation($"Authentication succeeded. (RequireEndedSession={requirement.RequireEndedSession},sessionId={sessionId})");
