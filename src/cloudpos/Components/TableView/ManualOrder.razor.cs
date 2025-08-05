@@ -1,4 +1,5 @@
 using CloudInteractive.CloudPos.Contexts;
+using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
@@ -6,10 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components.TableView;
 
-public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, TableService tableService, InteractiveInteropService interop) : ComponentBase
+public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, TableService tableService, InteractiveInteropService interop, TableEventBroker broker) : ComponentBase
 {
-    [Parameter, EditorRequired] public TableSession TableSession { get; set; } = null!;
-    [Parameter] public EventCallback OnEventCallback { get; set; }
+    [Parameter, EditorRequired] public int SessionId { get; set; }
     
     private List<Item> _allItems = new();
     private readonly List<OrderItem> _currentOrderItems = new();
@@ -17,7 +17,7 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
     private string _searchTerm = string.Empty;
     private List<Category> _allCategories = new();
     private int _selectedCategoryId = -1; // 전체를 -1로 정의
-    private string CurrencyFormat(int x) => $"{x:₩#,###}";
+    private string CurrencyFormat(int x) => x == 0 ? "￦0": $"￦{x:#,###}";
     
     protected override async Task OnInitializedAsync()
     {
@@ -84,11 +84,12 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
             .Select(oi => new TableService.OrderItem(oi.Item.ItemId, oi.Quantity))
             .ToList();
 
-        var success = await tableService.MakeOrderAsync(orderData, TableSession.SessionId);
-        
+        var success = await tableService.MakeOrderAsync(orderData, SessionId);
         if (success)
-        {
-            await OnEventCallback.InvokeAsync();
-        }
+            broker.Publish(new TableEventArgs()
+            {
+                TableId = TableEventBroker.BroadcastId,
+                EventType = TableEventArgs.TableEventType.TableUpdate
+            });
     }
 }

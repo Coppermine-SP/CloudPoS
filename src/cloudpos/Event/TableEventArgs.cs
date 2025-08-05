@@ -7,6 +7,7 @@ public class TableEventArgs : EventArgs
         SessionEnd,
         StaffCall,
         CatalogUpdated,
+        TableUpdate,
         Message,
         Order,
     }
