@@ -105,10 +105,10 @@ function showNotify(text, kind = 0, ms = 5000) {
     const alert = buildNotify(text, kind);
     alert.style.zIndex = ++zIndexSeed;
     cont.appendChild(alert);
-
     requestAnimationFrame(() => alert.classList.add("mb-show"));
 
     if(ms !== Infinity) {
+        alert.addEventListener("click", () => hideNotify(alert))
         alert._timeoutId = setTimeout(() => hideNotify(alert), ms);
     }
     currentAlert = alert;
