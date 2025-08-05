@@ -49,6 +49,7 @@ public class TableService
         }
 
         session.State = TableSession.SessionState.Completed;
+        session.EndedAt ??= DateTime.Now;
         await context.SaveChangesAsync();
         return true;
     }
