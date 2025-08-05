@@ -25,9 +25,8 @@
         height: calc(100vh - 15rem);
         transform: none;
         visibility: visible !important;
-        width: auto !important;
+        width: 380px;
         border: 0;
-        background-color: transparent;
     }
     .main-content {
         margin-right: -300px;

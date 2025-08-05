@@ -23,9 +23,6 @@
   url('fonts/D2Coding/D2CodingBold.ttf') format('truetype'),
   url('fonts/D2Coding/D2CodingBold.svg') format('svg');
 }
-#root {
-  touch-action: pan-y;
-}
 
 * {
   overscroll-behavior: none;
@@ -112,6 +109,23 @@ hr.dashed {
   );
 }
 
+.side-panel{
+  z-index: 9999;
+}
+
+@media (min-width: 992px){
+  .side-panel{
+    z-index: 0 !important;
+  }
+  
+  [data-bs-theme="dark"] .side-panel {
+    border-radius: 18px;
+    margin-right: 30px;
+    height: calc(100vh - 5rem) !important;
+  }
+}
+
+
 
 #alert-zone{
   position:fixed; top:0; right:0; bottom:0;
@@ -153,7 +167,6 @@ hr.dashed {
   max-width: 500px;
 }
 .grid-cell {
-  border-style: dashed !important;
   aspect-ratio: 1 / 1;
 }
 .table-item {
