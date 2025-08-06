@@ -19,7 +19,7 @@
         </div>
         <hr/>
         <h6 class="mt-4 mb-3">세션 동작</h6>
-        @if (_session.State is TableSession.SessionState.Active)
+        @if (_session.State is not TableSession.SessionState.Completed)
         {
             <div class="d-flex justify-content-between gap-4 align-items-center mb-4">
                 <button class="btn btn-outline-primary" @onclick="() => ShowTableSelectModalAsync(_session.SessionId)">

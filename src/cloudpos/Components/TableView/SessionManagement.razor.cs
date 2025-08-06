@@ -57,8 +57,8 @@ public partial class SessionManagement(ModalService modal, TableService service,
     private string SessionStateToString(TableSession.SessionState state) => state switch
     {
         TableSession.SessionState.Active => "활성",
-        TableSession.SessionState.Billing => "결제 중",
-        TableSession.SessionState.Completed => "결제 완료",
+        TableSession.SessionState.Billing => "완료",
+        TableSession.SessionState.Completed => "종료",
         _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
     };
     
