@@ -77,7 +77,7 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
             {
                 _ = interop.ShowNotifyAsync(
                     $"{item.Name}의 수량을 {_cart[idx].Quantity}개로 변경했습니다.",
-                    InteractiveInteropService.NotifyType.Success);
+                    InteractiveInteropService.NotifyType.Success, 1000);
             }
         }
         else
@@ -85,7 +85,7 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
             _cart.Add(new CartItem(1, item));
             _ = interop.ShowNotifyAsync(
                 $"{item.Name}을(를) 장바구니에 담았습니다.",
-                InteractiveInteropService.NotifyType.Success);
+                InteractiveInteropService.NotifyType.Success, 1000);
         }
     }
 

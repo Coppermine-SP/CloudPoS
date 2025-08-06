@@ -48,9 +48,9 @@ public class InteractiveInteropService(IJSRuntime js, NavigationManager nav)
     }
     
     public enum NotifyType { Info=0, Success=1, Warning=2, Error=3 }
-    public async Task ShowNotifyAsync(string message, NotifyType type)
+    public async Task ShowNotifyAsync(string message, NotifyType type, int duration = 3000)
     {
         await js.InvokeVoidAsync("showNotify",
-            message, type);
+            message, type, duration);
     }
 }
