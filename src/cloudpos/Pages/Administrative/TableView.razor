@@ -10,17 +10,17 @@
     private const string OptionClass = "btn-outline-secondary border-0";
     private const string SelectedOptionClass = "btn-secondary";
 
-    private const string ActiveTableItemClass = "bg-dark";
-    private const string EndTableItemClass = "";
-    
+    private const string ActiveTableItemClass = "bg-primary bg-opacity-75";
+    private const string EndTableItemClass = "bg-success bg-opacity-75";
+    private const string EmptyTableItemClass = "bg-dark bg-opacity-75";
+    private string SessionStateToClass(TableSession.SessionState state) =>
+        state == TableSession.SessionState.Active ? ActiveTableItemClass : EndTableItemClass;
 }
 <PageTitle>@(config.StoreName) - 테이블 뷰</PageTitle>
 <div style="height: calc(100vh - 58px)">
     <div class="d-flex h-100 justify-content-between">
-        <main class="flex-grow-1">
-            <div class="mx-5 my-4">
-                <h3 class="fw-bold">테이블 뷰</h3>
-                <p class="text-muted">모든 테이블을 이곳에서 한눈에 파악하기</p>
+        <main class="flex-grow-1 d-flex flex-column">
+            <div class="d-lg-none container my-4">
                 <button class="btn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" href="#offcanvasResponsive" aria-controls="offcanvasResponsive">
                     <i class="bi bi-receipt"></i> 테이블 상세 보기
                 </button>
@@ -50,17 +50,17 @@
                                 @if (tableInCell != null)
                                 {
                                     var session = sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
-                                    <div class="table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EndTableItemClass : ActiveTableItemClass) text-white position-relative"
+                                    <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white position-relative"
                                          data-table-id="@tableInCell.TableId"
                                          @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
-                                        <p>@tableInCell.Name</p>
+                                        <p style="font-size: 16px">@tableInCell.Name</p>
                                         @if (session is not null)
                                         {
                                             <span>세션 #@session.SessionId</span>
                                         }
                                         else
                                         {
-                                            <span>비었음</span>
+                                            <span>빈 테이블</span>
                                         }
                                     </div>
                                 }
