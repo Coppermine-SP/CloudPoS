@@ -7,11 +7,14 @@ using CloudInteractive.CloudPos.Pages.Shared;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
 public partial class OrderView(IDbContextFactory<ServerDbContext> factory, ILogger<OrderView> logger, TableEventBroker broker, ModalService modal, TableService table, InteractiveInteropService interop) : ComponentBase, IDisposable
 {
+    [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
+    private IJSObjectReference? _orderViewModule;
     private ServerDbContext? _context;
     private ServerDbContext Context => _context ??= factory.CreateDbContext();
 
@@ -30,6 +33,13 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, ILogg
     protected override void OnInitialized()
     {
         broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _orderViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.js");
+        }
     }
     
     private void OnBroadcastEvent(object? sender, TableEventArgs e)
@@ -65,11 +75,28 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, ILogg
             _ =interop.ShowNotifyAsync("서버 오류가 발생하여 주문 상태를 변경하지 못했습니다.", InteractiveInteropService.NotifyType.Error);
 
         _selectedOrder = null;
-    } 
+    }
+
+    private async Task GetOrderAsync(Order order)
+    {
+        _selectedOrder = order;
+        
+        if (_orderViewModule is not null)
+            await _orderViewModule.InvokeVoidAsync("showOffcanvas", "offcanvasResponsive");
+        
+        StateHasChanged();
+    }
 
     public void Dispose()
     {
         broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
         _context?.Dispose();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_orderViewModule is not null)
+        {
+            await _orderViewModule.DisposeAsync();
+        }
     }
 }

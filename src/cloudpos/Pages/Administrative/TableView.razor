@@ -21,12 +21,12 @@
     <div class="d-flex h-100 justify-content-between">
         <main class="flex-grow-1 d-flex flex-column">
             <div class="d-lg-none container my-4">
-                <button class="btn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" href="#offcanvasResponsive" aria-controls="offcanvasResponsive">
+                <button id="offcanvas-toggle-button" class="btn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" href="#offcanvasResponsive" aria-controls="offcanvasResponsive">
                     <i class="bi bi-receipt"></i> 테이블 상세 보기
                 </button>
            </div>
             <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
-                <div id="grid-container" class="table-grid-container mx-3">
+                <div id="grid-container" class="table-grid-container">
                     @{
                         var tables = GetContext().Tables
                             .Include(x => x.Cell)
@@ -50,17 +50,17 @@
                                 @if (tableInCell != null)
                                 {
                                     var session = sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
-                                    <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white position-relative"
+                                    <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white text-center position-relative"
                                          data-table-id="@tableInCell.TableId"
                                          @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
                                         <p style="font-size: 16px">@tableInCell.Name</p>
                                         @if (session is not null)
                                         {
-                                            <span class="opacity-50">세션 #@session.SessionId</span>
+                                            <span style="font-size: 12px">세션 #@session.SessionId</span>
                                         }
                                         else
                                         {
-                                            <span class="opacity-50">빈 테이블</span>
+                                            <span style="font-size: 12px">빈 테이블</span>
                                         }
                                     </div>
                                 }
