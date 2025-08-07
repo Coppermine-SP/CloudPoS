@@ -61,6 +61,13 @@ public partial class SessionManagement(ModalService modal, TableService service,
         TableSession.SessionState.Completed => "종료",
         _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
     };
+
+    private async Task ShowReceiptAsync(int sessionId)
+    {
+         await modal.ShowAsync<ReceiptModal, object?>("전자영수증", ModalService.Params()
+            .Add("SessionId", sessionId)
+            .Build());
+    }
     
     private async Task ShowEndSessionAsyncModalAsync(int sessionId)
     {
@@ -112,7 +119,7 @@ public partial class SessionManagement(ModalService modal, TableService service,
         await using var context = await factory.CreateDbContextAsync();
         var availableTables = await context.Tables
             .Include(x => x.Sessions)
-            .Where(x => x.Sessions.All(y => y.State != TableSession.SessionState.Active))
+            .Where(x => x.Sessions.All(y => y.State != TableSession.SessionState.Active && y.State != TableSession.SessionState.Billing))
             .ToListAsync();
 
         int? selectedTableId = await modal.ShowAsync<TableSelectModal, int?>(
