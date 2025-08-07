@@ -1,0 +1,13 @@
+@inherits ModalComponentBase
+<div class="mx-3">
+    <SessionReceipt SessionId="SessionId"></SessionReceipt>
+</div>
+<div class="d-flex justify-content-end gap-3 py-2">
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="() => CloseModal()">
+        확인
+    </button>
+</div>
+@code {
+    [Parameter] public required int SessionId { get; set; }
+}

@@ -41,6 +41,10 @@ a{
   text-decoration: none;
 }
 
+.nav-link.active{
+  font-weight: 500!important;
+}
+
 .code-input {
   -moz-appearance: textfield;
   width: 55px;
