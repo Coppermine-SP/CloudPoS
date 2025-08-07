@@ -13,6 +13,7 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
     
     private List<Item> _allItems = new();
     private readonly List<OrderItem> _currentOrderItems = new();
+    private TableSession? _session;
     
     private string _searchTerm = string.Empty;
     private List<Category> _allCategories = new();
@@ -25,6 +26,7 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
         _allItems = await context.Items.AsNoTracking().Where(i => i.IsAvailable).ToListAsync();
         _allCategories = await context.Categories.AsNoTracking().OrderBy(c => c.Name).ToListAsync();
         _allCategories.Insert(0, new Category { CategoryId = -1, Name = "전체" });
+        _session = await context.Sessions.FirstAsync(x => x.SessionId == SessionId);
     }
     
     protected override void OnParametersSet()
