@@ -50,17 +50,17 @@
                                 @if (tableInCell != null)
                                 {
                                     var session = sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
-                                    <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white position-relative"
+                                    <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white text-center position-relative"
                                          data-table-id="@tableInCell.TableId"
                                          @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
                                         <p style="font-size: 16px">@tableInCell.Name</p>
                                         @if (session is not null)
                                         {
-                                            <span>세션 #@session.SessionId</span>
+                                            <span style="font-size: 12px">세션 #@session.SessionId</span>
                                         }
                                         else
                                         {
-                                            <span>빈 테이블</span>
+                                            <span style="font-size: 12px">빈 테이블</span>
                                         }
                                     </div>
                                 }
