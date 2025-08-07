@@ -1,6 +1,6 @@
 <div class="row g-4 h-100 mt-1">
     <!-- Left Panel: Table Layout Grid -->
-    <div class="col-12 col-md-7 col-xl-8">
+    <div class="col-12 col-xl-8">
         <div class="p-3 d-flex flex-column h-100">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="mb-0">테이블 배치도</h5>
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Right Panel: Table Management -->
-    <div class="col-12 col-md-5 col-xl-4">
+    <div class="col-12 col-xl-4">
         <div class="bg-body-tertiary shadow rounded p-4 h-100 d-flex flex-column">
             <h5 class="mb-3">테이블 관리</h5>
             <div class="mb-4">
@@ -62,7 +62,7 @@
                         @foreach (var table in UnplacedTables)
                         {
                             <div @key="table.TableId"
-                                 class="table-item d-flex align-items-center justify-content-center bg-black bg-opacity-50 text-white position-relative" style="backdrop-filter: blur(5px)"
+                                 class="table-item d-flex align-items-center justify-content-center bg-black bg-opacity-50 text-white position-relative" style="backdrop-filter: blur(5px); font-size: 12px"
                                  data-table-id="@table.TableId">
                                 @table.Name
                                 <button class="btn btn-sm btn-outline-light border-0 position-absolute top-0 end-0 m-1 p-0 px-1"

@@ -26,7 +26,7 @@
                 </button>
            </div>
             <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
-                <div id="grid-container" class="table-grid-container">
+                <div id="grid-container" class="table-grid-container mx-3">
                     @{
                         var tables = GetContext().Tables
                             .Include(x => x.Cell)
@@ -56,11 +56,11 @@
                                         <p style="font-size: 16px">@tableInCell.Name</p>
                                         @if (session is not null)
                                         {
-                                            <span>세션 #@session.SessionId</span>
+                                            <span class="opacity-50">세션 #@session.SessionId</span>
                                         }
                                         else
                                         {
-                                            <span>빈 테이블</span>
+                                            <span class="opacity-50">빈 테이블</span>
                                         }
                                     </div>
                                 }
