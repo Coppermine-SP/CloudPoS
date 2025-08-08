@@ -105,7 +105,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
                                                       """, 20000);
             _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Chimes);
         }
-        else
+        else if(args.EventType == OrderEventType.Cancelled)
         {
             ShowAlert(AlertType.Transaction, "주문 업데이트", $"""
                                                         <strong>주문 #{order.OrderId} [세션 #{order.Session!.SessionId}, 테이블 {order.Session!.Table.Name}]</strong><br>

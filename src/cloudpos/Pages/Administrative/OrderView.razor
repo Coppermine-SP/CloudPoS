@@ -2,7 +2,7 @@
 @inject ConfigurationService Config
 @page "/Administrative/OrderView"
 @layout Shared.AdminPageLayout
-@{ var orders = GetOrders; }
+@{ var orders = GetOrders(); }
 <PageTitle>@(Config.StoreName) - 주문 뷰</PageTitle>
 <div style="height: calc(100vh - 58px)">
     <div class="d-flex h-100 justify-content-between">
@@ -27,7 +27,7 @@
                     <div class="order-grid me-5 ms-5">
                         @foreach (var o in orders)
                         {
-                            <div class="card bg-body-tertiary order-card shadow border-0 rounded-2" @onclick="() => GetOrderAsync(o)">
+                            <div class="card bg-body-tertiary order-card shadow border-0 rounded-2" @onclick="() => SetOrderAsync(o)">
                                 <div class="card-header text-muted">
                                     주문 #@o.OrderId
                                     <span class="float-end">@o.Session!.Table.Name</span>
@@ -53,7 +53,20 @@
                 </div>
                 <div class="offcanvas-body d-flex flex-column flex-grow-1">
                     <h5 class="mb-4 flex-shrink-0 d-none d-lg-block">주문 상세보기</h5>
-                    @if (_selectedOrder is null)
+                    @{
+                        var selectedOrder = orders.FirstOrDefault(x => x.OrderId == _selectedOrderId);
+                        if (selectedOrder is null) _selectedOrderId = null;
+                        else
+                        {
+                            if (_shouldUpdateMemo)
+                            {
+                                _memoContent = selectedOrder.Memo;
+                                _shouldUpdateMemo = false;
+                            }
+                        }
+                    }
+                    
+                    @if (_selectedOrderId is null)
                     {
                         <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
                             <i class="bi bi-receipt-cutoff fs-1"></i>
@@ -62,20 +75,28 @@
                     }
                     else
                     {
-                        <h6>주문 #@_selectedOrder.OrderId</h6>
+                        <h6>주문 #@selectedOrder!.OrderId</h6>
                         <div class="text-muted">
                             <div>
                                 테이블:
-                                <span class="float-end">@_selectedOrder.Session!.Table.Name</span>
+                                <span class="float-end">@selectedOrder.Session!.Table.Name</span>
                             </div>
                             <div>
                                 세션:
-                                <span class="float-end">#@_selectedOrder.Session.SessionId</span>
+                                <span class="float-end">#@selectedOrder.Session.SessionId</span>
                             </div>
                             <div>
                                 주문 시각:
-                                <span class="float-end">@_selectedOrder.CreatedAt.ToString("yyyy-MM-d hh:mm:ss")</span>
+                                <span class="float-end">@selectedOrder.CreatedAt.ToString("yyyy-MM-dd hh:mm:ss")</span>
                             </div>
+                        </div>
+                        <div>
+                            <p class="mt-2 mb-1">메모</p>
+                            <InputTextArea placeholder="메모를 입력하십시오." style="height: 8rem" class="form-control" @bind-Value="_memoContent" ></InputTextArea>
+                            @if (selectedOrder.Memo != _memoContent)
+                            {
+                                <button class="btn btn-success float-end mt-2" @onclick="OnUpdateMemoAsync">저장</button>
+                            }
                         </div>
                         <hr/>
                         <h6 class="mt-1">상세 내역</h6>
@@ -89,7 +110,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach (var i in _selectedOrder.OrderItems)
+                                @foreach (var i in selectedOrder.OrderItems)
                                 {
                                     <tr class="monospace-font">
                                         <td>@i.Item.Name</td>
@@ -102,8 +123,8 @@
                         </div>
                         <hr/>
                         <div class="d-flex align-items-center justify-content-center gap-3">
-                            <button class="btn btn-success" @onclick="OnCompleteOrder"><i class="bi bi-check-lg me-2"></i>완료</button>
-                            <button class="btn btn-danger" @onclick="OnCancelOrder"><i class="bi bi-x-lg me-2"></i>취소</button>
+                            <button class="btn btn-success" @onclick="OnCompleteOrderAsync"><i class="bi bi-check-lg me-2"></i>완료</button>
+                            <button class="btn btn-danger" @onclick="OnCancelOrderAsync"><i class="bi bi-x-lg me-2"></i>취소</button>
                         </div>
                     }
                 </div>

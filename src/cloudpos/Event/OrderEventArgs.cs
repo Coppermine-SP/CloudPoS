@@ -2,7 +2,7 @@ using CloudInteractive.CloudPos.Models;
 
 namespace CloudInteractive.CloudPos.Event;
 
-public enum OrderEventType {Created, Cancelled, Completed}
+public enum OrderEventType {Created, Cancelled, Completed, MemoUpdated}
 public class OrderEventArgs
 {
     public required int OrderId;

@@ -17,4 +17,7 @@ public class Order
     
     public DateTime CreatedAt { get; set; }
     public ICollection<OrderItem> OrderItems { get; } = new List<OrderItem>();
+
+    [StringLength(255)]
+    public string Memo { get; set; } = String.Empty;
 }

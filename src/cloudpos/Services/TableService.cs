@@ -159,6 +159,37 @@ public class TableService
         return true;
     }
 
+    public async Task<bool> UpdateOrderMemoAsync(int orderId, string memo)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        var order = await context.Orders
+            .FirstOrDefaultAsync(x => x.OrderId == orderId);
+
+        if (order is null) return false;
+        if(order.Status is not Order.OrderStatus.Received) return false;
+        order.Memo = memo;
+        try
+        {
+            await context.SaveChangesAsync();
+            _broker.Broadcast(new TableEventArgs()
+            {
+                EventType = TableEventArgs.TableEventType.Order,
+                TableId = TableEventBroker.BroadcastId,
+                Data = new OrderEventArgs()
+                {
+                    OrderId = order.OrderId,
+                    EventType = OrderEventType.MemoUpdated
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("UpdateOrderMemoAsync exception: " + e.Message);
+            return false;
+        }
+        return true;
+    }
+
     public async Task<bool> ChangeOrderStatusAsync(int orderId, Order.OrderStatus status)
     {
         await using var context = await _factory.CreateDbContextAsync();

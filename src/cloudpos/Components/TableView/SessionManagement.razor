@@ -25,7 +25,7 @@
                 @if(_session.State is not TableSession.SessionState.Billing){
                     <button class="btn btn-primary" @onclick="() => ShowTableSelectModalAsync(_session.SessionId)">
                         <i class="bi bi-table me-1"></i>
-                        테이블 이동
+                        이동
                     </button>
                 }
                 else
@@ -115,6 +115,8 @@
                                     <span class="float-end">@order.CreatedAt.ToString("yyyy-MM-dd hh:mm:ss")</span><br/>
                                     <span>합계:</span>
                                     <span class="float-end">@CurrencyFormat(order.OrderItems.Sum(x => x.Quantity * x.Item.Price))</span>
+                                    <p class="mb-1 mt-2">메모</p>
+                                    <InputTextArea class="form-control" readonly @bind-Value="order.Memo" placeholder="메모가 없습니다."></InputTextArea>
                                 </div>
                                 <table class="w-100">
                                     <thead>
