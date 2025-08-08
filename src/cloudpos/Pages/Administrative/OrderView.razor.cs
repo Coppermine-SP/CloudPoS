@@ -12,7 +12,7 @@ using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public partial class OrderView(IDbContextFactory<ServerDbContext> factory, ILogger<OrderView> logger, TableEventBroker broker, ModalService modal, TableService table, InteractiveInteropService interop) : ComponentBase, IDisposable
+public partial class OrderView(IDbContextFactory<ServerDbContext> factory, TableEventBroker broker, ModalService modal, TableService table, InteractiveInteropService interop) : ComponentBase, IDisposable
 {
     [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
     private IJSObjectReference? _orderViewModule;

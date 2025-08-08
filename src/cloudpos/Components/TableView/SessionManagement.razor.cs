@@ -41,9 +41,9 @@ public partial class SessionManagement(ModalService modal, TableService service,
                 StateHasChanged();
             }
         }
-        catch (Exception ex)
+        catch
         {
-            throw; // TODO handle exception
+            //ignored
         }
     }
 
