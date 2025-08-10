@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
 
@@ -34,7 +35,7 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
 
     public async Task<IActionResult> OnPost(string code)
     {
-        var session = context.Sessions.FirstOrDefault(x => x.AuthCode != null && x.AuthCode!.Equals(code));
+        var session = await context.Sessions.FirstOrDefaultAsync(x => x.AuthCode != null && x.AuthCode!.Equals(code));
 
         if (session is null)
         {

@@ -17,63 +17,54 @@
         state == TableSession.SessionState.Active ? ActiveTableItemClass : EndTableItemClass;
 }
 <PageTitle>@(config.StoreName) - 테이블 뷰</PageTitle>
-<div style="height: calc(100vh - 58px)">
-    <div class="d-flex h-100 justify-content-between">
-        <main class="flex-grow-1 d-flex flex-column">
-            <div class="d-lg-none container my-4">
-                <button id="offcanvas-toggle-button" class="btn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" href="#offcanvasResponsive" aria-controls="offcanvasResponsive">
-                    <i class="bi bi-receipt"></i> 테이블 상세 보기
-                </button>
-           </div>
-            <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
-                <div id="grid-container" class="table-grid-container">
-                    @{
-                        var tables = GetContext().Tables
-                            .Include(x => x.Cell)
-                            .AsNoTracking()
-                            .ToList();
-
-                        var sessions = GetContext().Sessions
-                            .Where(x => x.State != TableSession.SessionState.Completed)
-                            .AsNoTracking()
-                            .ToList();
-                    }
-                    @for (int y = 0; y < 6; y++)
-                    {
-                        @for (int x = 0; x < 6; x++)
-                        {
-                            var cellX = x;
-                            var cellY = y;
-                            var tableInCell = tables.FirstOrDefault(t => t.Cell != null && t.Cell.X == cellX && t.Cell.Y == cellY);
-
-                            <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
-                                @if (tableInCell != null)
-                                {
-                                    var session = sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
-                                    <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white text-center position-relative"
-                                         data-table-id="@tableInCell.TableId"
-                                         @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
-                                        <p style="font-size: 16px">@tableInCell.Name</p>
-                                        @if (session is not null)
-                                        {
-                                            <span style="font-size: 12px">세션 #@session.SessionId</span>
-                                        }
-                                        else
-                                        {
-                                            <span style="font-size: 12px">빈 테이블</span>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        }
-                    }
+@if (_sessions is not null && _tables is not null)
+{
+    <div style="height: calc(100vh - 58px)">
+        <div class="d-flex h-100 justify-content-between">
+            <main class="flex-grow-1 d-flex flex-column">
+                <div class="d-lg-none container my-4">
+                    <button id="offcanvas-toggle-button" class="btn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" href="#offcanvasResponsive" aria-controls="offcanvasResponsive">
+                        <i class="bi bi-receipt"></i> 테이블 상세 보기
+                    </button>
                 </div>
-            </div>
-        </main>
+                <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
+                    <div id="grid-container" class="table-grid-container">
+                        @for (int y = 0; y < 6; y++)
+                        {
+                            @for (int x = 0; x < 6; x++)
+                            {
+                                var cellX = x;
+                                var cellY = y;
+                                var tableInCell = _tables.FirstOrDefault(t => t.Cell != null && t.Cell.X == cellX && t.Cell.Y == cellY);
+
+                                <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
+                                    @if (tableInCell != null)
+                                    {
+                                        var session = _sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
+                                        <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white text-center position-relative"
+                                             data-table-id="@tableInCell.TableId"
+                                             @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
+                                            <p style="font-size: 16px">@tableInCell.Name</p>
+                                            @if (session is not null)
+                                            {
+                                                <span style="font-size: 12px">세션 #@session.SessionId</span>
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size: 12px">빈 테이블</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </main>
             <div class="offcanvas offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex h-100 side-panel" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 380px!important;">
                 <div class="offcanvas-header border-bottom">
                     <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">테이블 상세보기</h5>
-                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"  aria-label="Close"></button>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body d-flex flex-column flex-grow-1 overflow-y-auto">
                     <h5 class="mb-1 flex-shrink-0 d-none d-lg-block">테이블 상세보기</h5>
@@ -115,5 +106,6 @@
                     }
                 </div>
             </div>
+        </div>
     </div>
-</div>
+}

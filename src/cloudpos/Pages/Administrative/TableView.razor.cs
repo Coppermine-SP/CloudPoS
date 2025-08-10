@@ -14,10 +14,34 @@ public partial class TableView(TableService tableService, ConfigurationService c
     private IJSObjectReference? _tableViewModule;
     private int? _selectedTableId;
     private TableSession? _selectedTableSession;
-    private ServerDbContext? _context;
-    private ServerDbContext GetContext() => _context ??= factory.CreateDbContext();
+    private List<TableSession>? _sessions;
+    private List<Table>? _tables;
 
-    protected override void OnInitialized() => broker.Subscribe(TableEventBroker.BroadcastId, OnTableEvent);
+    protected override async Task OnInitializedAsync()
+    {
+        broker.Subscribe(TableEventBroker.BroadcastId, OnTableEvent);
+        _sessions = await GetSessionsAsync();
+        _tables = await GetTablesAsync();
+    }
+
+    private async Task<List<TableSession>> GetSessionsAsync()
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        return await context.Sessions
+            .Where(x => x.State != TableSession.SessionState.Completed)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    private async Task<List<Table>> GetTablesAsync()
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        return await context.Tables
+            .Include(x => x.Cell)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -25,9 +49,14 @@ public partial class TableView(TableService tableService, ConfigurationService c
             _tableViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.js");
         }
     }
-    private void OnTableEvent(object? sender, TableEventArgs e)
+    private async void OnTableEvent(object? sender, TableEventArgs e)
     {
-        if(e.EventType == TableEventArgs.TableEventType.TableUpdate) StateHasChanged();
+        if (e.EventType == TableEventArgs.TableEventType.TableUpdate)
+        {
+            _sessions = await GetSessionsAsync();
+            _tables = await GetTablesAsync();
+            StateHasChanged();
+        }
     }
     
     private async Task SetTableSessionAsync(int tableId)

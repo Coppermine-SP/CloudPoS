@@ -1,7 +1,7 @@
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Models;
-using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components;
@@ -10,22 +10,24 @@ public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> fac
 {
     private int _selectedTableId = -1;
     private int _selectedState = -1;
-    private int GetSessionCount()
+    private List<Table>? _tables;
+
+    protected override async Task OnInitializedAsync()
     {
-        using var context = factory.CreateDbContext();
-        return context.Sessions.Count();
+        _tables = await GetTablesAsync();
+    }
+    
+    private async Task<List<Table>> GetTablesAsync()
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        return await context.Tables.ToListAsync();
     }
 
-    private List<Table> GetTables()
+    private async ValueTask<ItemsProviderResult<TableSession>> LoadSessionsAsync(ItemsProviderRequest request)
     {
-        using var context = factory.CreateDbContext();
-        return context.Tables.ToList();
-    }
-
-    private List<TableSession> GetSessions()
-    {
-        using var context = factory.CreateDbContext();
-        var query = context.Sessions.AsQueryable();
+        await using var context = await factory.CreateDbContextAsync();
+        var ct = request.CancellationToken;
+        var query = context.Sessions.AsNoTracking();
 
         if (_selectedTableId != -1)
             query = query.Where(x => x.TableId == _selectedTableId);
@@ -33,11 +35,16 @@ public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> fac
         if (_selectedState != -1)
             query = query.Where(x => x.State == (TableSession.SessionState)_selectedState);
 
-        return query.Include(x => x.Orders)
+        var totalCount = await query.CountAsync(ct);
+        var page = await query.Include(x => x.Orders)
             .ThenInclude(x => x.OrderItems)
             .ThenInclude(x => x.Item)
             .Include(x => x.Table)
-            .ToList();
+            .Skip(request.StartIndex)
+            .Take(request.Count)
+            .ToListAsync(ct);
+        
+        return new ItemsProviderResult<TableSession>(page, totalCount);
     }
     
     private string CurrencyFormat(int x) => x == 0 ? "￦0": $"￦{x:#,###}";

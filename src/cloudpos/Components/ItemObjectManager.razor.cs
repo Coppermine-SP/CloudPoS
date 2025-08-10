@@ -10,51 +10,45 @@ namespace CloudInteractive.CloudPos.Components;
 
 public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop, TableEventBroker broker, ILogger<ItemObjectManager> logger) : ComponentBase
 {
+    private List<Category>? _categories;
+    private List<Item>? _items;
     private int _selectedCategoryId = -1;
     private string _searchText = string.Empty;
     private string CurrencyFormat(int x) => $"￦{x:#,###}";
-    private List<Item> GetItems()
+
+    protected override async Task OnInitializedAsync()
     {
-        using var context = factory.CreateDbContext();
-        List<Item> list;
-        if (_selectedCategoryId == -1)
-        {
-            list = context.Items
-                .Include(x => x.Category)
-                .ToList();
-        }
-        else
-        {
-            list = context.Items
-                .Include(x => x.Category)
-                .Where(x => x.CategoryId == _selectedCategoryId)
-                .ToList();
-        }
+        _categories = await GetCategoriesAsync();
+        _items = await GetItemsAsync();
+    }
+    
+    private async Task<List<Item>> GetItemsAsync()
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        var query = context.Items.AsQueryable();
+        
+        if (_selectedCategoryId != -1)
+            query = query.Where(x => x.CategoryId == _selectedCategoryId);
 
         if (!String.IsNullOrWhiteSpace(_searchText))
-            list = list.Where(x => x.Name.Contains(_searchText)).ToList();
-        
-        return list;
+            query = query.Where(x => x.Name.Contains(_searchText));
+
+        return await query.Include(x => x.Category)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    private int GetItemsCount()
-    {
-        using var context = factory.CreateDbContext();
-        return context.Items.Count();
-    }
-
-    private List<Category> GetCategories()
+    private async Task<List<Category>> GetCategoriesAsync()
     { 
-        using var context = factory.CreateDbContext();
-        return context.Categories.ToList();
+        await using var context = await factory.CreateDbContextAsync();
+        return await context.Categories.ToListAsync();
     }
 
     private async Task AddItemAsync()
     {
         await using var context = await factory.CreateDbContextAsync();
-        var categories = context.Categories.ToList();
         var item = await modal.ShowAsync<EditItemModal, Item>("메뉴 추가", ModalService.Params()
-            .Add("Categories", categories)
+            .Add("Categories", _categories)
             .Build());
 
         if (item is null) return;
@@ -76,10 +70,9 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
     private async Task EditItemAsync(int i)
     {
         await using var context = await factory.CreateDbContextAsync();
-        var categories = context.Categories.ToList();
         var item  = await modal.ShowAsync<EditItemModal, Item>("메뉴 수정", ModalService.Params()
             .Add("Item", await context.Items.FirstAsync(x => x.ItemId == i))
-            .Add("Categories", categories)
+            .Add("Categories", _categories)
             .Build());
         try
         {
@@ -98,7 +91,7 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
     private async Task DeleteItemAsync(int i)
     {
         await using var context = await factory.CreateDbContextAsync();
-        bool isExist = context.OrderItems.Any(x => x.ItemId == i);
+        bool isExist = await context.OrderItems.AnyAsync(x => x.ItemId == i);
 
         if (isExist)
         {

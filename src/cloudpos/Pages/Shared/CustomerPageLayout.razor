@@ -1,8 +1,8 @@
 @inherits PageLayoutBase
-@if (table.GetSession() is not null)
+@if (_session is not null)
 {
-    <PageTitle>@config.StoreName - 테이블 @table.GetSession()!.Table.TableId</PageTitle>
-    if (table.GetSession()!.EndedAt is not null)
+    <PageTitle>@config.StoreName - 테이블 @_session.Table.TableId</PageTitle>
+    if (_session!.EndedAt is not null)
     {
         logger.LogInformation("Payment requested. Redirecting to /Customer/Receipt.");
         navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
@@ -20,7 +20,7 @@
                         </li>
                     }
                 </ul>
-                <h6 class="m-0 text-end flex-fill">테이블 @table.GetSession()!.Table?.Name</h6>
+                <h6 class="m-0 text-end flex-fill">테이블 @_session.Table?.Name</h6>
                 <div class="me-1 ms-2" style="width: 2px; height: 1rem; background: var(--bs-border-color)"></div>
                 <div class="btn-dark dropdown">
                     <button class="btn p-1 py-0" data-bs-toggle="dropdown" aria-expanded="false">

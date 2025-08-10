@@ -2,6 +2,7 @@ using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Services;
 using CloudInteractive.CloudPos.Event;
+using CloudInteractive.CloudPos.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +11,9 @@ namespace CloudInteractive.CloudPos.Pages.Shared;
 public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation, ConfigurationService config, ModalService modal, IDbContextFactory<ServerDbContext> factory) : PageLayoutBase(interop, modal), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
-    private bool _init = false;
+    private bool _init;
     private readonly ModalService _modal = modal;
+    private TableSession? _session;
 
     protected override MenuItem[] GetMenuItems() =>
     [
@@ -21,7 +23,8 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     
     protected override async Task OnInitializedAsync()
     {
-        broker.Subscribe(table.GetSession()!.TableId, OnTableEvent);
+        _session = await table.GetSessionAsync();
+        broker.Subscribe(_session!.TableId, OnTableEvent);
         await _interop.GetPreferredColorSchemeAsync();
         _init = true;
         StateHasChanged();
@@ -70,12 +73,12 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
             
             
         }
-        logger.LogInformation($"Table {table.GetSession()!.TableId} received event {e.EventType}");
+        logger.LogInformation($"Table {_session!.TableId} received event {e.EventType}");
     }
 
     void IDisposable.Dispose()
     {
-        if(_init) broker.Unsubscribe(table.GetSession()!.TableId, OnTableEvent);
+        if(_init) broker.Unsubscribe(_session!.TableId, OnTableEvent);
     }
 
     private async Task OnCallBtnClickAsync()

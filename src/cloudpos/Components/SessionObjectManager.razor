@@ -1,13 +1,10 @@
-<div class="d-flex justify-content-between">
-    <div>
-        <h3 class="fw-bold mt-3">세션 관리</h3>
-        <h6 class="text-secondary fw-light">총 @(GetSessionCount())개의 세션이 있습니다.</h6>
-    </div>
-    <div class="d-flex flex-column-reverse">
+@if (_tables is not null)
+{
+    <div class="d-flex flex-column-reverse mt-4" style="max-width: 40rem">
         <div class="d-flex gap-2">
             <InputSelect @bind-Value="_selectedTableId" class="form-select shadow" aria-label="테이블 선택" style="width: 150px">
                 <option value="-1" selected>전체 테이블</option>
-                @foreach (var c in GetTables())
+                @foreach (var c in _tables)
                 {
                     <option value="@c.TableId">@c.Name</option>
                 }
@@ -20,15 +17,14 @@
             </InputSelect>
         </div>
     </div>
-</div>
-<div class="d-flex flex-column gap-4 mb-3">
-    <Virtualize Items="GetSessions()" Context="session">
-        <div class="card shadow bg-body-tertiary">
-            <div class="card-header d-flex justify-content-between">
-                <div class="text-muted monospace-font">
-                    #@session.SessionId
-                </div>
-                <div>
+    <div class="d-flex flex-column gap-4 mb-3">
+        <Virtualize ItemsProvider="LoadSessionsAsync" Context="session">
+            <div class="card shadow bg-body-tertiary">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="text-muted monospace-font">
+                        #@session.SessionId
+                    </div>
+                    <div>
                         @if (session.State == TableSession.SessionState.Active)
                         {
                             <span class="text-danger">활성</span>
@@ -45,116 +41,117 @@
                             <span class="text-info">종료</span>
                             <i class="bi bi-credit-card-fill text-info"></i>
                         }
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <h6>세션 정보</h6>
-                <div class="text-muted mb-3">
-                    <span>테이블: @session.Table.Name</span><br/>
-                    <span>생성 시간: @session.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</span><br/>
-                    <span>종료 시간: @(session.EndedAt is null ? "종료 안됨" : @session.EndedAt!.Value.ToString("yyyy-MM-dd HH:mm:ss"))</span><br/>
-                    <span>인증 코드: 
-                        @if (@session.AuthCode is null)
-                        {
-                            <span>무효</span>
-                        }
-                        else
-                        {
-                            <span class="monospace-font">@session.AuthCode</span>
-                        }
-                    </span><br/>
-                </div>
-                <hr/>
-                <h6>주문 요약</h6>
-                @if (session.Orders.Any())
-                {
-                    var summary = GetSessionOrderSummary(session);
-                    <p class="text-muted">합계: <span class="monospace-font">@CurrencyFormat(summary.Sum(x => x.Item4))</span></p>
-                    <ul>
-                        @foreach (var x in summary)
-                        {
-                            <li class="mb-2">@x.Item1<br/><span class="text-muted monospace-font">@CurrencyFormat(x.Item2) x @x.Item3 = @CurrencyFormat(x.Item4)</span></li>
-                        }
-                    </ul>
-                    
-                }
-                else
-                {
-                    <p class="text-warning">이 세션에는 아직 유효한 주문이 없습니다.</p>
-                }
-                <hr/>
-                <h6>연결된 주문</h6>
-                @if (session.Orders.Any())
-                {
-                    <div class="accordion mt-3">
-                        @foreach (var x in session.Orders)
-                        {
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@x.OrderId" aria-expanded="true" aria-controls="x.OrderId">
-                                        <div class="d-flex justify-content-between w-100">
-                                            <span class="monospace-font">#@x.OrderId</span>
-                                            <span class="float-end">
-                                                @if (x.Status == Order.OrderStatus.Completed)
-                                                {
-                                                    <span class="text-success">완료</span>
-                                                    <i class="bi bi-check-lg text-success"></i>
+                <div class="card-body">
+                    <h6>세션 정보</h6>
+                    <div class="text-muted mb-3">
+                        <span>테이블: @session.Table.Name</span><br/>
+                        <span>생성 시간: @session.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</span><br/>
+                        <span>종료 시간: @(session.EndedAt is null ? "종료 안됨" : @session.EndedAt!.Value.ToString("yyyy-MM-dd HH:mm:ss"))</span><br/>
+                        <span>인증 코드:
+                            @if (@session.AuthCode is null)
+                            {
+                                <span>무효</span>
+                            }
+                            else
+                            {
+                                <span class="monospace-font">@session.AuthCode</span>
+                            }
+                        </span><br/>
+                    </div>
+                    <hr/>
+                    <h6>주문 요약</h6>
+                    @if (session.Orders.Any())
+                    {
+                        var summary = GetSessionOrderSummary(session);
+                        <p class="text-muted">합계: <span class="monospace-font">@CurrencyFormat(summary.Sum(x => x.Item4))</span></p>
+                        <ul>
+                            @foreach (var x in summary)
+                            {
+                                <li class="mb-2">@x.Item1<br/><span class="text-muted monospace-font">@CurrencyFormat(x.Item2) x @x.Item3 = @CurrencyFormat(x.Item4)</span></li>
+                            }
+                        </ul>
 
-                                                }
-                                                else if (x.Status == Order.OrderStatus.Cancelled)
-                                                {
-                                                    <span class="text-danger">취소</span>
-                                                    <i class="bi bi-x-lg text-danger"></i>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-secondary">접수</span>
-                                                    <i class="bi bi-check-lg text-secondary"></i>
-                                                }
-                                            </span>
-                                        </div>
-                                    </button>
-                                </h2>
-                                <div id="@x.OrderId" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                    <div class="accordion-body">
-                                        <div class="text-muted mb-3">
-                                            <span>주문 일시:</span>
-                                            <span class="float-end">@x.CreatedAt.ToString("yyyy-MM-dd hh:mm:ss")</span><br/>
-                                            <span>합계:</span>
-                                            <span class="float-end">@CurrencyFormat(x.OrderItems.Sum(x=> x.Quantity * x.Item.Price))</span>
-                                            <p class="mb-1 mt-2">메모</p>
-                                            <InputTextArea class="form-control" readonly @bind-Value="x.Memo" placeholder="메모가 없습니다."></InputTextArea>
-                                        </div>
-                                        <table class="w-100">
-                                            <thead>
-                                            <tr class="text-muted small">
-                                                <td>메뉴</td>
-                                                <td>수량</td>
-                                                <td class="text-end">합계</td>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach (var i in x.OrderItems)
-                                            {
-                                                <tr class="monospace-font">
-                                                    <td>@i.Item.Name</td>
-                                                    <td>@i.Quantity</td>
-                                                    <td class="text-end">@CurrencyFormat(i.Quantity * i.Item.Price)</td>
+                    }
+                    else
+                    {
+                        <p class="text-warning">이 세션에는 아직 유효한 주문이 없습니다.</p>
+                    }
+                    <hr/>
+                    <h6>연결된 주문</h6>
+                    @if (session.Orders.Any())
+                    {
+                        <div class="accordion mt-3">
+                            @foreach (var x in session.Orders)
+                            {
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@x.OrderId" aria-expanded="true" aria-controls="x.OrderId">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="monospace-font">#@x.OrderId</span>
+                                                <span class="float-end">
+                                                    @if (x.Status == Order.OrderStatus.Completed)
+                                                    {
+                                                        <span class="text-success">완료</span>
+                                                        <i class="bi bi-check-lg text-success"></i>
+
+                                                    }
+                                                    else if (x.Status == Order.OrderStatus.Cancelled)
+                                                    {
+                                                        <span class="text-danger">취소</span>
+                                                        <i class="bi bi-x-lg text-danger"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-secondary">접수</span>
+                                                        <i class="bi bi-check-lg text-secondary"></i>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="@x.OrderId" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="text-muted mb-3">
+                                                <span>주문 일시:</span>
+                                                <span class="float-end">@x.CreatedAt.ToString("yyyy-MM-dd hh:mm:ss")</span><br/>
+                                                <span>합계:</span>
+                                                <span class="float-end">@CurrencyFormat(x.OrderItems.Sum(x => x.Quantity * x.Item.Price))</span>
+                                                <p class="mb-1 mt-2">메모</p>
+                                                <InputTextArea class="form-control" readonly @bind-Value="x.Memo" placeholder="메모가 없습니다."></InputTextArea>
+                                            </div>
+                                            <table class="w-100">
+                                                <thead>
+                                                <tr class="text-muted small">
+                                                    <td>메뉴</td>
+                                                    <td>수량</td>
+                                                    <td class="text-end">합계</td>
                                                 </tr>
-                                            }
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                @foreach (var i in x.OrderItems)
+                                                {
+                                                    <tr class="monospace-font">
+                                                        <td>@i.Item.Name</td>
+                                                        <td>@i.Quantity</td>
+                                                        <td class="text-end">@CurrencyFormat(i.Quantity * i.Item.Price)</td>
+                                                    </tr>
+                                                }
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
+                            }
                         </div>
-                }
-                else
-                {
-                    <p class="text-warning">이 세션에는 아직 유효한 주문이 없습니다.</p>
-                }
+                    }
+                    else
+                    {
+                        <p class="text-warning">이 세션에는 아직 유효한 주문이 없습니다.</p>
+                    }
+                </div>
             </div>
-        </div>
-    </Virtualize>
-</div>
+        </Virtualize>
+    </div>
+}

@@ -19,25 +19,29 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     private string _memoContent = string.Empty;
     private bool _shouldUpdateMemo = false;
     private int? _selectedOrderId;
-
+    private List<Order>? _activeOrders;
     
     private string CurrencyFormat(int x) => $"{x:₩#,###}";
-
-    private List<Order> GetOrders()
+    
+    private async Task<List<Order>> GetActiveOrdersAsync()
     {
-        using var context = factory.CreateDbContext();
-        return context.Orders
+        await using var context = await factory.CreateDbContextAsync();
+        return await context.Orders
             .Where(x => x.Status == Order.OrderStatus.Received)
             .Include(x => x.Session)
             .ThenInclude(x => x!.Table)
             .Include(x => x.OrderItems)
             .ThenInclude(x => x.Item)
             .OrderBy(x => x.CreatedAt)
-            .ToList();
+            .AsNoTracking()
+            .ToListAsync();
     }
-    
-    protected override void OnInitialized() 
-        => broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
+
+    protected override async Task OnInitializedAsync()
+    {
+        broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
+        _activeOrders = await GetActiveOrdersAsync();
+    }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -54,7 +58,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
         }
     }
     
-    private void OnBroadcastEvent(object? sender, TableEventArgs e)
+    private async void OnBroadcastEvent(object? sender, TableEventArgs e)
     {
         if (e.EventType == TableEventArgs.TableEventType.Order)
         {
@@ -63,6 +67,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
                 _shouldUpdateMemo = true;
         }
         
+        _activeOrders = await GetActiveOrdersAsync();
         StateHasChanged();
     }
 

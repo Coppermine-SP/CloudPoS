@@ -30,14 +30,6 @@ public class TableService
             : await context.Sessions.AsNoTracking().Include(x => x.Table).FirstOrDefaultAsync(x => x.SessionId == sessionId);
     }
     
-    public TableSession? GetSession(int? sessionId = null)
-    {
-        using var context = _factory.CreateDbContext();
-        return sessionId is null
-            ? AuthHandler.Session
-            : context.Sessions.AsNoTracking().Include(x => x.Table).FirstOrDefault(x => x.SessionId == sessionId);
-    }
-
     public async Task<bool> CompleteSessionAsync(int sessionId)
     {
         await using var context = await _factory.CreateDbContextAsync();
@@ -288,7 +280,7 @@ public class TableService
         }
 
         var authCode = _generateAuthCode();
-        while(context.Sessions.Any(x => x.AuthCode == authCode))
+        while(await context.Sessions.AnyAsync(x => x.AuthCode == authCode))
             authCode = _generateAuthCode();
         
         var session = new TableSession()

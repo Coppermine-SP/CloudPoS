@@ -9,16 +9,19 @@ namespace CloudInteractive.CloudPos.Components;
 
 public partial class CategoryObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, ILogger<CategoryObjectManager> logger, InteractiveInteropService interop) : ComponentBase
 {
-    private List<Category> GetCategories()
+    private List<Category>? _categories;
+    protected override async Task OnInitializedAsync()
     {
-        using var context = factory.CreateDbContext();
-        return context.Categories.Include(x => x.Items).ToList();
+        _categories = await GetCategoriesAsync();
     }
 
-    private int GetCategoriesCount()
+    private async Task<List<Category>> GetCategoriesAsync()
     {
-        using var context = factory.CreateDbContext();
-        return context.Categories.Count();
+        await using var context = await factory.CreateDbContextAsync();
+        return await context.Categories
+            .Include(x => x.Items)
+            .AsNoTracking()
+            .ToListAsync();
     }
     
     private async Task DeleteCategoryAsync(int c)

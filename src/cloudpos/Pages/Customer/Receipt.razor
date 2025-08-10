@@ -6,6 +6,9 @@
             <h3>감사합니다.</h3>
             <h5 class="text-secondary mb-0">계산 요청이 완료되었습니다.</h5>
             <div class="bg-dark w-100 my-4 rounded" style="height: 3px; max-width: 50px"></div>
-           <SessionReceipt SessionId="table.GetSession()!.SessionId"></SessionReceipt>
+            @if (_sessionId is not null)
+            {
+                <SessionReceipt SessionId="_sessionId.Value"></SessionReceipt>
+            }
         </div>
     </div>
