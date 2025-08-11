@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Org.BouncyCastle.Crypto.Generators;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
@@ -27,7 +28,7 @@ public class Authorize(ConfigurationService config) : PageModel
         
         return Page();
     }
-
+    
     public async Task<IActionResult> OnPost(string code)
     {
         if (string.IsNullOrWhiteSpace(code))
@@ -35,11 +36,8 @@ public class Authorize(ConfigurationService config) : PageModel
             Message = "필드가 공백일 수 없습니다.";
             return Page();
         }
-
-        var sha256 = SHA256.Create();
-        byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(code));
         
-        if (config.AdminPasswordHash == Convert.ToBase64String(hash))
+        if (BCrypt.Net.BCrypt.Verify(code, config.AdminPasswordHash))
         {
             var identity = new ClaimsIdentity([
                 new Claim(ClaimTypes.Role, AuthorizationHandler.AdminRole)
