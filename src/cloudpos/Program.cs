@@ -48,15 +48,8 @@ public class Program
         builder.Services.AddScoped<TableService>();
         builder.Services.AddSingleton<TableEventBroker>();
         var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
-        }
         
+        app.UseStaticFiles();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
@@ -78,7 +71,6 @@ public class Program
             ctx.Response.Redirect("/Customer/Menu");
             return Task.CompletedTask;
         });
-        app.UseStaticFiles();
         app.Run();
     }
 }
