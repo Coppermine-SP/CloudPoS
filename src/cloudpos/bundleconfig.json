@@ -6,14 +6,14 @@
       "enabled": true
     }
   },
-    {
+  {
     "outputFileName": "wwwroot/js/authorize.min.js",
     "inputFiles": ["wwwroot/js/authorize.js"],
     "minify": {
       "enabled": true
     }
   },
-    {
+  {
     "outputFileName": "wwwroot/js/client.min.js",
     "inputFiles": ["wwwroot/js/client.js"],
     "minify": {
@@ -27,16 +27,30 @@
       "enabled": true
     }
   },
-    {
-    "outputFileName": "wwwroot/js/showOffcanvas.min.js",
-    "inputFiles": ["wwwroot/js/showOffcanvas.js"],
+  {
+    "outputFileName": "wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
+    "inputFiles": ["wwwroot/lib/bootstrap/dist/css/bootstrap.css"],
     "minify": {
       "enabled": true
     }
   },
-    {
-    "outputFileName": "wwwroot/js/tableManager.min.js",
-    "inputFiles": ["wwwroot/js/tableManager.js"],
+  {
+    "outputFileName": "wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js",
+    "inputFiles": ["wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js"],
+    "minify": {
+      "enabled": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/lib/bootstrap/dist/js/bootstrap.min.js",
+    "inputFiles": ["wwwroot/lib/bootstrap/dist/js/bootstrap.js"],
+    "minify": {
+      "enabled": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/lib/qrcode/js/qrcode.min.js",
+    "inputFiles": ["wwwroot/lib/qrcode/js/qrcode.js"],
     "minify": {
       "enabled": true
     }
