@@ -8,10 +8,28 @@
         <AssemblyName>cloudpos-server</AssemblyName>
         <RootNamespace>CloudInteractive.CloudPos</RootNamespace>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <ESBuildTargets>es2020</ESBuildTargets>
+        <ESBuildWebRoot>wwwroot/</ESBuildWebRoot>
+    </PropertyGroup>
+    
+<ItemGroup>
+  <ESBuild Include="wwwroot/js/authorize.js"
+           Arguments="--minify --format=iife --target=es2020 --outfile=wwwroot/js/authorize.min.js" />
+  <ESBuild Include="wwwroot/js/client.js"
+           Arguments="--minify --format=iife --target=es2020 --outfile=wwwroot/js/client.min.js" />
+  <ESBuild Include="wwwroot/js/preload.js"
+           Arguments="--minify --format=iife --target=es2020 --outfile=wwwroot/js/preload.min.js" />
+  <ESBuild Include="wwwroot/js/showOffcanvas.js"
+           Arguments="--minify --format=iife --target=es2020 --outfile=wwwroot/js/showOffcanvas.min.js" />
+  <ESBuild Include="wwwroot/js/tableManager.js"
+           Arguments="--minify --format=iife --target=es2020 --outfile=wwwroot/js/tableManager.min.js" />
+  <ESBuild Include="wwwroot/css/site.css"
+           Arguments="--minify --external:/fonts/* --supported:nesting=false --outfile=wwwroot/css/site.min.css" />
+</ItemGroup>
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-      <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
+      <PackageReference Include="ESBuild.MSBuild" Version="0.19.5.38" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
         <PrivateAssets>all</PrivateAssets>
