@@ -164,7 +164,7 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
         {
             await _module.DisposeAsync();
         }
-        catch (JSDisconnectedException)
+        catch
         {
             //ignored
         }
