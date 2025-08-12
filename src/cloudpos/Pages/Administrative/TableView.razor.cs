@@ -46,7 +46,7 @@ public partial class TableView(TableService tableService, ConfigurationService c
     {
         if (firstRender)
         {
-            _tableViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.js");
+            _tableViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.min.js");
         }
     }
     private async void OnTableEvent(object? sender, TableEventArgs e)

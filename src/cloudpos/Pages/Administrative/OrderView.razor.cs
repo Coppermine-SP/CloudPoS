@@ -49,7 +49,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
         {
             try
             {
-                _orderViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.js");
+                _orderViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.min.js");
             }
             catch
             {

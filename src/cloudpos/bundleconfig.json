@@ -1,0 +1,44 @@
+[
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": ["wwwroot/css/site.css"],
+    "minify": {
+      "enabled": true
+    }
+  },
+    {
+    "outputFileName": "wwwroot/js/authorize.min.js",
+    "inputFiles": ["wwwroot/js/authorize.js"],
+    "minify": {
+      "enabled": true
+    }
+  },
+    {
+    "outputFileName": "wwwroot/js/client.min.js",
+    "inputFiles": ["wwwroot/js/client.js"],
+    "minify": {
+      "enabled": true
+    }
+  },
+    {
+    "outputFileName": "wwwroot/js/preload.min.js",
+    "inputFiles": ["wwwroot/js/preload.js"],
+    "minify": {
+      "enabled": true
+    }
+  },
+    {
+    "outputFileName": "wwwroot/js/showOffcanvas.min.js",
+    "inputFiles": ["wwwroot/js/showOffcanvas.js"],
+    "minify": {
+      "enabled": true
+    }
+  },
+    {
+    "outputFileName": "wwwroot/js/tableManager.min.js",
+    "inputFiles": ["wwwroot/js/tableManager.js"],
+    "minify": {
+      "enabled": true
+    }
+  }
+]
