@@ -1,6 +1,0 @@
-﻿services:
-  cloudpos:
-    image: cloudpos
-    build:
-      context: .
-      dockerfile: Dockerfile
