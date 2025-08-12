@@ -53,4 +53,7 @@ public class InteractiveInteropService(IJSRuntime js, NavigationManager nav)
         await js.InvokeVoidAsync("showNotify",
             message, type, duration);
     }
+
+    public async Task ShowOffCanvasAsync() =>
+        await js.InvokeVoidAsync("showOffcanvas", "offcanvasResponsive");
 }

@@ -21,8 +21,8 @@ public partial class TableObjectManager (
     private List<Table> PlacedTables => _allTables.Where(t => t.Cell != null).ToList();
 
     private string? _newTableName;
-    
-    private bool _isModify = false;
+
+    private bool _isModify;
     private IJSObjectReference? _jsModule; 
     private DotNetObjectReference<TableObjectManager>? _dotNetObjectReference;
     
@@ -40,14 +40,22 @@ public partial class TableObjectManager (
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            _dotNetObjectReference = DotNetObjectReference.Create(this);
-            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/tableManager.js");
+            if (firstRender)
+            {
+                _dotNetObjectReference = DotNetObjectReference.Create(this);
+                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/tableManager.js");
+            }
+
+            if (_jsModule != null)
+            {
+                await _jsModule.InvokeVoidAsync("initializeDragAndDrop", _dotNetObjectReference);
+            }
         }
-        if (_jsModule != null)
+        catch
         {
-            await _jsModule.InvokeVoidAsync("initializeDragAndDrop", _dotNetObjectReference);
+            //ignored
         }
     }
     private async Task CreateTableAsync()
@@ -114,14 +122,11 @@ public partial class TableObjectManager (
             if (tableAtTarget != null)
             {
                 _ = interop.ShowNotifyAsync("해당 위치에는 이미 다른 테이블이 있습니다.", InteractiveInteropService.NotifyType.Warning);
-                await ForceUIRefresh();
+                await RefreshAsync();
                 return;
             }
             
-            if (draggedTable.Cell == null)
-            {
-                draggedTable.Cell = new TableViewCell();
-            }
+            draggedTable.Cell ??= new TableViewCell();
             draggedTable.Cell.X = newX;
             draggedTable.Cell.Y = newY;
         }
@@ -133,7 +138,7 @@ public partial class TableObjectManager (
             {
                 _ = interop.ShowNotifyAsync("테이블에 세션이 할당 되어 있어 미배치 목록으로 돌아갈 수 없습니다.", InteractiveInteropService.NotifyType.Error);
                 _allTables = new List<Table>(_allTables);
-                await ForceUIRefresh();
+                await RefreshAsync();
                 return;
             }
             draggedTable.Cell = null;
@@ -201,7 +206,7 @@ public partial class TableObjectManager (
         _dotNetObjectReference?.Dispose();
     }
     // UI를 비동기 새로고침 하는 메서드
-    private async Task ForceUIRefresh()
+    private async Task RefreshAsync()
     {
         var originalTables = new List<Table>(_allTables);
         _allTables.Clear();
