@@ -27,7 +27,8 @@ public class Program
                 options.ExpireTimeSpan = TimeSpan.FromHours(4);
             });
         builder.Services.AddDbContextFactory<ServerDbContext>(opt =>
-            opt.UseMySQL(builder.Configuration.GetConnectionString("ServerDbContext")!));
+            opt.UseMySQL(builder.Configuration.GetConnectionString("ServerDbContext")!,
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
         builder.Services.AddScoped<IAuthorizationHandler, AuthorizationHandler>();
         builder.Services.AddAuthorization(option =>
         {
