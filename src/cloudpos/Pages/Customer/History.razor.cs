@@ -9,12 +9,11 @@ namespace CloudInteractive.CloudPos.Pages.Customer;
 
 public partial class History(IDbContextFactory<ServerDbContext> factory, InteractiveInteropService interop, ModalService modal, ConfigurationService config, TableService table, TableEventBroker broker) : ComponentBase, IDisposable
 {
-    
     private int _totalOrderCount = 0;
     private int _totalAmount = 0;
     private List<Models.Order>? _orders;
     private Models.TableSession? _session;
-    private string CurrencyFormat(int x) => $"￦{x:#,###}";
+    private string CurrencyFormat(int x) =>  x == 0 ? "￦0": $"￦{x:#,###}";
     private async Task UpdateTotalAsync()
     {
         await using var context = await factory.CreateDbContextAsync();
