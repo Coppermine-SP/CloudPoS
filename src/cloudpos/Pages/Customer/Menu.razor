@@ -23,7 +23,7 @@
         <div class="scroll-arrow right d-none" id="cat-arrow-right"><i class="bi bi-chevron-right"></i></div>
         <div class="fade-edge right d-none rounded-end-5" id="cat-fade-right"></div>
     </div>
-<div class="d-grid my-3 gap-4 card-grid">
+<div class="d-grid mt-3 mb-5 gap-4 card-grid">
     @if (_categories is not null)
     {
         @foreach (var item in _categories.First(x => x.CategoryId == _selectedCategoryId).Items)
@@ -56,7 +56,7 @@
     }
 </div>
     <div class="container px-0 fixed-bottom">
-        <div class="bg-body-tertiary rounded-5 px-3 py-2 mx-4 mb-4 shadow">
+        <div class="bg-body-tertiary rounded-5 px-3 py-2 mx-4 mb-2 shadow">
             <div class="d-flex justify-content-between align-items-center">
                 <button class="cart-toggle btn p-0 border-0 bg-transparent"
                         @onclick="ToggleCart">
