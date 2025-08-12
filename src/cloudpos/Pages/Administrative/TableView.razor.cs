@@ -8,10 +8,8 @@ using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public partial class TableView(TableService tableService, ConfigurationService config, IDbContextFactory<ServerDbContext> factory, TableEventBroker broker) : ComponentBase, IDisposable
+public partial class TableView(TableService tableService, ConfigurationService config, IDbContextFactory<ServerDbContext> factory, TableEventBroker broker, InteractiveInteropService interop) : ComponentBase, IDisposable
 {
-    [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
-    private IJSObjectReference? _tableViewModule;
     private int? _selectedTableId;
     private TableSession? _selectedTableSession;
     private List<TableSession>? _sessions;
@@ -42,13 +40,6 @@ public partial class TableView(TableService tableService, ConfigurationService c
             .ToListAsync();
     }
     
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _tableViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.min.js");
-        }
-    }
     private async void OnTableEvent(object? sender, TableEventArgs e)
     {
         if (e.EventType == TableEventArgs.TableEventType.TableUpdate)
@@ -68,10 +59,8 @@ public partial class TableView(TableService tableService, ConfigurationService c
             .Where(s => s.TableId == tableId && s.State != TableSession.SessionState.Completed)
             .Include(s => s.Table)
             .FirstOrDefaultAsync();
-        
-        if (_tableViewModule is not null)
-            await _tableViewModule.InvokeVoidAsync("showOffcanvas", "offcanvasResponsive");
-        
+
+        await interop.ShowOffCanvasAsync();
         StateHasChanged();
     }
 
@@ -96,11 +85,4 @@ public partial class TableView(TableService tableService, ConfigurationService c
     }
 
     public void Dispose() => broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
-    public async ValueTask DisposeAsync()
-    {
-        if (_tableViewModule is not null)
-        {
-            await _tableViewModule.DisposeAsync();
-        }
-    }
 }

@@ -14,8 +14,6 @@ namespace CloudInteractive.CloudPos.Pages.Administrative;
 
 public partial class OrderView(IDbContextFactory<ServerDbContext> factory, TableEventBroker broker, ModalService modal, TableService table, InteractiveInteropService interop) : ComponentBase, IDisposable
 {
-    [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
-    private IJSObjectReference? _orderViewModule;
     private string _memoContent = string.Empty;
     private bool _shouldUpdateMemo = false;
     private int? _selectedOrderId;
@@ -41,21 +39,6 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     {
         broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
         _activeOrders = await GetActiveOrdersAsync();
-    }
-    
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            try
-            {
-                _orderViewModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/showOffcanvas.min.js");
-            }
-            catch
-            {
-                //ignored
-            }
-        }
     }
     
     private async void OnBroadcastEvent(object? sender, TableEventArgs e)
@@ -117,25 +100,10 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
         _shouldUpdateMemo = true;
         StateHasChanged();
         
-        if (_orderViewModule is not null)
-            await _orderViewModule.InvokeVoidAsync("showOffcanvas", "offcanvasResponsive");
+        await interop.ShowOffCanvasAsync();
     }
 
     public void Dispose()
         => broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
     
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            if (_orderViewModule is not null)
-            {
-                await _orderViewModule.DisposeAsync();
-            }
-        }
-        catch
-        {
-            //ignored
-        }
-    }
 }

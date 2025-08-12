@@ -80,8 +80,7 @@ export async function initializeDragAndDrop(dotNetHelper) {
                 }
             });
         });
-
-        // ✅ 고스트 위치 정확히 붙이기
+        
         bindDragImageHandlers('#unplaced-list');
         bindDragImageHandlers('.grid-cell');
 
