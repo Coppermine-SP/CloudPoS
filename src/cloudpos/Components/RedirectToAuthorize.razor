@@ -5,7 +5,7 @@
     {
         try
         {
-            NavigationManager.NavigateTo(await Interop.IsPwaDisplayMode() ? "Administrative/Authorize" : "Customer/Authorize?error=0", forceLoad: true);
+            NavigationManager.NavigateTo(await Interop.IsPwaDisplayMode() ? "administrative/authorize" : "customer/authorize?error=0", forceLoad: true);
         }
         catch
         {

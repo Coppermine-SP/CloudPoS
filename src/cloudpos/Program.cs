@@ -74,7 +74,7 @@ public class Program
         app.MapFallbackToPage("/_Host");
         app.MapGet("/", ctx =>
         { 
-            ctx.Response.Redirect("/Customer/Menu");
+            ctx.Response.Redirect("/customer/menu");
             return Task.CompletedTask;
         });
         app.Run();

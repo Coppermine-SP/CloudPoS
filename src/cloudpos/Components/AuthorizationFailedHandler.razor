@@ -38,11 +38,11 @@ else
                 {
                     if (session.State == TableSession.SessionState.Completed)
                     {
-                        NavManager.NavigateTo("/Customer/Authorize?error=1", forceLoad: true, replace: true);
+                        NavManager.NavigateTo("/customer/authorize?error=1", forceLoad: true, replace: true);
                         return;
                     }
                     
-                    NavManager.NavigateTo("/Customer/Receipt", forceLoad: true, replace: true);
+                    NavManager.NavigateTo("/customer/receipt", forceLoad: true, replace: true);
                     return; 
                 }
             }
