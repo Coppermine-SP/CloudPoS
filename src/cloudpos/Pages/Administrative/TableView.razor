@@ -19,7 +19,7 @@
 <PageTitle>@(config.StoreName) - 테이블 뷰</PageTitle>
 @if (_sessions is not null && _tables is not null)
 {
-    <div style="height: calc(100vh - 58px)">
+    <div class="full-height">
         <div class="d-flex h-100 justify-content-between">
             <main class="flex-grow-1 d-flex flex-column">
                 <div class="d-lg-none container my-4">
@@ -61,7 +61,7 @@
                     </div>
                 </div>
             </main>
-            <div class="offcanvas offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex h-100 side-panel" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 380px!important;">
+            <div class="offcanvas offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex side-panel full-height" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 380px!important;">
                 <div class="offcanvas-header border-bottom">
                     <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">테이블 상세보기</h5>
                     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>

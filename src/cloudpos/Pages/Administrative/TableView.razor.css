@@ -2,8 +2,8 @@
     .offcanvas-lg {
         position: sticky;
         top: 1.5rem;
-        height: calc(100vh - 15rem);
         transform: none;
+        height: 100%;
         visibility: visible !important;
         width: 380px;
         border: 0;

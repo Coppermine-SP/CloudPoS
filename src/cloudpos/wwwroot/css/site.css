@@ -39,7 +39,7 @@ a{
 
 .full-height {
   height: 100vh; /* 혹시나 Custom Property 지원 안하는 브라우저를 위한 복귀점(Fallback) */
-  height: calc(var(--vh, 1vh) * 100);
+  height: calc((var(--vh, 1vh) * 100) - 58px);
 }
 
 #notify-bar{
@@ -99,7 +99,7 @@ hr.dashed {
   [data-bs-theme="dark"] .side-panel {
     border-radius: 18px;
     margin-right: 30px;
-    height: calc(100vh - 5rem) !important;
+    height: calc(100% - 2rem) !important;
   }
 }
 
