@@ -21,7 +21,7 @@ def customer_auth_code(pytestconfig):
 @pytest.fixture
 def driver():
     options = Options()
-    options.add_argument("--headless=new") # 브라우저 비활성화 할 경우 주석 처리
+    options.add_argument("--headless=new") # 브라우저 활성화 할 경우 주석 처리
     options.add_argument("--window-size=1280,900")
     driver = webdriver.Chrome(options=options)
     try:
