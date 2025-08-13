@@ -1,3 +1,4 @@
+using CloudInteractive.CloudPos.Components.Modal;
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Models;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components.TableView;
 
-public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, TableService tableService, InteractiveInteropService interop, TableEventBroker broker) : ComponentBase
+public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, TableService tableService, InteractiveInteropService interop, TableEventBroker broker, ModalService modal) : ComponentBase
 {
     [Parameter, EditorRequired] public int SessionId { get; set; }
     
@@ -81,6 +82,24 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
     private async Task SubmitOrderAsync()
     {
         if (_currentOrderItems.Count == 0) return;
+        
+        var listHtml = string.Join(
+            "\n",
+            _currentOrderItems.Select(t => $"<li>{t.Item.Name} × {t.Quantity}</li>")
+        );
+        
+        string innerHtml = $"""
+                            <ul style='line-height: 1.8'>
+                                {listHtml}
+                            </ul>
+                            <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_currentOrderItems.Sum(x => x.Quantity * x.Item.Price))}</strong><br>
+                            주문하실 내용이 맞습니까?
+                            """;
+        if (!await modal.ShowAsync<AlertModal, bool>("주문서 확인", ModalService.Params()
+                .Add("InnerHtml", innerHtml)
+                .Add("IsCancelable", true)
+                .Build()))
+            return;
 
         var orderData = _currentOrderItems
             .Select(oi => new TableService.OrderItem(oi.Item.ItemId, oi.Quantity))
@@ -93,5 +112,7 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
                 TableId = TableEventBroker.BroadcastId,
                 EventType = TableEventArgs.TableEventType.TableUpdate
             });
+        
+        _currentOrderItems.Clear();
     }
 }
