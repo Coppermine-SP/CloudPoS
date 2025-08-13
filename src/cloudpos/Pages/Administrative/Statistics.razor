@@ -1,4 +1,5 @@
 @attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
+@inject ConfigurationService Config
 @page "/administrative/statistics"
 @layout Shared.AdminPageLayout
 @code
@@ -8,7 +9,7 @@
     private string CurrencyFormat(int x) => x == 0 ? "￦0": $"￦{x:#,###}";
 }
 
-<PageTitle>통계</PageTitle>
+<PageTitle>@(Config.StoreName) - 통계</PageTitle>
 
 <div class="container py-4">
     <div class="d-flex justify-content-center align-items-center mb-4">
