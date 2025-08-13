@@ -16,10 +16,10 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
 
     protected override MenuItem[] GetMenuItems() =>
     [
-        new() { Name = "테이블 뷰", Url = "Administrative/TableView" },
-        new() { Name = "주문 뷰", Url = "Administrative/OrderView" },
-        new() { Name = "통계", Url = "Administrative/Statistics" },
-        new() { Name = "객체 관리자", Url = "Administrative/ObjectManager" },
+        new() { Name = "테이블 뷰", Url = "administrative/tableview" },
+        new() { Name = "주문 뷰", Url = "administrative/orderview" },
+        new() { Name = "통계", Url = "administrative/statistics" },
+        new() { Name = "객체 관리자", Url = "administrative/objectmanager" },
     ];
 
     protected override void OnInitialized() => broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
@@ -154,7 +154,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
                 .Add("IsCancelable", true)
                 .Build()))
         {
-            navigation.NavigateTo("/Administrative/Authorize?SignOut=true", replace: true, forceLoad: true);
+            navigation.NavigateTo("/administrative/authorize?signout=true", replace: true, forceLoad: true);
         }
     }
     

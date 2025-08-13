@@ -20,6 +20,11 @@ public class Program
         builder.Services.AddAuthorizationCore();
         builder.Services.AddMemoryCache();
         builder.Services.AddCascadingAuthenticationState();
+        builder.Services.Configure<RouteOptions>(option =>
+        {
+            option.LowercaseUrls = true;
+            option.LowercaseQueryStrings = true;
+        });
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {

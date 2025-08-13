@@ -17,8 +17,8 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 
     protected override MenuItem[] GetMenuItems() =>
     [
-        new() { Name = "메뉴", Url = "Customer/Menu" },
-        new() { Name = "주문 내역", Url = "Customer/History" }
+        new() { Name = "메뉴", Url = "customer/menu" },
+        new() { Name = "주문 내역", Url = "customer/history" }
     ];
     
     protected override async Task OnInitializedAsync()
@@ -34,7 +34,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     {
         if (e.EventType == TableEventArgs.TableEventType.SessionEnd)
         {
-            navigation.NavigateTo("/Customer/Receipt", replace: true, forceLoad: true);
+            navigation.NavigateTo("/customer/receipt", replace: true, forceLoad: true);
         }
 
         else if (e.EventType == TableEventArgs.TableEventType.StaffCall)
