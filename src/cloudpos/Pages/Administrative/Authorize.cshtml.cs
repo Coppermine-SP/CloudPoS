@@ -20,11 +20,11 @@ public class Authorize(ConfigurationService config) : PageModel
         {
             Message = "로그아웃 되었습니다.";
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Redirect("/Administrative/Authorize");
+            return Redirect("/administrative/authorize");
         }
         
         if(HttpContext.User.Identity!.IsAuthenticated && HttpContext.User.IsInRole(AuthorizationHandler.AdminRole))
-            return Redirect("/Administrative/TableView");
+            return Redirect("/administrative/tableview");
         
         return Page();
     }
@@ -44,7 +44,7 @@ public class Authorize(ConfigurationService config) : PageModel
             ], CookieAuthenticationDefaults.AuthenticationScheme);
             
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
-            return Redirect("/Administrative/TableView");
+            return Redirect("/administrative/tableview");
         }
         
         
