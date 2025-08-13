@@ -39,14 +39,17 @@
                 <th scope="col">단가</th>
                 <th scope="col" class="text-end">금액</th>
             </tr>
-            @foreach (var x in _orderSummaries!)
+            @if (_orderSummaries is not null)
             {
-                <tr>
-                    <td>@x.ItemName</td>
-                    <td>@x.TotalQty</td>
-                    <td>@CurrencyFormat(x.Price)</td>
-                    <td class="text-end">@CurrencyFormat(x.TotalPrice)</td>
-                </tr>
+                @foreach (var x in _orderSummaries)
+                {
+                    <tr>
+                        <td>@x.ItemName</td>
+                        <td>@x.TotalQty</td>
+                        <td>@CurrencyFormat(x.Price)</td>
+                        <td class="text-end">@CurrencyFormat(x.TotalPrice)</td>
+                    </tr>
+                }
             }
         </table>
         <hr class="receipt-line"/>
