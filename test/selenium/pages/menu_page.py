@@ -9,6 +9,13 @@ class MenuPage(BasePage):
     MENU_ITEM_CARDS = (By.CSS_SELECTOR, "div.card.item")
     MENU_CATEGORY_BUTTONS = (By.CSS_SELECTOR, "div.category-item")
 
+    def get_current_theme(self):
+        """
+        현재 테마 반환
+        """
+        html_element = self.driver.find_element(By.TAG_NAME, "html")
+        return html_element.get_attribute("data-bs-theme")
+
     def get_menu_items(self, timeout=10):
         """
         메뉴 아이템 목록 반환
@@ -101,4 +108,53 @@ class MenuPage(BasePage):
         if not item:
             return False
         item.open_detail()
+        return True
+
+    def open_hamburger_menu(self, timeout=10):
+        """
+        햄버거 메뉴 버튼 클릭
+        """
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        
+        wait = WebDriverWait(self.driver, timeout)
+        hamburger_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.btn-dark.dropdown")))
+        hamburger_button.click()
+        return True
+
+    def click_staff_call_button(self, timeout=10):
+        """
+        직원 호출 버튼 클릭
+        """
+        self.driver.find_element(By.CSS_SELECTOR, "a.dropdown-item i.bi-bell-fill").find_element(By.XPATH, "..").click()
+        return True
+
+    def click_session_share_button(self, timeout=10):
+        """
+        세션 공유 버튼 클릭
+        """
+        self.driver.find_element(By.CSS_SELECTOR, "a.dropdown-item i.bi-qr-code-scan").find_element(By.XPATH, "..").click()
+        return True
+
+    def check_modal_open(self, timeout=10):
+        """
+        모달이 열렸는지 확인
+        """
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        
+        wait = WebDriverWait(self.driver, timeout)
+        modal = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.modal-content.border-0.shadow-lg.bg-body-tertiary")))
+        return modal.is_displayed()
+
+    def click_theme_button(self, timeout=10):
+        """
+        테마 변경 버튼 클릭
+        """
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        
+        wait = WebDriverWait(self.driver, timeout)
+        theme_button = wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/nav/div/div/div[2]/ul/li[3]/a")))
+        theme_button.click()
         return True
