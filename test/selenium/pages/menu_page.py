@@ -1,6 +1,6 @@
 from pages import BasePage
 from selenium.webdriver.common.by import By
-from pages.items import CategoryItem, MenuItem
+from pages.items import CategoryItem, MenuItem, Cart
 from selenium.webdriver.support.ui import WebDriverWait
 
 
@@ -77,4 +77,28 @@ class MenuPage(BasePage):
         if not category:
             return False
         category.click()
+        return True
+
+    def order_menu_item(self, item_name: str, timeout=10):
+        """
+        메뉴 아이템 중 타이틀이 일치하는 아이템 주문
+        """
+        item = self.find_item_by_title(item_name, timeout)
+        if not item:
+            return False
+        item.add_to_cart()
+
+        cart = Cart(self.driver, self.driver.find_element(By.CSS_SELECTOR, "div.bg-body-tertiary.rounded-5.px-3.py-2.mx-4.mb-2.shadow"))
+        cart.click_order_button()
+        cart.confirm_order()
+        return True
+
+    def open_menu_item_detail(self, item_name: str, timeout=10):
+        """
+        메뉴 아이템 중 타이틀이 일치하는 아이템 상세보기
+        """
+        item = self.find_item_by_title(item_name, timeout)
+        if not item:
+            return False
+        item.open_detail()
         return True

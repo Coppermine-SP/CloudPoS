@@ -1,5 +1,6 @@
 from pages.authorize_page import AuthorizePage
 from pages.menu_page import MenuPage
+from pages.items import Cart
 import time
 
 def _compose_authorize_url(base_url: str) -> str:
@@ -46,4 +47,22 @@ def test_change_menu_category(driver, customer_base_url, customer_auth_code):
     assert auth.is_redirected_to_menu()
 
     menu = MenuPage(driver)
-    assert menu.change_menu_category("사이드", timeout=10)
+    assert menu.change_menu_category("하이볼", timeout=10)
+
+def test_order_menu_item(driver, customer_base_url, customer_auth_code):
+    driver.get(_compose_authorize_url(customer_base_url))
+    auth = AuthorizePage(driver)
+    auth.authorize(customer_auth_code)
+    assert auth.is_redirected_to_menu()
+
+    menu = MenuPage(driver)
+    assert menu.order_menu_item("골빔면", timeout=10)
+
+def test_open_menu_item_detail(driver, customer_base_url, customer_auth_code):
+    driver.get(_compose_authorize_url(customer_base_url))
+    auth = AuthorizePage(driver)
+    auth.authorize(customer_auth_code)
+    assert auth.is_redirected_to_menu()
+
+    menu = MenuPage(driver)
+    assert menu.open_menu_item_detail("골빔면", timeout=10)

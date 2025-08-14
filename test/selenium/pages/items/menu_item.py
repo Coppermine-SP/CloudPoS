@@ -93,4 +93,12 @@ class MenuItem:
             except Exception:
                 self.driver.execute_script("arguments[0].click();", button)
 
-
+    def open_detail(self):
+        try:
+            self.root.click()
+        except Exception:
+            from selenium.webdriver.common.action_chains import ActionChains
+            ActionChains(self.driver).move_to_element(self.root).pause(0.1).click().perform()
+            return
+        except Exception:
+            self.driver.execute_script("arguments[0].click();", self.root)
