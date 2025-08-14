@@ -34,7 +34,43 @@ class Cart:
         return not self.is_cart_open()
 
     def click_order_button(self):
-        self.root.find_element(*self.ORDER_BUTTON).click()
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        from selenium.webdriver.common.action_chains import ActionChains
+
+        def _enabled_button(driver):
+            try:
+                btn = self.root.find_element(*self.ORDER_BUTTON)
+                return btn if btn.is_enabled() and not btn.get_attribute("disabled") else False
+            except Exception:
+                return False
+
+        order_button = WebDriverWait(self.driver, 10).until(_enabled_button)
+        try:
+            order_button.click()
+        except Exception:
+            try:
+                ActionChains(self.driver).move_to_element(order_button).pause(0.1).click().perform()
+            except Exception:
+                self.driver.execute_script("arguments[0].click();", order_button)
+
+    def confirm_order(self):
+        """
+        주문서 확인 모달창에서 확인 버튼을 클릭
+        """
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        from selenium.webdriver.common.action_chains import ActionChains
+
+        locator = (By.XPATH, "//button[contains(@class,'btn-primary') and normalize-space()='확인']")
+        confirm_button = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(locator))
+        try:
+            confirm_button.click()
+        except Exception:
+            try:
+                ActionChains(self.driver).move_to_element(confirm_button).pause(0.1).click().perform()
+            except Exception:
+                self.driver.execute_script("arguments[0].click();", confirm_button)
 
     def check_cart_item(self, item_name: str):
         try:
