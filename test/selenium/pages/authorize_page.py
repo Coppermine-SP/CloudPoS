@@ -1,5 +1,6 @@
 from pages import BasePage
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 
 class AuthorizePage(BasePage):
     # 환영 문구
@@ -36,17 +37,29 @@ class AuthorizePage(BasePage):
         except:
             return False
 
-    def is_redirected_to_menu(self):
+    def is_redirected_to_menu(self, timeout: int = 10):
         """
         메뉴 페이지로 리다이렉트되었는지 확인
         """
-        return self.driver.current_url.endswith("/Menu")
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: "/Menu" in d.current_url or "/menu" in d.current_url
+            )
+            return True 
+        except Exception:
+            return False
 
-    def is_redirected_to_legal_page(self):
+    def is_redirected_to_legal_page(self, timeout: int = 10):
         """
         도움말 및 개인정보처리방침 페이지로 리다이렉트되었는지 확인
         """
-        return self.driver.current_url.endswith("/About")
+        try:    
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: "/About" in d.current_url or "/about" in d.current_url
+            )
+            return True
+        except Exception:
+            return False
 
     def authorize(self, auth_code):
         """
@@ -61,4 +74,5 @@ class AuthorizePage(BasePage):
         """
         도움말 및 개인정보처리방침 링크 클릭
         """
-        self.click(self.LEGAL_LINK)
+        el = self.find(self.LEGAL_LINK)
+        self.click_element(el)
