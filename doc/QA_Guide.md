@@ -1,5 +1,5 @@
 <h1 align="center">CloudPOS Q/A Guide</h1>
-<p align="center">Last Updated: 2025-08-13</p>
+<p align="center">Last Updated: 2025-08-14</p>
 
 ## Overview
 This document serves as an automated testing guide for quality assurance of the CloudPOS system.
@@ -22,5 +22,25 @@ pip install pytest selenium
 ```
 ```
 cd /path/to/CloudPoS/test/selenium
-python -m pytest -vv tests --customer-base-url="https://dev-ecomm-svc.cloudinteractive.net/Customer" --customer-auth-code="CODE"
+python -m pytest -vv tests --customer-base-url="https://dev-ecomm-svc.cloudinteractive.net/customer" --customer-auth-code="CODE"
 ```
+
+## Test Cases
+### Auth page
+- Are the welcome message, shop name, and authentication method rendered successfully?
+- Does it redirect properly when the correct code is entered?
+- Does the help and privacy policy link redirect correctly when clicked?
+### Menu page
+- Are menu items successfully rendered?
+<br>→ Are items successfully added to cart when the add button is clicked?
+<br>→ Does the detail modal appear properly when an item is clicked?
+- Does it redirect to the order history page correctly?
+- Does menu category switching work properly?
+- Does ordering work after selecting menu items?
+- Does the hamburger menu button work properly?
+<br>→ Does the staff call button work properly?
+<br>→ Does the session share button work properly?
+<br>→ Does the theme change work properly?
+### History page
+- Does the order history display correctly?
+- Does the payment request modal appear properly when clicked?
