@@ -51,7 +51,7 @@ class MenuPage(BasePage):
         if "/History" in self.driver.current_url or "/history" in self.driver.current_url:
             return True
 
-        wait = WebDriverWait(self.driver, 5)
+        wait = WebDriverWait(self.driver, 1)
         locators = [
             (By.CSS_SELECTOR, "a[href*='History']"),
             (By.LINK_TEXT, "주문 내역"),
