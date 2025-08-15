@@ -1,5 +1,5 @@
 <h1 align="center">CloudPOS Q/A Guide</h1>
-<p align="center">Last Updated: 2025-08-14</p>
+<p align="center">Last Updated: 2025-08-15</p>
 
 ## Overview
 This document serves as an automated testing guide for quality assurance of the CloudPOS system.
@@ -23,6 +23,10 @@ pip install pytest selenium
 ```
 cd /path/to/CloudPoS/test/selenium
 python -m pytest -vv tests --customer-base-url="https://dev-ecomm-svc.cloudinteractive.net/customer" --customer-auth-code="CODE"
+```
+If you want to run tests without browser UI, add the following parameter: **--no-browser**
+```
+python -m pytest -vv tests --customer-base-url="https://dev-ecomm-svc.cloudinteractive.net/customer" --customer-auth-code="CODE" --no-browser
 ```
 
 ## Test Cases

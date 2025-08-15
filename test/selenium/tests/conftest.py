@@ -9,6 +9,9 @@ def pytest_addoption(parser):
     # 고객 인증 코드를 설정하는 옵션 추가
     parser.addoption("--customer-auth-code", action="store", default="ABCD",
                      help="Customer authorization code (4 chars)")
+    # 브라우저 UI 비활성화 옵션 추가
+    parser.addoption("--no-browser", action="store_true", default=False,
+                     help="Run tests in headless mode (no browser UI)")
 
 @pytest.fixture(scope="session")
 def customer_base_url(pytestconfig):
@@ -19,9 +22,10 @@ def customer_auth_code(pytestconfig):
     return str(pytestconfig.getoption("--customer-auth-code"))
 
 @pytest.fixture
-def driver():
+def driver(pytestconfig):
     options = Options()
-    options.add_argument("--headless=new") # 브라우저 활성화 할 경우 주석 처리
+    if pytestconfig.getoption("--no-browser"):
+        options.add_argument("--headless=new")
     options.add_argument("--window-size=1280,900")
     driver = webdriver.Chrome(options=options)
     try:
