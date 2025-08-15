@@ -46,19 +46,30 @@ class MenuPage(BasePage):
         """
         주문 내역 페이지로 리다이렉트되었는지 확인
         """
-        try:
-            nav_link = self.driver.find_element(By.LINK_TEXT, "주문 내역")
-            self.click_element(nav_link)
-        except Exception:
-            pass
+        from selenium.webdriver.support import expected_conditions as EC
 
-        try:
-            WebDriverWait(self.driver, 10).until(
-                lambda d: "/History" in d.current_url or "/history" in d.current_url
-            )
+        if "/History" in self.driver.current_url or "/history" in self.driver.current_url:
             return True
-        except Exception:
-            return False
+
+        wait = WebDriverWait(self.driver, 5)
+        locators = [
+            (By.CSS_SELECTOR, "a[href*='History']"),
+            (By.LINK_TEXT, "주문 내역"),
+        ]
+
+        for locator in locators:
+            try:
+                el = wait.until(EC.element_to_be_clickable(locator))
+                try:
+                    el.click()
+                except Exception:
+                    self.driver.execute_script("arguments[0].click();", el)
+                wait.until(lambda d: "/History" in d.current_url or "/history" in d.current_url)
+                return True
+            except Exception:
+                continue
+
+        return False
 
     def get_menu_categories(self, timeout=10):
         """
