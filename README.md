@@ -3,6 +3,8 @@
 
 CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할 수 있도록 하는 오픈소스 웹 기반 주문 관리 시스템입니다.
 
+<img width="2837" height="1300" alt="Untitled-2" src="https://github.com/user-attachments/assets/b30e3c85-9d97-4c8a-95bc-c5d38576af27" />
+
 ### Table of Contents
 - [Features](#features)
 - [Contributors](#contributors)
@@ -10,7 +12,18 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 - [Documents](#documents)
 
 ## Features
+### 소비자
+<img width="2837" height="1300" alt="Untitled-3" src="https://github.com/user-attachments/assets/91c4d9cc-46dc-43ec-b2d5-24e01d73aac9" />
 
+- 점원이 제공한 인증 코드 또는 QR 스캔을 통해 주문을 시작 할 수 있습니다.
+- 웹 페이지에서 매뉴를 확인하고 주문서를 전송할 수 있습니다.
+- 점원을 호출할 수 있습니다.
+- 주문 내역을 확인하고 결제 요청을 할 수 있습니다.
+- 전자영수증을 확인할 수 있습니다.
+  
+---
+
+### 관리자
 
 ## Contributors
 
@@ -21,6 +34,7 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 - **김준영** (국립창원대학교 컴퓨터공학과)
    
   QA 및 테스트
+
 - **이동민** (국립창원대학교 정보통신공학과)
 
   관리자부문
