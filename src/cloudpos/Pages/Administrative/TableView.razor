@@ -96,10 +96,14 @@
                             @switch (_selectedOption)
                             {
                                 case OptionContent.SessionManagement:
-                                    <SessionManagement SessionId="_selectedTableSession.SessionId"/>
+                                    <SessionManagement
+                                        SessionId="@_selectedTableSession!.SessionId"
+                                        @key="_selectedTableSession!.SessionId" />
                                     break;
                                 case OptionContent.ManualOrder:
-                                    <ManualOrder SessionId="_selectedTableSession.SessionId"/>
+                                    <ManualOrder
+                                        SessionId="@_selectedTableSession!.SessionId"
+                                        @key="_selectedTableSession!.SessionId" />
                                     break;
                             }
                         }
