@@ -42,6 +42,10 @@ a{
   height: calc((var(--vh, 1vh) * 100) - 58px);
 }
 
+.full-height-no-nav{
+  height: calc((var(--vh, 1vh) * 100));
+}
+
 #notify-bar{
   position: fixed;
   top: 60px;
