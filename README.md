@@ -3,7 +3,7 @@
 
 CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할 수 있도록 하는 오픈소스 웹 기반 주문 관리 시스템입니다.
 
-### Table of Content
+### Table of Contents
 - [Features](#features)
 - [Contributors](#contributors)
 - [Dependencies](#dependencies)
@@ -11,7 +11,24 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 
 ## Features
 
+
 ## Contributors
+
+### 만든 이들
+- **손유찬** (국립창원대학교 컴퓨터공학과)
+  
+  소비자부문 및 아키텍쳐 (프로젝트 총괄)
+- **김준영** (국립창원대학교 컴퓨터공학과)
+   
+  QA 및 테스트
+- **이동민** (국립창원대학교 정보통신공학과)
+
+  관리자부문
+---
+### 오픈소스 소프트웨어
+이 소프트웨어는 오픈 소스 라이브러리를 사용합니다. 해당 오픈 소스 라이브러리의 정보는 아래에서 확인할 수 있습니다. 
+
+오픈 소스 프로젝트 기여자들에게 깊은 감사를 표합니다.
 
 ## Dependencies
 - **Microsoft.EntityFrameworkCore** - 9.0.7

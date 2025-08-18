@@ -53,11 +53,11 @@
                         }
                     </div>
                     <div class="card-footer d-flex justify-content-center align-items-center">
-                        <button class="btn btn-sm btn-outline-secondary border-0" @onclick="() => ChangeWeek(-1)" disabled="@(_selectedWeekIndex == 0)">
+                        <button class="btn btn-sm btn-outline-secondary border-0 d-flex align-items-center" @onclick="() => ChangeWeek(-1)" disabled="@(_selectedWeekIndex == 0)">
                             <i class="bi bi-chevron-left"></i>
                         </button>
-                        <span class="mx-3 text-muted">@WeekDateRangeLabel</span>
-                        <button class="btn btn-sm btn-outline-secondar border-0" @onclick="() => ChangeWeek(1)" disabled="@(_selectedWeekIndex >= _weeksInMonth.Count - 1)">
+                        <span class="mx-3 text-muted fw-semibold">@WeekDateRangeLabel</span>
+                        <button class="btn btn-sm btn-outline-secondary border-0 d-flex align-items-center" @onclick="() => ChangeWeek(1)" disabled="@(_selectedWeekIndex >= _weeksInMonth.Count - 1)">
                             <i class="bi bi-chevron-right"></i>
                         </button>
                     </div>
