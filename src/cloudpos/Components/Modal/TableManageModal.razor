@@ -1,60 +1,50 @@
 @inherits ModalComponentBase
-<div class="d-flex flex-column gap-3">
-    
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <h6 class="card-title mb-2">테이블 이름 변경</h6>
-            <div class="input-group input-group-sm">
-                <input class="form-control" placeholder="새 이름"
-                       @bind="_name" @bind:event="oninput" maxlength="30"/>
-                <button class="btn btn-primary"
-                        title="이름 변경"
-                        @onclick="OnRename">변경</button>
-            </div>
-            <div class="form-text">
-                현재 이름: <strong>@CurrentName</strong> (최대 30자)
-            </div>
-        </div>
-    </div>
+<div class="d-flex flex-column">
+    @{
+        string? message = null;
+    }
     @if (IsReferenced)
     {
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h4 class="card-title mb-2">데이터 정합성 경고</h4>
-                <p class="fs-6 lh-base fw-light">
-                    이 테이블 객체를 참조하는 모든 세션 객체를 제거하기 전까지는 이 객체를 제거할 수 없습니다.
-                    <br><br><strong>자세한 사항은 사용자 메뉴얼을 참조하십시오.</strong>
-                </p>
+        <div class="alert alert-warning d-flex flex-row mb-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-3"></i>
+            </div>
+            <div>
+                이 객체는 데이터 정합성 때문에 삭제할 수 없도록 보호됩니다.<br/><strong>자세한 사항은 관리자 설명서를 참조하십시오.</strong>
             </div>
         </div>
     }
-    else
+    
+    <label for="tableName" class="form-label">테이블 이름</label>
+    <InputText id="tableName" class="form-control" placeholder="테이블 이름을 입력하십시오." @bind-Value="_name" maxlength="10"/>
+    @{
+        if (string.IsNullOrWhiteSpace(_name)) message = "테이블 이름은 공란일 수 없습니다.";
+        if (_name.Length > 10) message = "테이블 이름은 10자보다 길 수 없습니다.";
+    }
+    @if (message is not null)
     {
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h4 class="card-title mb-2 text-danger">데이터 삭제 경고</h4>
-                <p class="fs-6 lh-base fw-light">
-                    정말 이 테이블을 삭제하시겠습니까?<br><br>
-                    <strong>이 작업은 되돌릴 수 없습니다</strong>
-                </p>
-            </div>
+        <div class="form-text text-danger">
+            @message
         </div>
     }
-
-    <div class="d-flex justify-content-end">
-        @if (!IsReferenced)
-        {
-            <button class="btn btn-outline-danger btn-sm me-2"
-                    @onclick="OnDelete">
-                삭제
-            </button>
-        }
-        <button class="btn btn-secondary btn-sm" @onclick="() => CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Cancel, null))">
-            닫기
-        </button>
-    </div>
 </div>
-
+<div class="d-flex justify-content-end gap-3 py-2 mt-4">
+    @if (!IsReferenced)
+    {
+        <button type="button"
+                class="btn btn-outline-danger px-3 float-start" @onclick="OnDeleteAsync">
+            삭제
+        </button>
+    }
+    <button type="button"
+            class="btn btn-secondary px-3" @onclick="OnCancelAsync"  disabled="@(message is not null)">
+        취소
+    </button>
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="OnRenameAsync"  disabled="@(message is not null)">
+        확인
+    </button>
+</div>
 @code
 {
     [Parameter] public required int TableId { get; set; }
@@ -67,8 +57,8 @@
     {
         _name = CurrentName;
     }
-
-    private void OnRename()
+    
+    private async Task OnRenameAsync()
     {
         var trimmed = _name.Trim();
         if (string.IsNullOrWhiteSpace(trimmed))
@@ -78,11 +68,12 @@
         }
         if (trimmed.Length > 30) trimmed = trimmed[..30];
 
-        CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Rename, trimmed));
+        await CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Rename, trimmed));
     }
+    
+    private async Task OnCancelAsync()
+        => await CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Cancel, null));
 
-    private void OnDelete()
-    {
-        CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Delete, null));
-    }
+    private async Task OnDeleteAsync() 
+        => await CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Delete, null));
 }
