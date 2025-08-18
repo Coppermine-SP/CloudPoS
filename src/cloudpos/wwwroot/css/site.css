@@ -184,3 +184,4 @@ hr.dashed {
   position: fixed !important;
   z-index: 10000;
 }
+.empty-state { pointer-events: none; }

@@ -88,6 +88,7 @@ export async function initializeDragAndDrop(dotNetHelper) {
             forceFallback: isTouchDevice,
             fallbackOnBody: true,
             fallbackClass: 'sortable-fallback-custom',
+            draggable: '.table-item',
             onEnd: (evt) => {
                 // 셀에 2개 이상 들어갔으면 즉시 롤백 (Blazor 강제 재렌더 불필요)
                 const to = evt.to;
