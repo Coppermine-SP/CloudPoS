@@ -1,7 +1,6 @@
 @attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
 @page "/administrative/tableview"
 @using CloudInteractive.CloudPos.Components.TableView
-@using Microsoft.EntityFrameworkCore
 @layout Shared.AdminPageLayout
 @code
 {
@@ -10,9 +9,10 @@
     private const string OptionClass = "btn-outline-secondary border-0";
     private const string SelectedOptionClass = "btn-secondary";
 
-    private const string ActiveTableItemClass = "bg-primary bg-opacity-75";
+    private const string ActiveTableItemClass = "bg-danger";
     private const string EndTableItemClass = "bg-success bg-opacity-75";
     private const string EmptyTableItemClass = "bg-dark bg-opacity-75";
+    private const string SelectedTableItemClass = "bg-primary";
     private string SessionStateToClass(TableSession.SessionState state) =>
         state == TableSession.SessionState.Active ? ActiveTableItemClass : EndTableItemClass;
 }
@@ -29,9 +29,9 @@
                 </div>
                 <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
                     <div id="grid-container" class="table-grid-container">
-                        @for (int y = 0; y < 6; y++)
+                        @for (var y = 0; y < 6; y++)
                         {
-                            @for (int x = 0; x < 6; x++)
+                            @for (var x = 0; x < 6; x++)
                             {
                                 var cellX = x;
                                 var cellY = y;
@@ -40,8 +40,8 @@
                                 <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
                                     @if (tableInCell != null)
                                     {
-                                        var session = _sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
-                                        <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white text-center position-relative"
+                                        var session = _sessions.FirstOrDefault(s => s.TableId == tableInCell.TableId);
+                                        <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(_selectedTableId is not null && _selectedTableId == tableInCell.TableId ? SelectedTableItemClass : (session is null ? EmptyTableItemClass : SessionStateToClass(session.State))) text-white text-center position-relative"
                                              data-table-id="@tableInCell.TableId"
                                              @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
                                             <p style="font-size: 16px">@tableInCell.Name</p>
