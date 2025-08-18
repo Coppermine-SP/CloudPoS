@@ -37,9 +37,14 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 - **손유찬** (국립창원대학교 컴퓨터공학과)
   
   소비자부문 및 아키텍쳐 (프로젝트 총괄)
+  
+  <img style="float: left" width="100" height="100" alt="Untitled-7" src="https://github.com/user-attachments/assets/614270d6-4d30-4cbb-a357-d9e2c5a7f555"/>
+
 - **김준영** (국립창원대학교 컴퓨터공학과)
    
   QA 및 테스트
+
+  <img width="100" height="100" alt="Untitled-6" src="https://github.com/user-attachments/assets/e7a50796-dd6c-44bc-94b8-7458a93d7785" />
 
 - **이동민** (국립창원대학교 정보통신공학과)
 
