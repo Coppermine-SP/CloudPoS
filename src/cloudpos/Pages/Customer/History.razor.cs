@@ -30,14 +30,14 @@ public partial class History(IDbContextFactory<ServerDbContext> factory, Interac
 
     private async Task OnSessionEndBtnClickAsync()
     {
-        if (await modal.ShowAsync<AlertModal, bool>("계산 요청하기", ModalService.Params()
-                .Add("InnerHtml", "정말 계산 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.")
+        if (await modal.ShowAsync<AlertModal, bool>("결제 요청하기", ModalService.Params()
+                .Add("InnerHtml", "정말 결제 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.")
                 .Add("IsCancelable", true)
                 .Build()))
         {
             if (!await table.EndSessionAsync())
             {
-                _ = interop.ShowNotifyAsync("미완료 주문으로 인해 계산 요청을 할 수 없습니다.", InteractiveInteropService.NotifyType.Error);
+                _ = interop.ShowNotifyAsync("미완료 주문으로 인해 결제 요청을 할 수 없습니다.", InteractiveInteropService.NotifyType.Error);
             }
         }
     }
