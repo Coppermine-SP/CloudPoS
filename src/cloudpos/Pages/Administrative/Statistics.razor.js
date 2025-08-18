@@ -3,7 +3,6 @@ const loadChartJs = (function () {
     return function () {
         if (!promise) {
             promise = new Promise((resolve, reject) => {
-                // 이미 로드되었는지 확인
                 if (document.querySelector(`script[src*="chart.umd.min.js"]`)) {
                     return resolve();
                 }
@@ -30,19 +29,17 @@ function getChartColors() {
 
 async function createOrUpdateChart(canvasId, chartType, chartData, chartOptions = {}) {
     try {
-        await loadChartJs(); // Chart.js가 로드될 때까지 기다립니다.
+        await loadChartJs();
 
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) {
             return;
         }
-
-        // 동일한 canvas에 이미 차트가 그려져 있다면 파괴(destroy)합니다.
+        
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
         }
-
-        // 새 차트를 생성하고 인스턴스를 저장합니다.
+        
         chartInstances[canvasId] = new Chart(ctx, {
             type: chartType,
             data: chartData,
