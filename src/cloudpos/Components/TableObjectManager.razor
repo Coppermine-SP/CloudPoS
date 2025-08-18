@@ -23,13 +23,13 @@
                             var cellY = y;
                             var tableInCell = PlacedTables.FirstOrDefault(t => t.Cell != null && t.Cell.X == cellX && t.Cell.Y == cellY);
 
-                            <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
+                            <div @key="(cellX, cellY)" class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
                                 @if (tableInCell != null)
                                 {
                                     <div class="table-item d-flex align-items-center justify-content-center bg-black bg-opacity-50 text-white position-relative"
                                          data-table-id="@tableInCell.TableId">
                                         @tableInCell.Name
-                                        <button class="btn btn-sm btn-outline-light border-0 position-absolute top-0 end-0 m-1 p-0 px-1" @onclick="() => DeleteTableAsync(tableInCell.TableId)">
+                                        <button class="btn btn-sm btn-outline-light border-0 position-absolute top-0 end-0 m-1 p-0 px-1" @onclick="() => ManageTableAsync(tableInCell.TableId, tableInCell.Name)">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>
@@ -66,7 +66,7 @@
                                  data-table-id="@table.TableId">
                                 @table.Name
                                 <button class="btn btn-sm btn-outline-light border-0 position-absolute top-0 end-0 m-1 p-0 px-1"
-                                        @onclick="() => DeleteTableAsync(table.TableId)">
+                                        @onclick="() => ManageTableAsync(table.TableId, table.Name)">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </div>

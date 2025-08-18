@@ -26,6 +26,13 @@ public partial class TableObjectManager (
     private IJSObjectReference? _jsModule; 
     private DotNetObjectReference<TableObjectManager>? _dotNetObjectReference;
     
+    public enum TableManageAction { None, Rename, Delete, Cancel }
+
+    public sealed record TableManageResult(
+        TableManageAction Action,
+        string? NewName
+    );
+    
     protected override async Task OnInitializedAsync()
     { 
         await LoadTablesAsync(); 
@@ -45,12 +52,11 @@ public partial class TableObjectManager (
             if (firstRender)
             {
                 _dotNetObjectReference = DotNetObjectReference.Create(this);
-                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/tableManager.js");
-            }
-
-            if (_jsModule != null)
-            {
-                await _jsModule.InvokeVoidAsync("initializeDragAndDrop", _dotNetObjectReference);
+                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/TableObjectManager.razor.js");
+                if (_jsModule != null)
+                {
+                    await _jsModule.InvokeVoidAsync("initializeDragAndDrop", _dotNetObjectReference);
+                }
             }
         }
         catch
@@ -79,34 +85,92 @@ public partial class TableObjectManager (
     {
         await LoadTablesAsync();
     }
-
-    private async Task DeleteTableAsync(int tableId)
+    private async Task ModifyTableNameAsync(int tableId, string? tableName)
     {
-        await using var context = await factory.CreateDbContextAsync(); 
-        bool isReferenced = await context.Set<TableSession>().AnyAsync(ts => ts.TableId == tableId);
-        if (isReferenced)
+        if (string.IsNullOrWhiteSpace(tableName))
         {
-            await modal.ShowAsync<AlertModal, bool>("데이터 정합성 경고", ModalService.Params()
-                .Add("InnerHtml", "이 테이블 객체를 참조하는 모든 세션 객체를 제거하기 전까지는 이 객체를 제거할 수 없습니다.<br><br><strong>자세한 사항은 사용자 메뉴얼을 참조하십시오.</strong>")
-                .Build());
+            await interop.ShowNotifyAsync("테이블 이름을 입력하세요.", InteractiveInteropService.NotifyType.Warning);
             return;
         }
-        if (await modal.ShowAsync<AlertModal, bool>("데이터 삭제 경고", ModalService.Params()
-                .Add("InnerHtml", "정말 이 테이블을 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
-                .Add("IsCancelable", true)
-                .Build()))
+
+        var newName = tableName.Trim();
+        if (newName.Length > 30)
+            newName = newName[..30];
+
+        await using var context = await factory.CreateDbContextAsync();
+
+        try
         {
-            try
-            { 
-                await context.Tables.Where(t => t.TableId == tableId).ExecuteDeleteAsync(); 
-                await LoadTablesAsync();
+            // 중복 이름 방지
+            var exists = await context.Tables
+                .AnyAsync(t => t.TableId != tableId && t.Name == newName);
+            if (exists)
+            {
+                await interop.ShowNotifyAsync("이미 존재하는 이름입니다.", InteractiveInteropService.NotifyType.Error);
+                return;
             }
-            catch (Exception e)
-            { 
-                DbSaveChangesErrorHandler(e);
+            
+            var updated = await context.Tables
+                .Where(t => t.TableId == tableId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(t => t.Name, newName));
+
+            if (updated == 0)
+            {
+                await interop.ShowNotifyAsync("대상 테이블을 찾지 못했습니다.", InteractiveInteropService.NotifyType.Error);
+                return;
+            }
+
+            await interop.ShowNotifyAsync("테이블 이름이 변경되었습니다.", InteractiveInteropService.NotifyType.Success);
+            await LoadTablesAsync();
+        }
+        catch (Exception e)
+        {
+            DbSaveChangesErrorHandler(e);
+        }
+    }
+
+    private async Task ManageTableAsync(int tableId, string currentName)
+    {
+        await using var context = await factory.CreateDbContextAsync();
+        bool isReferenced = await context.Set<TableSession>().AnyAsync(ts => ts.TableId == tableId);
+        
+        var result = await modal.ShowAsync<TableManageModal, TableManageResult>(
+            "테이블 관리",
+            ModalService.Params()
+                .Add("TableId", tableId)
+                .Add("CurrentName", currentName)
+                .Add("IsReferenced", isReferenced)
+                .Build());
+
+        if (result is null || result.Action is TableManageAction.Cancel or TableManageAction.None)
+            return;
+
+        switch (result.Action)
+        {
+            case TableManageAction.Rename:
+            {
+                await ModifyTableNameAsync(tableId, result.NewName);
+                break;
+            }
+
+            case TableManageAction.Delete:
+            {
+                try
+                {
+                    await context.Tables.Where(t => t.TableId == tableId).ExecuteDeleteAsync();
+                    await interop.ShowNotifyAsync("삭제되었습니다.", InteractiveInteropService.NotifyType.Success);
+                    await LoadTablesAsync();
+                }
+                catch (Exception e)
+                {
+                    DbSaveChangesErrorHandler(e);
+                }
+                break;
             }
         }
     }
+
     [JSInvokable]
     public async Task UpdateTableState(int tableId, int newX, int newY, string targetContainer) 
     { 
@@ -146,6 +210,7 @@ public partial class TableObjectManager (
         _isModify = true;
         StateHasChanged();
     }
+    
     
     private async Task SaveChanges()
     { 
