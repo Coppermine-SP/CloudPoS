@@ -51,6 +51,6 @@ public class Authorize(ILogger<Authorize> logger, ServerDbContext context, Confi
         
         logger.LogInformation($"Auth success (code={code}).");
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
-        return Redirect("/Customer/Menu");
+        return Redirect("/customer/menu");
     }
 }
