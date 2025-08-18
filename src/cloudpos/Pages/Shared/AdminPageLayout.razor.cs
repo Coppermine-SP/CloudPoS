@@ -57,7 +57,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
     
     private async Task OnStaffCalledAsync(int sessionId)
     {
-        var context = await factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var session = await table.GetSessionAsync(sessionId);
         if (session is null) return;
         _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Ding);
@@ -66,7 +66,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
 
     private async Task OnSessionEndAsync(int sessionId)
     {
-        var context = await factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var session = await table.GetSessionAsync(sessionId);
         if (session is null) return;
         _ = _interop.PlaySoundAsync(InteractiveInteropService.Sound.Ding);
@@ -75,7 +75,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
 
     private async Task OnTransactionAsync(OrderEventArgs args)
     {
-        var context = await factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var order = await context.Orders
             .Include(x => x.Session)
             .ThenInclude(x => x!.Table)

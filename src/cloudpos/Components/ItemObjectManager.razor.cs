@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components;
 
-public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop, TableEventBroker broker, ILogger<ItemObjectManager> logger) : ComponentBase
+public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop, TableEventBroker broker, ILogger<ItemObjectManager> logger) : ComponentBase, IDisposable
 {
     private List<Category>? _categories;
     private List<Item>? _items;
@@ -169,4 +169,7 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
         logger.LogError(e.ToString());
         _ = interop.ShowNotifyAsync("서버 오류가 발생하여 변경 사항을 저장할 수 없었습니다.", InteractiveInteropService.NotifyType.Error);
     }
+
+    public void Dispose()
+        => broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
 }

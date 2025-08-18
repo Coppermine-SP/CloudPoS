@@ -1,4 +1,3 @@
-using System.Drawing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
