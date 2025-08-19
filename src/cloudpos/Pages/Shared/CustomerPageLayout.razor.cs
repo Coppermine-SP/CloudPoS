@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Pages.Shared;
 
-public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation, ConfigurationService config, ModalService modal, IDbContextFactory<ServerDbContext> factory) : PageLayoutBase(interop, modal), IDisposable
+public partial class CustomerPageLayout(InteractiveInteropService interop, TableService table, TableEventBroker broker, ILogger<CustomerPageLayout> logger, NavigationManager navigation, ConfigurationService config, ModalService modal) : PageLayoutBase(interop, modal), IDisposable
 {
     private readonly InteractiveInteropService _interop = interop;
     private bool _init;
@@ -30,7 +30,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         StateHasChanged();
     }
     
-    private async void OnTableEvent(object? sender, TableEventArgs e)
+    private void OnTableEvent(object? sender, TableEventArgs e)
     {
         if (e.EventType == TableEventArgs.TableEventType.SessionEnd)
         {
@@ -41,27 +41,13 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
         {
             _ = _interop.ShowNotifyAsync("직원 호출이 완료되었습니다.", InteractiveInteropService.NotifyType.Success);
         }
-
-        else if (e.EventType == TableEventArgs.TableEventType.Message)
-        {
-            if (e.Data is not MessageEventArgs) return;
-            _ = _interop.ShowNotifyAsync($"관리자의 메시지: {((MessageEventArgs)e.Data!).Message}",
-                    InteractiveInteropService.NotifyType.Info);
-        }
         else if (e.EventType == TableEventArgs.TableEventType.Order)
         {
             if (e.Data is not OrderEventArgs data) return;
-            await using var context = await factory.CreateDbContextAsync();
 
-            var order = await context.Orders
-                .Include(x => x.OrderItems)
-                .ThenInclude(orderItem => orderItem.Item)
-                .FirstOrDefaultAsync(x => x.OrderId == data.OrderId);
-            if (order is null) return;
-
-            var orderTitle = order.OrderItems.First().Item.Name;
-            if (order.OrderItems.Count > 1)
-                orderTitle += $" 외 {order.OrderItems.Count - 1}개";
+            var orderTitle = data.Order.OrderItems.First().Item.Name;
+            if (data.Order.OrderItems.Count > 1)
+                orderTitle += $" 외 {data.Order.OrderItems.Count - 1}개";
 
             if (data.EventType == OrderEventType.Created)
                 _ = _interop.ShowNotifyAsync($"주문 \"{orderTitle}\"이(가) 접수되었습니다.", InteractiveInteropService.NotifyType.Success);
@@ -78,31 +64,34 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 
     void IDisposable.Dispose()
     {
+        modal.CancelOpenModal();
         if(_init) broker.Unsubscribe(_session!.TableId, OnTableEvent);
     }
 
     private async Task OnCallBtnClickAsync()
     {
-            if (await _modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
-                    .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
-                    .Add("IsCancelable", true)
-                    .Build()))
+        var result = await _modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
+            .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
+            .Add("IsCancelable", true)
+            .Build());
+        
+        if(result is { IsCancelled: false, Value: true })
+        {
+            var session = await table.GetSessionAsync();
+            broker.Publish(new TableEventArgs()
             {
-                var session = await table.GetSessionAsync();
-                broker.Publish(new TableEventArgs()
-                {
-                    TableId = session!.TableId,
-                    EventType = TableEventArgs.TableEventType.StaffCall,
-                    Data = session.SessionId
-                });
-            }
+                TableId = session!.TableId,
+                EventType = TableEventArgs.TableEventType.StaffCall,
+                Data = session.SessionId
+            });
+        }
 
     }
 
     private async Task OnShareBtnClick()
     {
         await _modal.ShowAsync<ShareSessionModal, object?>("세션 공유하기", ModalService.Params()
-            .Add("Session", await table.GetSessionAsync()!)
+            .Add("Session", await table.GetSessionAsync())
             .Build());
     }
 }

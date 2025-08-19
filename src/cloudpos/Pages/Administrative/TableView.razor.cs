@@ -2,52 +2,53 @@ using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
+using CloudInteractive.CloudPos.Services.Debounce;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Administrative;
 
-public partial class TableView(TableService tableService, ConfigurationService config, IDbContextFactory<ServerDbContext> factory, TableEventBroker broker, InteractiveInteropService interop) : ComponentBase, IDisposable
+public partial class TableView(TableService tableService, ConfigurationService config, IDbContextFactory<ServerDbContext> factory, TableEventBroker broker, InteractiveInteropService interop, IDebounceService debounce) : ComponentBase, IAsyncDisposable
 {
     private int? _selectedTableId;
     private TableSession? _selectedTableSession;
     private List<TableSession>? _sessions;
     private List<Table>? _tables;
+    private IDebouncedTask? _refreshTask;
+    private bool _disposed;
 
     protected override async Task OnInitializedAsync()
     {
         broker.Subscribe(TableEventBroker.BroadcastId, OnTableEvent);
-        _sessions = await GetSessionsAsync();
-        _tables = await GetTablesAsync();
-    }
+        var policy = new DebouncePolicy(
+            Debounce: TimeSpan.FromMilliseconds(500),
+            MaxInterval: TimeSpan.FromMilliseconds(2000));
+        
+        _refreshTask = debounce.Create(policy, async ct =>
+        {
+            await using var context = await factory.CreateDbContextAsync(ct);
+            
+            _sessions = await context.Sessions
+                .Where(x => x.State != TableSession.SessionState.Completed)
+                .AsNoTracking()
+                .ToListAsync(ct);
+        
+            _tables = await context.Tables
+                .Include(x => x.Cell)
+                .AsNoTracking()
+                .ToListAsync(ct);
+            
+            if (!_disposed)
+                await InvokeAsync(StateHasChanged);
+        });
 
-    private async Task<List<TableSession>> GetSessionsAsync()
-    {
-        await using var context = await factory.CreateDbContextAsync();
-        return await context.Sessions
-            .Where(x => x.State != TableSession.SessionState.Completed)
-            .AsNoTracking()
-            .ToListAsync();
-    }
-
-    private async Task<List<Table>> GetTablesAsync()
-    {
-        await using var context = await factory.CreateDbContextAsync();
-        return await context.Tables
-            .Include(x => x.Cell)
-            .AsNoTracking()
-            .ToListAsync();
+        await _refreshTask.TriggerNowAsync();
     }
     
-    private async void OnTableEvent(object? sender, TableEventArgs e)
+    private void OnTableEvent(object? sender, TableEventArgs e)
     {
         if (e.EventType == TableEventArgs.TableEventType.TableUpdate)
-        {
-            _sessions = await GetSessionsAsync();
-            _tables = await GetTablesAsync();
-            StateHasChanged();
-        }
+            _refreshTask?.Request();
     }
     
     private async Task SetTableSessionAsync(int tableId)
@@ -84,5 +85,10 @@ public partial class TableView(TableService tableService, ConfigurationService c
         });
     }
 
-    public void Dispose() => broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
+        if (_refreshTask is not null) await _refreshTask.DisposeAsync();
+    }
 }

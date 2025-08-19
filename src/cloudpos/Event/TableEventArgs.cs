@@ -8,7 +8,6 @@ public class TableEventArgs : EventArgs
         StaffCall,
         CatalogUpdated,
         TableUpdate,
-        Message,
         Order,
     }
 

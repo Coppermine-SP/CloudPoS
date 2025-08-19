@@ -76,7 +76,7 @@ public partial class SessionManagement(ModalService modal, TableService service,
                 .Add("InnerHtml", "정말로 세션 완료 처리를 하시겠습니까?<br>더 이상 사용자가 주문을 할 수 없게 됩니다.<br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
                 .Add("IsCancelable", true)
                 .Build());
-        if (confirm)
+        if (confirm is { IsCancelled: false, Value: true })
         {
             var success = await service.EndSessionAsync(sessionId);
             if (!success)
@@ -103,7 +103,7 @@ public partial class SessionManagement(ModalService modal, TableService service,
                 .Add("InnerHtml", "정말로 결제 완료 처리를 하시겠습니까?<br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
                 .Add("IsCancelable", true)
                 .Build());
-        if (confirm)
+        if (confirm is { IsCancelled: false, Value: true })
         {
             await service.CompleteSessionAsync(sessionId);
             broker.Broadcast(new TableEventArgs()
@@ -122,13 +122,13 @@ public partial class SessionManagement(ModalService modal, TableService service,
             .Where(x => x.Sessions.All(y => y.State != TableSession.SessionState.Active && y.State != TableSession.SessionState.Billing))
             .ToListAsync();
 
-        int? selectedTableId = await modal.ShowAsync<TableSelectModal, int?>(
+        var result = await modal.ShowAsync<TableSelectModal, int?>(
             "테이블 이동", ModalService.Params()
                 .Add("AvailableTables", availableTables)
                 .Build());
-        if (selectedTableId.HasValue)
+        if (!result.IsCancelled)
         {
-            int targetTableId = selectedTableId.Value;
+            int targetTableId = result.Value!.Value;
             bool success = await service.MoveSessionAsync(sessionId, targetTableId);
             
             if (success) 

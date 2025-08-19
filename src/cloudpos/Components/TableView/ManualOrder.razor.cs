@@ -39,12 +39,19 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
 
     private async void OnTableEvent(object? sender, TableEventArgs e)
     {
-        // 세션 상태를 새로고침
-        await using var context = await dbFactory.CreateDbContextAsync();
-        _session = await context.Sessions.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.SessionId == SessionId);
+        try
+        {
+            // 세션 상태를 새로고침
+            await using var context = await dbFactory.CreateDbContextAsync();
+            _session = await context.Sessions.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.SessionId == SessionId);
 
-        await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch
+        {
+            //ignored
+        }
     }
     
     protected override void OnParametersSet()
@@ -57,18 +64,7 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
         .Where(i => _selectedCategoryId == -1 || i.CategoryId == _selectedCategoryId)
         .Where(i => string.IsNullOrWhiteSpace(_searchTerm) || i.Name.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase))
         .ToList();
-
     private int TotalAmount => _currentOrderItems.Sum(oi => oi.Item.Price * oi.Quantity);
-    private bool IsActive => _session?.State == TableSession.SessionState.Active;
-    private bool CheckState()
-    {
-        if (!IsActive)
-        {
-            _ = interop.ShowNotifyAsync("세션이 활성 상태가 아닙니다.", InteractiveInteropService.NotifyType.Error);
-            return true;
-        }
-        return false;
-    }
     
     private void AddToOrder(Item item)
     {
@@ -139,11 +135,11 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
                             <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_currentOrderItems.Sum(x => x.Quantity * x.Item.Price))}</strong><br>
                             주문하실 내용이 맞습니까?
                             """;
-        if (!await modal.ShowAsync<AlertModal, bool>("주문서 확인", ModalService.Params()
-                .Add("InnerHtml", innerHtml)
-                .Add("IsCancelable", true)
-                .Build()))
-            return;
+        var result = await modal.ShowAsync<AlertModal, bool>("주문서 확인", ModalService.Params()
+            .Add("InnerHtml", innerHtml)
+            .Add("IsCancelable", true)
+            .Build());
+        if (result.IsCancelled || !result.Value) return;
 
         var orderData = _currentOrderItems
             .Select(oi => new TableService.OrderItem(oi.Item.ItemId, oi.Quantity))
@@ -159,5 +155,10 @@ public partial class ManualOrder(IDbContextFactory<ServerDbContext> dbFactory, T
         
         _currentOrderItems.Clear();
     }
-    public void Dispose() => broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
+
+    public void Dispose()
+    {
+        modal.CancelOpenModal();
+        broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
+    }
 }

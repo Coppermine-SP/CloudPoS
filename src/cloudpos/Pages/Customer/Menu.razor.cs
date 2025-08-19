@@ -5,7 +5,6 @@ using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
@@ -20,6 +19,7 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
     
     private IJSObjectReference? _module;
     private List<Category>? _categories;
+    private int? _eventId;
     private readonly List<CartItem> _cart = new();
     private bool _isCartOpen;
     private void ToggleCart() => _isCartOpen = !_isCartOpen;
@@ -35,7 +35,8 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
         await UpdateCatalog();
         _module = await js.InvokeAsync<IJSObjectReference>("import", "./Pages/Customer/Menu.razor.js");
         await _module!.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
-        broker.Subscribe(session.TableId, OnTableEvent);
+        _eventId = session.TableId;
+        broker.Subscribe(_eventId.Value, OnTableEvent);
     }
 
     private async Task UpdateCatalog()
@@ -110,12 +111,12 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
                             <strong class='fw-bold'>주문 합계: {@CurrencyFormat(_cart.Sum(x => x.Quantity * x.Item.Price))}</strong><br>
                             주문하실 내용이 맞습니까?
                             """;
-        if (!await modal.ShowAsync<AlertModal, bool>("주문서 확인", ModalService.Params()
-                .Add("InnerHtml", innerHtml)
-                .Add("IsCancelable", true)
-                .Build()))
-            return;
-
+        var result = await modal.ShowAsync<AlertModal, bool>("주문서 확인", ModalService.Params()
+            .Add("InnerHtml", innerHtml)
+            .Add("IsCancelable", true)
+            .Build());
+        if (result.IsCancelled || !result.Value) return;
+        
         var order = new List<TableService.OrderItem>();
 
         foreach (var item in _cart)
@@ -158,11 +159,13 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
     
     public async ValueTask DisposeAsync()
     {
+        modal.CancelOpenModal();
         if (_module is null) return;
-
         try
         {
             await _module.DisposeAsync();
+            if(_eventId is not null)
+                broker.Unsubscribe(_eventId.Value, OnTableEvent);
         }
         catch
         {

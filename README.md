@@ -24,6 +24,12 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 ---
 
 ### 관리자
+<img width="3158" height="1300" alt="Untitled-5" src="https://github.com/user-attachments/assets/3bf4f989-0c58-4de8-b4c9-1f92e418af6c" />
+
+- 모든 테이블과 주문을 확인할 수 있습니다.
+- 주문과 테이블이 변경되면 실시간으로 페이지가 갱신됩니다.
+- 월간, 일간 통계를 쉽게 확인할 수 있습니다.
+- 메뉴, 카테고리, 테이블, 세션등 객체를 쉽게 관리할 수 있습니다.
 
 ## Contributors
 
@@ -31,14 +37,20 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 - **손유찬** (국립창원대학교 컴퓨터공학과)
   
   소비자부문 및 아키텍쳐 (프로젝트 총괄)
+  
+  <img style="float: left" width="100" height="100" alt="Untitled-7" src="https://github.com/user-attachments/assets/614270d6-4d30-4cbb-a357-d9e2c5a7f555"/>
+
 - **김준영** (국립창원대학교 컴퓨터공학과)
    
   QA 및 테스트
+
+  <img width="100" height="100" alt="Untitled-6" src="https://github.com/user-attachments/assets/e7a50796-dd6c-44bc-94b8-7458a93d7785" />
 
 - **이동민** (국립창원대학교 정보통신공학과)
 
   관리자부문
 ---
+
 ### 오픈소스 소프트웨어
 이 소프트웨어는 오픈 소스 라이브러리를 사용합니다. 해당 오픈 소스 라이브러리의 정보는 아래에서 확인할 수 있습니다. 
 
@@ -70,3 +82,7 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
 
   davidshimjs, MIT License
 ## Documents
+
+- [CloudPOS 사용자 설명서](doc/CloudPOS_User_Guide.pdf)
+- [CloudPOS 관리자 설명서](doc/CloudPOS_Admin_Guide.pdf) 
+- [CloudPOS QA Guide](doc/QA_Guide.md)
