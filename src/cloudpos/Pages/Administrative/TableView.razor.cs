@@ -21,8 +21,8 @@ public partial class TableView(TableService tableService, ConfigurationService c
     {
         broker.Subscribe(TableEventBroker.BroadcastId, OnTableEvent);
         var policy = new DebouncePolicy(
-            Debounce: TimeSpan.FromMilliseconds(1000),
-            MaxInterval: TimeSpan.FromMilliseconds(3000));
+            Debounce: TimeSpan.FromMilliseconds(500),
+            MaxInterval: TimeSpan.FromMilliseconds(2000));
         
         _refreshTask = debounce.Create(policy, async ct =>
         {
