@@ -18,7 +18,7 @@ This test suite validates the following key functionalities:
 > Tested on Python 3.11.4, pytest-8.4.1, Selenium-4.22.0
 
 ``` 
-pip install pytest selenium
+pip install pytest selenium pytest-xdist
 ```
 ```
 cd /path/to/CloudPoS/test/selenium
