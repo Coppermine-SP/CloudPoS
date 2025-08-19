@@ -15,6 +15,7 @@ public partial class Statistics(IDbContextFactory<ServerDbContext> factory) : Co
     
     private bool _isLoading = true;
     private bool _isReadyToRenderCharts;
+    private bool _isFirstRender = true;
     
     private DateTime _selectedMonth;
     private int _selectedWeekIndex;
@@ -84,11 +85,21 @@ public partial class Statistics(IDbContextFactory<ServerDbContext> factory) : Co
             .Include(o => o.OrderItems).ThenInclude(oi => oi.Item)
             .Where(o => o.Status == Order.OrderStatus.Completed && o.CreatedAt >= startDate && o.CreatedAt < endDate)
             .ToListAsync();
-        
-        _selectedWeekIndex = 0;
+
+        GenerateWeeksForMonth();
+        if (_isFirstRender)
+        {
+            var today = DateTime.Now.Date;
+            var idx = _weeksInMonth.FindIndex(week => week.Contains(today));
+            _selectedWeekIndex = idx >= 0 ? idx : 0;
+            _isFirstRender = false;
+        }
+        else
+        {
+            _selectedWeekIndex = 0;
+        }
         _selectedDate= null;
         
-        GenerateWeeksForMonth();
         UpdateWeeklyChartData();
         UpdateStatistics();
 
