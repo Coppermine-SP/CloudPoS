@@ -76,3 +76,44 @@ class AuthorizePage(BasePage):
         """
         el = self.find(self.LEGAL_LINK)
         self.click_element(el)
+
+class AdminAuthorizePage(BasePage):
+    ADMIN_AUTH_INPUT_FORM = (By.XPATH, "/html/body/div[3]/div/div[1]/form/div/input")
+    ADMIN_AUTH_BUTTON = (By.XPATH, "//*[@id='button-addon2']")
+
+    def authorize(self, auth_code):
+        """
+        인증 코드 입력
+        """
+        self.type(self.ADMIN_AUTH_INPUT_FORM, auth_code)
+        self.click_element(self.ADMIN_AUTH_BUTTON)
+
+    def is_redirected_to_admin_page(self, timeout: int = 10):
+        """
+        관리자 페이지로 리다이렉트되었는지 확인
+        """
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: "/tableview" in d.current_url
+            )
+            return True
+        except Exception:
+            return False
+
+    def redirect_to_order_page(self, timeout: int = 10):
+        """
+        관리자 주문 페이지로 이동
+        """
+        try:
+            import re
+            current = self.driver.current_url
+            m = re.match(r"^(https?://[^/]+)", current)
+            origin = m.group(1) if m else ""
+            dest = f"{origin}/administrative/orderview"
+            self.driver.get(dest)
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: "/orderview" in d.current_url.lower()
+            )
+            return True
+        except Exception:
+            return False
