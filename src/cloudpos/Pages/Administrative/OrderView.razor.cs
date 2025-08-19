@@ -24,8 +24,8 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     {
         broker.Subscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
         var policy = new DebouncePolicy(
-            Debounce: TimeSpan.FromMilliseconds(500),
-            MaxInterval: TimeSpan.FromMilliseconds(1500));
+            Debounce: TimeSpan.FromMilliseconds(1000),
+            MaxInterval: TimeSpan.FromMilliseconds(3000));
 
         _refreshTask = debounce.Create(policy, async ct =>
         {

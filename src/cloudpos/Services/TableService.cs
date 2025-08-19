@@ -135,7 +135,7 @@ public class TableService(
         order.Session = session;
         broker.Publish(new TableEventArgs()
         {
-            TableId = session!.TableId,
+            TableId = session.TableId,
             EventType = TableEventArgs.TableEventType.Order,
             Data = new OrderEventArgs()
             {
