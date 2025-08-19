@@ -140,15 +140,20 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
 
     private async Task OnLogoutBtnClickAsync()
     {
-        if (await _modal.ShowAsync<AlertModal, bool>("로그아웃",ModalService.Params()
-                .Add("InnerHtml", "정말 로그아웃 하시겠습니까?")
-                .Add("IsCancelable", true)
-                .Build()))
+        var result = await _modal.ShowAsync<AlertModal, bool>("로그아웃", ModalService.Params()
+            .Add("InnerHtml", "정말 로그아웃 하시겠습니까?")
+            .Add("IsCancelable", true)
+            .Build());
+        
+        if(result is { IsCancelled: false, Value: true })
         {
             navigation.NavigateTo("/administrative/authorize?signout=true", replace: true, forceLoad: true);
         }
     }
-    
+
     public void Dispose()
-        => broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
+    {
+        modal.CancelOpenModal();
+        broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
+    }
 }

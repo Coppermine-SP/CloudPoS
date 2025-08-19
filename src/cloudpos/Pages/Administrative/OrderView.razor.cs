@@ -62,10 +62,11 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     private async Task OnCompleteOrderAsync()
     {
         if (_selectedOrderId is null) return;
-        if (!await modal.ShowAsync<AlertModal, bool>("주문 완료", ModalService.Params()
-                .Add("IsCancelable", true)
-                .Add("InnerHtml", $"정말 주문 #{_selectedOrderId}를 완료하시겠습니까?")
-                .Build())) return;
+        var result = await modal.ShowAsync<AlertModal, bool>("주문 완료", ModalService.Params()
+            .Add("IsCancelable", true)
+            .Add("InnerHtml", $"정말 주문 #{_selectedOrderId}를 완료하시겠습니까?")
+            .Build());
+        if (result.IsCancelled || !result.Value) return;
 
         if (_selectedOrderId is null) return;
         if (!await table.ChangeOrderStatusAsync(_selectedOrderId.Value, Order.OrderStatus.Completed))
@@ -87,10 +88,11 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     private async Task OnCancelOrderAsync()
     {
         if (_selectedOrderId is null) return;
-        if (!await modal.ShowAsync<AlertModal, bool>("주문 취소", ModalService.Params()
-                .Add("IsCancelable", true)
-                .Add("InnerHtml", $"정말 주문 #{_selectedOrderId}를 취소하시겠습니까?")
-                .Build())) return;
+        var result = await modal.ShowAsync<AlertModal, bool>("주문 취소", ModalService.Params()
+            .Add("IsCancelable", true)
+            .Add("InnerHtml", $"정말 주문 #{_selectedOrderId}를 취소하시겠습니까?")
+            .Build());
+        if (result.IsCancelled || !result.Value) return;
 
         if (_selectedOrderId is null) return;
         if (!await table.ChangeOrderStatusAsync(_selectedOrderId.Value, Order.OrderStatus.Cancelled))
@@ -111,6 +113,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     public async ValueTask DisposeAsync()
     {
         _disposed = true;
+        modal.CancelOpenModal();
         broker.Unsubscribe(TableEventBroker.BroadcastId, OnBroadcastEvent);
         if (_refreshTask is not null) await _refreshTask.DisposeAsync();
     }

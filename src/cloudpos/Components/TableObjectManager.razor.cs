@@ -143,14 +143,14 @@ public partial class TableObjectManager (
                 .Add("IsReferenced", isReferenced)
                 .Build());
 
-        if (result is null || result.Action is TableManageAction.Cancel or TableManageAction.None)
+        if (result.IsCancelled || result.Value!.Action is TableManageAction.Cancel or TableManageAction.None)
             return;
 
-        switch (result.Action)
+        switch (result.Value.Action)
         {
             case TableManageAction.Rename:
             {
-                await ModifyTableNameAsync(tableId, result.NewName);
+                await ModifyTableNameAsync(tableId, result.Value.NewName);
                 break;
             }
 
@@ -268,6 +268,7 @@ public partial class TableObjectManager (
     
     public void Dispose()
     { 
+        modal.CancelOpenModal();
         _dotNetObjectReference?.Dispose();
     }
     // UI를 비동기 새로고침 하는 메서드

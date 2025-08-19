@@ -64,24 +64,27 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
 
     void IDisposable.Dispose()
     {
+        modal.CancelOpenModal();
         if(_init) broker.Unsubscribe(_session!.TableId, OnTableEvent);
     }
 
     private async Task OnCallBtnClickAsync()
     {
-            if (await _modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
-                    .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
-                    .Add("IsCancelable", true)
-                    .Build()))
+        var result = await _modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
+            .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
+            .Add("IsCancelable", true)
+            .Build());
+        
+        if(result is { IsCancelled: false, Value: true })
+        {
+            var session = await table.GetSessionAsync();
+            broker.Publish(new TableEventArgs()
             {
-                var session = await table.GetSessionAsync();
-                broker.Publish(new TableEventArgs()
-                {
-                    TableId = session!.TableId,
-                    EventType = TableEventArgs.TableEventType.StaffCall,
-                    Data = session.SessionId
-                });
-            }
+                TableId = session!.TableId,
+                EventType = TableEventArgs.TableEventType.StaffCall,
+                Data = session.SessionId
+            });
+        }
 
     }
 

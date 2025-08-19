@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components;
 
-public partial class CategoryObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, ILogger<CategoryObjectManager> logger, InteractiveInteropService interop) : ComponentBase
+public partial class CategoryObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, ILogger<CategoryObjectManager> logger, InteractiveInteropService interop) : ComponentBase, IDisposable
 {
     private List<Category>? _categories;
     protected override async Task OnInitializedAsync()
@@ -36,9 +36,11 @@ public partial class CategoryObjectManager(IDbContextFactory<ServerDbContext> fa
         }
         else
         {
-            if(await modal.ShowAsync<AlertModal, bool>("데이터 삭제 경고", ModalService.Params()
+            var result = await modal.ShowAsync<AlertModal, bool>("데이터 삭제 경고", ModalService.Params()
                 .Add("InnerHtml", "정말로 이 카테고리 객체를 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
-                .Build())) {
+                .Build());
+            
+            if(result is { IsCancelled: false, Value: true }){
                 try
                 {
                     context.Categories.Remove(item);
@@ -75,11 +77,11 @@ public partial class CategoryObjectManager(IDbContextFactory<ServerDbContext> fa
     private async Task AddCategoryAsync()
     {
         await using var context = await factory.CreateDbContextAsync();
-        var x = await modal.ShowAsync<EditCategoryModal, Category>("카테고리 추가");
-        if (x is null) return;
+        var result = await modal.ShowAsync<EditCategoryModal, Category>("카테고리 추가");
+        if (result.IsCancelled) return;
         try
         {
-            context.Categories.Add(x);
+            context.Categories.Add(result.Value!);
             await context.SaveChangesAsync();
         }
         catch (Exception e)
@@ -92,5 +94,11 @@ public partial class CategoryObjectManager(IDbContextFactory<ServerDbContext> fa
     private void DbSaveChangesErrorHandler(Exception e){
         logger.LogError(e.ToString());
         _ = interop.ShowNotifyAsync("서버 오류가 발생하여 변경 사항을 저장할 수 없었습니다.", InteractiveInteropService.NotifyType.Error);
+    }
+
+
+    public void Dispose()
+    {
+        modal.CancelOpenModal();
     }
 }

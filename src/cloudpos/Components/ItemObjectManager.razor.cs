@@ -68,12 +68,12 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
     private async Task AddItemAsync()
     {
         await using var context = await factory.CreateDbContextAsync();
-        var item = await modal.ShowAsync<EditItemModal, Item>("메뉴 추가", ModalService.Params()
+        var result = await modal.ShowAsync<EditItemModal, Item>("메뉴 추가", ModalService.Params()
             .Add("Categories", _categories)
             .Build());
 
-        if (item is null) return;
-        context.Items.Add(item);
+        if (result.IsCancelled) return;
+        context.Items.Add(result.Value!);
         try
         {
             await context.SaveChangesAsync();
@@ -116,13 +116,17 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
 
         if (isExist)
         {
-            if (await modal.ShowAsync<AlertModal, bool>("데이터 정합성 경고", ModalService.Params()
-                    .Add("InnerHtml",
-                        "이 객체는 다른 객체가 참조하고 있습니다. 이 객체를 삭제하거나 변경하면, 이 객체를 참조하는 모든 객체(주문 내역 또는 세션)에 영향을 끼칩니다.<br><br><strong>정말 이 내용을 이해했습니까?<br>데이터 정합성에 대한 자세한 내용은 사용자 매뉴얼을 참조하십시오.</strong>")
-                    .Add("IsCancelable", true)
-                    .Build()))
+            var result = await modal.ShowAsync<AlertModal, bool>("데이터 정합성 경고", ModalService.Params()
+                .Add("InnerHtml",
+                    "이 객체는 다른 객체가 참조하고 있습니다. 이 객체를 삭제하거나 변경하면, 이 객체를 참조하는 모든 객체(주문 내역 또는 세션)에 영향을 끼칩니다.<br><br><strong>정말 이 내용을 이해했습니까?<br>데이터 정합성에 대한 자세한 내용은 사용자 매뉴얼을 참조하십시오.</strong>")
+                .Add("IsCancelable", true)
+                .Build());
+            
+            if(result is { IsCancelled: false, Value: true })
             {
-                if (await modal.ShowAsync<ConfirmDelete, bool>("데이터 정합성 경고"))
+                result = await modal.ShowAsync<ConfirmDelete, bool>("데이터 정합성 경고");
+                
+                if(result is { IsCancelled: false, Value: true })
                 {
                     await context.Items.Where(x => x.ItemId == i).ExecuteDeleteAsync();
                     try
@@ -142,11 +146,13 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
         }
         else
         {
-            if (await modal.ShowAsync<AlertModal, bool>("메뉴 삭제", ModalService.Params()
-                    .Add("InnerHtml",
-                        "정말 이 객체를 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
-                    .Add("IsCancelable", true)
-                    .Build()))
+            var result = await modal.ShowAsync<AlertModal, bool>("메뉴 삭제", ModalService.Params()
+                .Add("InnerHtml",
+                    "정말 이 객체를 삭제하시겠습니까?<br><br><strong>이 작업은 되돌릴 수 없습니다.</strong>")
+                .Add("IsCancelable", true)
+                .Build());
+            
+            if(result is { IsCancelled: false, Value: true })
             {
                 await context.Items.Where(x => x.ItemId == i).ExecuteDeleteAsync();
                 try
@@ -171,5 +177,8 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
     }
 
     public void Dispose()
-        => broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
+    {
+        broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
+        modal.CancelOpenModal();
+    }
 }

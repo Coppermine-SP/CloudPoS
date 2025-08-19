@@ -9,8 +9,8 @@ namespace CloudInteractive.CloudPos.Pages.Customer;
 
 public partial class History(IDbContextFactory<ServerDbContext> factory, InteractiveInteropService interop, ModalService modal, ConfigurationService config, TableService table, TableEventBroker broker) : ComponentBase, IDisposable
 {
-    private int _totalOrderCount = 0;
-    private int _totalAmount = 0;
+    private int _totalOrderCount;
+    private int _totalAmount;
     private List<Models.Order>? _orders;
     private Models.TableSession? _session;
     private string CurrencyFormat(int x) =>  x == 0 ? "￦0": $"￦{x:#,###}";
@@ -30,10 +30,11 @@ public partial class History(IDbContextFactory<ServerDbContext> factory, Interac
 
     private async Task OnSessionEndBtnClickAsync()
     {
-        if (await modal.ShowAsync<AlertModal, bool>("결제 요청하기", ModalService.Params()
-                .Add("InnerHtml", "정말 결제 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.")
-                .Add("IsCancelable", true)
-                .Build()))
+        var result = await modal.ShowAsync<AlertModal, bool>("결제 요청하기", ModalService.Params()
+            .Add("InnerHtml", "정말 결제 요청을 하시겠습니까?<br>계산 요청을 하면 더 이상 주문을 할 수 없습니다.")
+            .Add("IsCancelable", true)
+            .Build());
+        if(result is { IsCancelled: false, Value: true })
         {
             if (!await table.EndSessionAsync())
             {
@@ -48,7 +49,12 @@ public partial class History(IDbContextFactory<ServerDbContext> factory, Interac
         broker.Subscribe(_session!.TableId, OnTableEvent);
         await UpdateTotalAsync();
     }
-    public void Dispose() => broker.Unsubscribe(_session!.TableId, OnTableEvent);
+
+    public void Dispose()
+    {
+        broker.Unsubscribe(_session!.TableId, OnTableEvent);
+        modal.CancelOpenModal();
+    }
     private void OnTableEvent(object? sender, TableEventArgs e)
     {
         if (e.EventType == TableEventArgs.TableEventType.Order) StateHasChanged();
