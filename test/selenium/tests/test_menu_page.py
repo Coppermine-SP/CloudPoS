@@ -1,7 +1,6 @@
 from pages.authorize_page import AuthorizePage
 from pages.menu_page import MenuPage
 from pages.items import Cart
-import time
 
 def _compose_authorize_url(base_url: str) -> str:
     url = base_url.rstrip('/')
@@ -66,3 +65,58 @@ def test_open_menu_item_detail(driver, customer_base_url, customer_auth_code):
 
     menu = MenuPage(driver)
     assert menu.open_menu_item_detail("골빔면", timeout=10)
+
+def test_open_hamburger_menu(driver, customer_base_url, customer_auth_code):
+    driver.get(_compose_authorize_url(customer_base_url))
+    auth = AuthorizePage(driver)
+    auth.authorize(customer_auth_code)
+    assert auth.is_redirected_to_menu()
+
+    menu = MenuPage(driver)
+    assert menu.open_hamburger_menu(timeout=10)
+
+def test_staff_call_button(driver, customer_base_url, customer_auth_code):
+    driver.get(_compose_authorize_url(customer_base_url))
+    auth = AuthorizePage(driver)
+    auth.authorize(customer_auth_code)
+    assert auth.is_redirected_to_menu()
+
+    menu = MenuPage(driver)
+    assert menu.open_hamburger_menu(timeout=10)
+    assert menu.click_staff_call_button(timeout=10)
+
+    assert menu.check_modal_open(timeout=10)
+
+def test_session_share_button(driver, customer_base_url, customer_auth_code):
+    driver.get(_compose_authorize_url(customer_base_url))
+    auth = AuthorizePage(driver)
+    auth.authorize(customer_auth_code)
+    assert auth.is_redirected_to_menu()
+
+    menu = MenuPage(driver)
+    assert menu.open_hamburger_menu(timeout=10)
+    assert menu.click_session_share_button(timeout=10)
+
+    assert menu.check_modal_open(timeout=10)
+
+def test_change_theme(driver, customer_base_url, customer_auth_code):
+    driver.get(_compose_authorize_url(customer_base_url))
+    auth = AuthorizePage(driver)
+    auth.authorize(customer_auth_code)
+    assert auth.is_redirected_to_menu()
+
+    menu = MenuPage(driver)
+
+    def toggle_theme():
+        assert menu.open_hamburger_menu(timeout=10)
+        assert menu.click_theme_button(timeout=10)
+    
+    initial_theme = menu.get_current_theme()
+    
+    for _ in range(3):
+        toggle_theme()
+        new_theme = menu.get_current_theme()
+        if initial_theme != new_theme:
+            break
+    
+    assert initial_theme != new_theme
