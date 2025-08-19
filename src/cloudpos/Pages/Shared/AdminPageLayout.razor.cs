@@ -44,7 +44,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
             if (e.EventType == TableEventArgs.TableEventType.StaffCall)
                 await OnStaffCalledAsync((int)e.Data!);
             else if(e.EventType == TableEventArgs.TableEventType.Order)
-                await OnTransactionAsync((OrderEventArgs)e.Data!);
+                OnTransaction((OrderEventArgs)e.Data!);
             else if (e.EventType == TableEventArgs.TableEventType.SessionEnd)
                 await OnSessionEndAsync((int)e.Data!);
         }
@@ -72,7 +72,7 @@ public partial class AdminPageLayout(ILogger<AdminPageLayout> logger, IDbContext
         ShowAlert(AlertType.Call, "계산 요청", $"<strong>테이블 {session.Table.Name}</strong><br>세션 #{session.SessionId} ({DateTime.Now:yyyy-MM-dd HH:mm:ss})");
     }
 
-    private async Task OnTransactionAsync(OrderEventArgs args)
+    private void OnTransaction(OrderEventArgs args)
     {
         if (args.EventType == OrderEventType.Created)
         {
