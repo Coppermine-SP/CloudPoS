@@ -6,25 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Services;
 
-public class TableService
+public class TableService(
+    IDbContextFactory<ServerDbContext> factory,
+    TableEventBroker broker,
+    IAuthorizationHandler handler,
+    ILogger<TableService> logger)
 {
-    private readonly IDbContextFactory<ServerDbContext> _factory;
-    private readonly TableEventBroker _broker;
-    private readonly IAuthorizationHandler _handler;
-    private readonly ILogger _logger;
-    public TableService(IDbContextFactory<ServerDbContext> factory, TableEventBroker broker,
-        IAuthorizationHandler handler, ILogger<TableService> logger)
-    {
-        _broker = broker;
-        _handler = handler;
-        _logger = logger;
-        _factory = factory;
-    }
-    private AuthorizationHandler AuthHandler => (AuthorizationHandler)_handler;
+
+    private AuthorizationHandler AuthHandler => (AuthorizationHandler)handler;
 
     public async Task<TableSession?> GetSessionAsync(int? sessionId = null)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         return sessionId is null
             ? AuthHandler.Session
             : await context.Sessions.AsNoTracking().Include(x => x.Table).FirstOrDefaultAsync(x => x.SessionId == sessionId);
@@ -32,11 +25,11 @@ public class TableService
     
     public async Task<bool> CompleteSessionAsync(int sessionId)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var session = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
         if (session is null)
         {
-            _logger.LogWarning("존재하지 않는 세션을 완료하려고 시도했습니다: {SessionId}", sessionId);
+            logger.LogWarning("존재하지 않는 세션을 완료하려고 시도했습니다: {SessionId}", sessionId);
             return false;
         }
 
@@ -48,25 +41,25 @@ public class TableService
         
     public async Task<bool> EndSessionAsync(int? sessionId = null)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
 
         var targetSessionId = sessionId ?? (await GetSessionAsync())?.SessionId;
         if (targetSessionId is null)
         {
-            _logger.LogWarning("EndSessionAsync가 유효한 세션 ID 없이 호출되었습니다.");
+            logger.LogWarning("EndSessionAsync가 유효한 세션 ID 없이 호출되었습니다.");
             return false;
         }
         
         var session = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == targetSessionId.Value);
         if (session is null)
         {
-            _logger.LogWarning("존재하지 않는 세션을 종료하려고 시도했습니다: {SessionId}", targetSessionId.Value);
+            logger.LogWarning("존재하지 않는 세션을 종료하려고 시도했습니다: {SessionId}", targetSessionId.Value);
             return false;
         }
         
         if (await context.Orders.AnyAsync(x => x.SessionId == session.SessionId && x.Status == Order.OrderStatus.Received))
         {
-            _logger.LogInformation("세션 {SessionId}에 처리되지 않은 주문이 있어 종료할 수 없습니다.", session.SessionId);
+            logger.LogInformation("세션 {SessionId}에 처리되지 않은 주문이 있어 종료할 수 없습니다.", session.SessionId);
             return false;
         }
         
@@ -75,7 +68,7 @@ public class TableService
         session.AuthCode = null;
         await context.SaveChangesAsync();
         AuthHandler.ClearSessionCache(session.SessionId);
-        _broker.Publish(new TableEventArgs()
+        broker.Publish(new TableEventArgs()
         {
             TableId = session.TableId,
             EventType = TableEventArgs.TableEventType.SessionEnd,
@@ -88,7 +81,7 @@ public class TableService
     public record OrderSummary(int ItemId, string ItemName, int Price, int TotalQty, int TotalPrice);
     public async Task<List<OrderSummary>> SessionOrderSummaryAsync(int? sessionId = null)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var session = await GetSessionAsync(sessionId);
         return await context.Orders
             .Where(x => x.SessionId == session!.SessionId)
@@ -103,12 +96,13 @@ public class TableService
     public record OrderItem(int ItemId, int Quantity);
     public async Task<bool> MakeOrderAsync(List<OrderItem> orderItems, int? sessionId = null)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var session = await GetSessionAsync(sessionId);
 
+        if (session is null) return false;
         var order = new Order()
         {
-            SessionId = session!.SessionId,
+            SessionId = session.SessionId,
             CreatedAt = DateTime.Now,
             Status = Order.OrderStatus.Received
         };
@@ -134,17 +128,18 @@ public class TableService
         }
         catch (Exception e)
         {
-            _logger.LogError("MakeOrderAsync exception: " + e.Message);
+            logger.LogError("MakeOrderAsync exception: " + e.Message);
             return false;
         }
-        
-        _broker.Publish(new TableEventArgs()
+
+        order.Session = session;
+        broker.Publish(new TableEventArgs()
         {
             TableId = session.TableId,
             EventType = TableEventArgs.TableEventType.Order,
             Data = new OrderEventArgs()
             {
-                OrderId = order.OrderId,
+                Order = order,
                 EventType = OrderEventType.Created
             }
         });
@@ -153,7 +148,7 @@ public class TableService
 
     public async Task<bool> UpdateOrderMemoAsync(int orderId, string memo)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var order = await context.Orders
             .FirstOrDefaultAsync(x => x.OrderId == orderId);
 
@@ -163,20 +158,20 @@ public class TableService
         try
         {
             await context.SaveChangesAsync();
-            _broker.Broadcast(new TableEventArgs()
+            broker.Broadcast(new TableEventArgs()
             {
                 EventType = TableEventArgs.TableEventType.Order,
                 TableId = TableEventBroker.BroadcastId,
                 Data = new OrderEventArgs()
                 {
-                    OrderId = order.OrderId,
+                    Order = order,
                     EventType = OrderEventType.MemoUpdated
                 }
             });
         }
         catch (Exception e)
         {
-            _logger.LogError("UpdateOrderMemoAsync exception: " + e.Message);
+            logger.LogError("UpdateOrderMemoAsync exception: " + e.Message);
             return false;
         }
         return true;
@@ -184,8 +179,10 @@ public class TableService
 
     public async Task<bool> ChangeOrderStatusAsync(int orderId, Order.OrderStatus status)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var order = await context.Orders
+            .Include(x => x.OrderItems)
+            .ThenInclude(x => x.Item)
             .Include(x => x.Session)
             .ThenInclude(x => x!.Table)
             .FirstOrDefaultAsync(x => x.OrderId == orderId);
@@ -196,21 +193,21 @@ public class TableService
         try
         {
             await context.SaveChangesAsync();
-            _broker.Publish(new TableEventArgs()
+            broker.Publish(new TableEventArgs()
             {
                 EventType = TableEventArgs.TableEventType.Order,
                 TableId = order.Session!.Table.TableId,
                 Data = new OrderEventArgs()
                 {
                     EventType = status == Order.OrderStatus.Completed ? OrderEventType.Completed : OrderEventType.Cancelled,
-                    OrderId = order.OrderId
+                    Order = order
                 }
             });
             return true;
         }
         catch (Exception e)
         {
-            _logger.LogError("ChangeOrderStatusAsync exception: " + e.Message);
+            logger.LogError("ChangeOrderStatusAsync exception: " + e.Message);
             return false;
         }
         
@@ -230,32 +227,32 @@ public class TableService
 
     public async Task<bool> MoveSessionAsync(int sessionId, int destTableId)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         var table = await context.Tables
             .Include(x => x.Sessions)
             .FirstOrDefaultAsync(x => x.TableId == destTableId);
         var session = await context.Sessions.FirstOrDefaultAsync(x => x.SessionId == sessionId);
         if (table is null)
         {
-            _logger.LogWarning("destTableId가 올바르지 않습니다: {table}", destTableId);
+            logger.LogWarning("destTableId가 올바르지 않습니다: {table}", destTableId);
             return false;
         }
 
         if (session is null)
         {
-            _logger.LogWarning("sessionId가 올바르지 않습니다: {session}", sessionId);
+            logger.LogWarning("sessionId가 올바르지 않습니다: {session}", sessionId);
             return false;
         }
 
         if (session.State != TableSession.SessionState.Active)
         {
-            _logger.LogWarning("세션이 올바른 상태가 아닙니다: {session}", sessionId);
+            logger.LogWarning("세션이 올바른 상태가 아닙니다: {session}", sessionId);
             return false;
         }
 
         if (table.Sessions.Any(x => x.State == TableSession.SessionState.Active))
         {
-            _logger.LogWarning("이동하려는 테이블에 이미 활성 세션이 있습니다: {table}", destTableId);
+            logger.LogWarning("이동하려는 테이블에 이미 활성 세션이 있습니다: {table}", destTableId);
             return false;
         }
 
@@ -266,16 +263,16 @@ public class TableService
     
     public async Task<TableSession?> CreateSessionAsync(int tableId)
     {
-        await using var context = await _factory.CreateDbContextAsync();
+        await using var context = await factory.CreateDbContextAsync();
         if (!await context.Tables.AnyAsync(x => x.TableId == tableId))
         {
-            _logger.LogWarning("tableId가 올바르지 않습니다: {table}", tableId);
+            logger.LogWarning("tableId가 올바르지 않습니다: {table}", tableId);
             return null;
         }
         
         if(await context.Sessions.AnyAsync(x => x.TableId == tableId && x.State != TableSession.SessionState.Completed))
         {
-            _logger.LogWarning("완료되지 않은 세션이 있습니다: {table}", tableId);
+            logger.LogWarning("완료되지 않은 세션이 있습니다: {table}", tableId);
             return null;
         }
 

@@ -1,5 +1,5 @@
 @attribute [Authorize(Policy = AuthorizationHandler.ActiveSessionPolicy)]
-@page "/Customer/History"
+@page "/customer/history"
 @layout Shared.CustomerPageLayout
 <PageTitle>@config.StoreName - 주문 내역</PageTitle>
 
@@ -31,7 +31,7 @@
                 <h6 class="text-secondary">총 @(_totalOrderCount)개의 주문 내역이 있습니다.</h6>
             </div>
             <div>
-                <button class="btn btn-primary" @onclick="OnSessionEndBtnClickAsync">계산 요청</button>
+                <button class="btn btn-primary" @onclick="OnSessionEndBtnClickAsync">결제 요청</button>
             </div>
         </div>
         <div class="d-flex flex-column py-3 gap-4">

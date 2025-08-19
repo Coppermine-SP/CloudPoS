@@ -5,7 +5,7 @@
     if (_session!.EndedAt is not null)
     {
         logger.LogInformation("Payment requested. Redirecting to /Customer/Receipt.");
-        navigation.NavigateTo("/Customer/Receipt", replace: true,  forceLoad: true);
+        navigation.NavigateTo("/customer/receipt", replace: true,  forceLoad: true);
         return;
     }
     

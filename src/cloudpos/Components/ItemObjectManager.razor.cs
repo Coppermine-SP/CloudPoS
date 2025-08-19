@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloudInteractive.CloudPos.Components;
 
-public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop, TableEventBroker broker, ILogger<ItemObjectManager> logger) : ComponentBase
+public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factory, ModalService modal, InteractiveInteropService interop, TableEventBroker broker, ILogger<ItemObjectManager> logger) : ComponentBase, IDisposable
 {
     private List<Category>? _categories;
     private List<Item>? _items;
@@ -18,10 +18,31 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadCatalog();
+        broker.Subscribe(TableEventBroker.BroadcastId, OnTableEvent);
+    }
+
+    private async Task LoadCatalog()
+    {
         _categories = await GetCategoriesAsync();
         _items = await GetItemsAsync();
     }
-    
+
+    private async void OnTableEvent(object? sender, TableEventArgs e)
+    {
+        try
+        {
+            if (e.EventType != TableEventArgs.TableEventType.CatalogUpdated) return;
+            _ = interop.ShowNotifyAsync("카탈로그가 업데이트 되었습니다.", InteractiveInteropService.NotifyType.Success);
+            await LoadCatalog();
+            StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            DbSaveChangesErrorHandler(ex);
+        }
+    }
+
     private async Task<List<Item>> GetItemsAsync()
     {
         await using var context = await factory.CreateDbContextAsync();
@@ -70,7 +91,7 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
     private async Task EditItemAsync(int i)
     {
         await using var context = await factory.CreateDbContextAsync();
-        var item  = await modal.ShowAsync<EditItemModal, Item>("메뉴 수정", ModalService.Params()
+        _ = await modal.ShowAsync<EditItemModal, Item>("메뉴 수정", ModalService.Params()
             .Add("Item", await context.Items.FirstAsync(x => x.ItemId == i))
             .Add("Categories", _categories)
             .Build());
@@ -148,4 +169,7 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
         logger.LogError(e.ToString());
         _ = interop.ShowNotifyAsync("서버 오류가 발생하여 변경 사항을 저장할 수 없었습니다.", InteractiveInteropService.NotifyType.Error);
     }
+
+    public void Dispose()
+        => broker.Unsubscribe(TableEventBroker.BroadcastId, OnTableEvent);
 }

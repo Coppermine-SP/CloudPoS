@@ -1,7 +1,6 @@
 @attribute [Authorize(Roles = AuthorizationHandler.AdminRole)]
-@page "/Administrative/TableView"
+@page "/administrative/tableview"
 @using CloudInteractive.CloudPos.Components.TableView
-@using Microsoft.EntityFrameworkCore
 @layout Shared.AdminPageLayout
 @code
 {
@@ -10,16 +9,17 @@
     private const string OptionClass = "btn-outline-secondary border-0";
     private const string SelectedOptionClass = "btn-secondary";
 
-    private const string ActiveTableItemClass = "bg-primary bg-opacity-75";
+    private const string ActiveTableItemClass = "bg-danger";
     private const string EndTableItemClass = "bg-success bg-opacity-75";
     private const string EmptyTableItemClass = "bg-dark bg-opacity-75";
+    private const string SelectedTableItemClass = "bg-primary";
     private string SessionStateToClass(TableSession.SessionState state) =>
         state == TableSession.SessionState.Active ? ActiveTableItemClass : EndTableItemClass;
 }
 <PageTitle>@(config.StoreName) - 테이블 뷰</PageTitle>
 @if (_sessions is not null && _tables is not null)
 {
-    <div style="height: calc(100vh - 58px)">
+    <div class="full-height">
         <div class="d-flex h-100 justify-content-between">
             <main class="flex-grow-1 d-flex flex-column">
                 <div class="d-lg-none container my-4">
@@ -29,9 +29,9 @@
                 </div>
                 <div class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 0;">
                     <div id="grid-container" class="table-grid-container">
-                        @for (int y = 0; y < 6; y++)
+                        @for (var y = 0; y < 6; y++)
                         {
-                            @for (int x = 0; x < 6; x++)
+                            @for (var x = 0; x < 6; x++)
                             {
                                 var cellX = x;
                                 var cellY = y;
@@ -40,8 +40,8 @@
                                 <div class="grid-cell border bg-body-tertiary" data-x="@cellX" data-y="@cellY">
                                     @if (tableInCell != null)
                                     {
-                                        var session = _sessions.FirstOrDefault(x => x.TableId == tableInCell.TableId);
-                                        <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(session is null ? EmptyTableItemClass : SessionStateToClass(session.State)) text-white text-center position-relative"
+                                        var session = _sessions.FirstOrDefault(s => s.TableId == tableInCell.TableId);
+                                        <div class="p-3 table-item d-flex flex-column align-items-center justify-content-center @(_selectedTableId is not null && _selectedTableId == tableInCell.TableId ? SelectedTableItemClass : (session is null ? EmptyTableItemClass : SessionStateToClass(session.State))) text-white text-center position-relative"
                                              data-table-id="@tableInCell.TableId"
                                              @onclick="() => SetTableSessionAsync(tableInCell.TableId)">
                                             <p style="font-size: 16px">@tableInCell.Name</p>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
             </main>
-            <div class="offcanvas offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex h-100 side-panel" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 380px!important;">
+            <div class="offcanvas offcanvas-lg offcanvas-end bg-body-tertiary p-lg-4 d-lg-flex side-panel full-height" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel" style="width: 380px!important;">
                 <div class="offcanvas-header border-bottom">
                     <h5 class="offcanvas-title" id="offcanvasResponsiveLabel">테이블 상세보기</h5>
                     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -96,10 +96,14 @@
                             @switch (_selectedOption)
                             {
                                 case OptionContent.SessionManagement:
-                                    <SessionManagement SessionId="_selectedTableSession.SessionId"/>
+                                    <SessionManagement
+                                        SessionId="@_selectedTableSession!.SessionId"
+                                        @key="_selectedTableSession!.SessionId" />
                                     break;
                                 case OptionContent.ManualOrder:
-                                    <ManualOrder SessionId="_selectedTableSession.SessionId"/>
+                                    <ManualOrder
+                                        SessionId="@_selectedTableSession!.SessionId"
+                                        @key="_selectedTableSession!.SessionId" />
                                     break;
                             }
                         }

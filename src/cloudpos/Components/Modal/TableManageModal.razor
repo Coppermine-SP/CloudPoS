@@ -1,0 +1,79 @@
+@inherits ModalComponentBase
+<div class="d-flex flex-column">
+    @{
+        string? message = null;
+    }
+    @if (IsReferenced)
+    {
+        <div class="alert alert-warning d-flex flex-row mb-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-3"></i>
+            </div>
+            <div>
+                이 객체는 데이터 정합성 때문에 삭제할 수 없도록 보호됩니다.<br/><strong>자세한 사항은 관리자 설명서를 참조하십시오.</strong>
+            </div>
+        </div>
+    }
+    
+    <label for="tableName" class="form-label">테이블 이름</label>
+    <InputText id="tableName" class="form-control" placeholder="테이블 이름을 입력하십시오." @bind-Value="_name" maxlength="10"/>
+    @{
+        if (string.IsNullOrWhiteSpace(_name)) message = "테이블 이름은 공란일 수 없습니다.";
+        if (_name.Length > 10) message = "테이블 이름은 10자보다 길 수 없습니다.";
+    }
+    @if (message is not null)
+    {
+        <div class="form-text text-danger">
+            @message
+        </div>
+    }
+</div>
+<div class="d-flex justify-content-end gap-3 py-2 mt-4">
+    @if (!IsReferenced)
+    {
+        <button type="button"
+                class="btn btn-outline-danger px-3 float-start" @onclick="OnDeleteAsync">
+            삭제
+        </button>
+    }
+    <button type="button"
+            class="btn btn-secondary px-3" @onclick="OnCancelAsync"  disabled="@(message is not null)">
+        취소
+    </button>
+    <button type="button"
+            class="btn btn-primary px-3" @onclick="OnRenameAsync"  disabled="@(message is not null)">
+        확인
+    </button>
+</div>
+@code
+{
+    [Parameter] public required int TableId { get; set; }
+    [Parameter] public required string CurrentName { get; set; } = string.Empty;
+    [Parameter] public bool IsReferenced { get; set; }
+
+    private string _name = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _name = CurrentName;
+    }
+    
+    private async Task OnRenameAsync()
+    {
+        var trimmed = _name.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            // 빈 값 방지: 호출 측에서 토스트 띄울 수 있게 Cancel로 닫지 않고 그대로 유지하려면 return
+            return;
+        }
+        if (trimmed.Length > 30) trimmed = trimmed[..30];
+
+        await CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Rename, trimmed));
+    }
+    
+    private async Task OnCancelAsync()
+        => await CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Cancel, null));
+
+    private async Task OnDeleteAsync() 
+        => await CloseModal(new TableObjectManager.TableManageResult(TableObjectManager.TableManageAction.Delete, null));
+}

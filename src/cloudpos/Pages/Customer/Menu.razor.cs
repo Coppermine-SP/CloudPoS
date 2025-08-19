@@ -5,7 +5,6 @@ using CloudInteractive.CloudPos.Models;
 using CloudInteractive.CloudPos.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.JSInterop;
 
 namespace CloudInteractive.CloudPos.Pages.Customer;
@@ -20,6 +19,7 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
     
     private IJSObjectReference? _module;
     private List<Category>? _categories;
+    private int? eventId;
     private readonly List<CartItem> _cart = new();
     private bool _isCartOpen;
     private void ToggleCart() => _isCartOpen = !_isCartOpen;
@@ -35,7 +35,8 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
         await UpdateCatalog();
         _module = await js.InvokeAsync<IJSObjectReference>("import", "./Pages/Customer/Menu.razor.js");
         await _module!.InvokeVoidAsync("initCategoryScroller", "category-wrapper");
-        broker.Subscribe(session.TableId, OnTableEvent);
+        eventId = session.TableId;
+        broker.Subscribe(eventId.Value, OnTableEvent);
     }
 
     private async Task UpdateCatalog()
@@ -159,10 +160,11 @@ public partial class Menu(IDbContextFactory<ServerDbContext> factory, IJSRuntime
     public async ValueTask DisposeAsync()
     {
         if (_module is null) return;
-
         try
         {
             await _module.DisposeAsync();
+            if(eventId is not null)
+                broker.Unsubscribe(eventId.Value, OnTableEvent);
         }
         catch
         {

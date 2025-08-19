@@ -1,6 +1,7 @@
 using CloudInteractive.CloudPos.Contexts;
 using CloudInteractive.CloudPos.Event;
 using CloudInteractive.CloudPos.Services;
+using CloudInteractive.CloudPos.Services.Debounce;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +16,18 @@ public class Program
         builder.Services.AddRazorPages();
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
-        builder.Services.AddServerSideBlazor();
+        builder.Services.AddServerSideBlazor()
+            .AddHubOptions(o => o.MaximumParallelInvocationsPerClient = 1);
+        builder.Services.AddResponseCompression(o => o.EnableForHttps = true);
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddAuthorizationCore();
         builder.Services.AddMemoryCache();
         builder.Services.AddCascadingAuthenticationState();
+        builder.Services.Configure<RouteOptions>(option =>
+        {
+            option.LowercaseUrls = true;
+            option.LowercaseQueryStrings = true;
+        });
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
@@ -47,6 +55,7 @@ public class Program
         builder.Services.AddScoped<ModalService>();
         builder.Services.AddScoped<InteractiveInteropService>();
         builder.Services.AddScoped<TableService>();
+        builder.Services.AddScoped<IDebounceService, DebounceService>();
         builder.Services.AddSingleton<TableEventBroker>();
         var app = builder.Build();
         
@@ -69,9 +78,10 @@ public class Program
         app.MapFallbackToPage("/_Host");
         app.MapGet("/", ctx =>
         { 
-            ctx.Response.Redirect("/Customer/Menu");
+            ctx.Response.Redirect("/customer/menu");
             return Task.CompletedTask;
         });
+        app.UseResponseCompression();
         app.Run();
     }
 }
