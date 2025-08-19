@@ -83,6 +83,6 @@ CloudPOS는 스마트 기기를 활용하여 웹페이지에서 쉽게 주문할
   davidshimjs, MIT License
 ## Documents
 
-- [CloudPOS 사용자 설명서]("docs/changeme")
-- [CloudPOS 관리자 설명서]("docs/changeme")
-- [CloudPOS QA Guide]("docs/QA_Guide.md")
+- [CloudPOS 사용자 설명서](doc/CloudPOS_User_Guide.pdf)
+- [CloudPOS 관리자 설명서](doc/CloudPOS_Admin_Guide.pdf) 
+- [CloudPOS QA Guide](doc/QA_Guide.md)
