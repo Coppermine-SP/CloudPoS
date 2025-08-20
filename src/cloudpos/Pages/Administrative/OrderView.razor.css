@@ -39,6 +39,6 @@
     gap: 1.5rem;
 }
 .grid-scroll-wrapper{
-    height: calc(100vh - 15rem);
+    height: calc(100vh - 11rem);
     overflow-y: auto;
 }

@@ -15,6 +15,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
     private bool _shouldUpdateMemo;
     private int? _selectedOrderId;
     private List<Order>? _activeOrders;
+    private int _activeOrdersCount;
     private IDebouncedTask? _refreshTask;
     private bool _disposed;
     
@@ -30,6 +31,10 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
         _refreshTask = debounce.Create(policy, async ct =>
         {
             await using var context = await factory.CreateDbContextAsync(ct);
+            _activeOrdersCount = await context.Orders
+                .Where(x => x.Status == Order.OrderStatus.Received)
+                .CountAsync(cancellationToken: ct);
+            
             _activeOrders = await context.Orders
                 .Where(x => x.Status == Order.OrderStatus.Received)
                 .Include(x => x.Session)
@@ -37,6 +42,7 @@ public partial class OrderView(IDbContextFactory<ServerDbContext> factory, Table
                 .Include(x => x.OrderItems)
                 .ThenInclude(x => x.Item)
                 .OrderBy(x => x.CreatedAt)
+                .Take(30)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken: ct);
 
