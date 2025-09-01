@@ -44,7 +44,7 @@
                     case TableSession.SessionState.Active:
                         if (!_session.Orders.Any())
                         {
-                            <button class="btn btn-danger" @onclick="() => ShowCompleteSessionModalAsync(_session.SessionId)">
+                            <button class="btn btn-danger" @onclick="() => ShowCompleteSessionModalAsync(_session.SessionId, true)">
                                 <i class="bi bi-x-lg me-1"></i>
                                 취소
                             </button>
@@ -60,7 +60,7 @@
                         break;
                     case TableSession.SessionState.Billing:
                         <button class="btn btn-success"
-                                @onclick="() => ShowCompleteSessionModalAsync(_session!.SessionId)">
+                                @onclick="() => ShowCompleteSessionModalAsync(_session!.SessionId, false)">
                             <i class="bi bi-check-lg me-1"></i>
                             완료
                         </button>

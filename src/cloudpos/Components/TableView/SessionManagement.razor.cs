@@ -96,7 +96,7 @@ public partial class SessionManagement(ModalService modal, TableService service,
         );
     }
 
-    private async Task ShowCompleteSessionModalAsync(int sessionId)
+    private async Task ShowCompleteSessionModalAsync(int sessionId, bool forced)
     {
         var confirm = await modal.ShowAsync<AlertModal, bool>(
             "결제 완료", ModalService.Params()
@@ -105,7 +105,7 @@ public partial class SessionManagement(ModalService modal, TableService service,
                 .Build());
         if (confirm is { IsCancelled: false, Value: true })
         {
-            await service.CompleteSessionAsync(sessionId);
+            await service.CompleteSessionAsync(sessionId, forced);
             broker.Broadcast(new TableEventArgs()
             {
                 EventType = TableEventArgs.TableEventType.TableUpdate

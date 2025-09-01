@@ -23,7 +23,7 @@ public class TableService(
             : await context.Sessions.AsNoTracking().Include(x => x.Table).FirstOrDefaultAsync(x => x.SessionId == sessionId);
     }
     
-    public async Task<bool> CompleteSessionAsync(int sessionId)
+    public async Task<bool> CompleteSessionAsync(int sessionId, bool forced)
     {
         await using var context = await factory.CreateDbContextAsync();
         var session = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
@@ -31,6 +31,18 @@ public class TableService(
         {
             logger.LogWarning("존재하지 않는 세션을 완료하려고 시도했습니다: {SessionId}", sessionId);
             return false;
+        }
+
+        if (forced)
+        {
+            session.AuthCode = null;
+            AuthHandler.ClearSessionCache(session.SessionId);
+            broker.Publish(new TableEventArgs()
+            {
+                TableId = session.TableId,
+                EventType = TableEventArgs.TableEventType.SessionEnd,
+                Data = session.SessionId
+            });
         }
 
         session.State = TableSession.SessionState.Completed;
