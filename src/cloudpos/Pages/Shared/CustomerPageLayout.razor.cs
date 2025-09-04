@@ -71,7 +71,7 @@ public partial class CustomerPageLayout(InteractiveInteropService interop, Table
     private async Task OnCallBtnClickAsync()
     {
         var result = await _modal.ShowAsync<AlertModal, bool>("테이블 콜", ModalService.Params()
-            .Add("InnerHtml", "정말 직원을 호출하시겠습니까?")
+            .Add("InnerHtml", "직원을 호출하시겠습니까?")
             .Add("IsCancelable", true)
             .Build());
         
