@@ -11,6 +11,7 @@ public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> fac
     private int _selectedTableId = -1;
     private int _selectedState = -1;
     private List<Table>? _tables;
+    private Virtualize<TableSession>? _virt;
 
     protected override async Task OnInitializedAsync()
     {
@@ -21,6 +22,12 @@ public partial class SessionObjectManager(IDbContextFactory<ServerDbContext> fac
     {
         await using var context = await factory.CreateDbContextAsync();
         return await context.Tables.ToListAsync();
+    }
+
+    private async Task OnSelectionChanged()
+    {
+        if (_virt is not null)
+            await _virt.RefreshDataAsync();
     }
 
     private async ValueTask<ItemsProviderResult<TableSession>> LoadSessionsAsync(ItemsProviderRequest request)

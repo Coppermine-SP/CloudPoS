@@ -28,6 +28,13 @@ public partial class ItemObjectManager(IDbContextFactory<ServerDbContext> factor
         _items = await GetItemsAsync();
     }
 
+    private async Task OnSelectionChanged()
+    {
+        _items = await GetItemsAsync();
+        StateHasChanged();
+    }
+
+
     private async void OnTableEvent(object? sender, TableEventArgs e)
     {
         try

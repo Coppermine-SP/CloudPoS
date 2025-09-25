@@ -2,14 +2,14 @@
 {
     <div class="d-flex flex-column-reverse mt-4" style="max-width: 40rem">
         <div class="d-flex gap-2">
-            <InputSelect @bind-Value="_selectedTableId" class="form-select shadow" aria-label="테이블 선택" style="width: 150px">
+            <InputSelect @bind-Value="_selectedTableId" @bind-Value:after="OnSelectionChanged" class="form-select shadow" aria-label="테이블 선택" style="width: 150px">
                 <option value="-1" selected>전체 테이블</option>
                 @foreach (var c in _tables)
                 {
                     <option value="@c.TableId">@c.Name</option>
                 }
             </InputSelect>
-            <InputSelect @bind-Value="_selectedState" class="form-select shadow" aria-label="세션 상태 선택" style="width: 150px">
+            <InputSelect @bind-Value="_selectedState" @bind-Value:after="OnSelectionChanged" class="form-select shadow" aria-label="세션 상태 선택" style="width: 150px">
                 <option value="-1" selected>전체</option>
                 <option value="0">활성</option>
                 <option value="1">종료</option>
@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="d-flex flex-column gap-4 mb-3">
-        <Virtualize ItemsProvider="LoadSessionsAsync" Context="session">
+        <Virtualize ItemsProvider="LoadSessionsAsync" Context="session" @ref="_virt">
             <div class="card shadow bg-body-tertiary">
                 <div class="card-header d-flex justify-content-between">
                     <div class="text-muted monospace-font">
